@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+# set -x
+
+scriptFull=$(readlink -f "$0")
+scriptPath=$(dirname "${scriptFull}")
+rootPath=$(dirname "${scriptPath}")
+hdlPath="${rootPath}/hdl"
+
+simGui=false
+while [ "${1-default}" != "default" ]; do
+    case ${1} in
+        -g | --gui)
+            simGui=true
+            ;;
+        *)
+            ;;
+    esac
+    shift
+done
+
+xhost + local:
+
+DOCKER_ARGS="-it --rm --net=host "
+DOCKER_ARGS+="-e DISPLAY=unix$DISPLAY "
+DOCKER_ARGS+="-v /tmp/.X11-unix:/tmp/.X11-unix "
+DOCKER_ARGS+="-v /etc/machine-id:/etc/machine-id "
+DOCKER_ARGS+="-v ${hdlPath}:/work "
+# --entrypoint="vsim"
+
+# MSIM_INI="${hdlPath}/msim/modelsim.ini"
+# MSIM_CMD="-modelsimini ./modelsim.ini"
+
+# Even just setting option -64 is enough
+# to not show that damn version dialog
+# startup window!!!!
+MTI_CMD="vsim"
+
+MTI_ARGS="-64 -msgmode both "
+MTI_ARGS+='-l /work/msim/transcript '
+
+if [ ${simGui} == true ]; then
+    echo "Starting prj in GUI mode..."
+    MTI_ARGS+='-title "Dockerized MSIM ASE" '
+    MTI_ARGS+='-do /work/msim/guiprj.tcl '
+else
+    MTI_ARGS+='-c -do /work/msim/cliprj.tcl '
+fi
+
+docker run ${DOCKER_ARGS} modelsim_ase \
+    bash -c "${MTI_CMD} ${MTI_ARGS}"
