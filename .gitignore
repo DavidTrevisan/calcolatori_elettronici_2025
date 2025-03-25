@@ -1,0 +1,8 @@
+work/
+
+*.cr.mti
+*.qdb
+*.qpg
+*.qtl
+_vmake
+transcript
