@@ -60,9 +60,12 @@ begin
 	(
 		CLK, rst_n, DATAIN => DATAIN,
 		CALC => CALC,
+		READY => READY,
 		OK => OK,
+        loadA => loadA,
 		selA => selA,
 		selONES => selONES,
+        LSB_A => LSB_A,
 		zA => zA
 	);
 	DP : datapath
@@ -70,8 +73,11 @@ begin
 	(
 		CLK, rst_n, X => X,
 		OUTP => OUTP,
+        loadA => loadA,
 		selA => selA,
+		loadONES => loadONES,
 		selONES => selONES,
+        LSB_A => LSB_A,
 		zA => zA
 	);
 end struct;

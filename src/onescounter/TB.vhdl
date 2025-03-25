@@ -2,9 +2,11 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use STD.textio.all;
+
 -- interface
 entity TB is
 end TB;
+
 architecture behav of TB is
 	constant CLK_SEMIPERIOD0 : time := 25 ns;
 	constant CLK_SEMIPERIOD1 : time := 15 ns;
@@ -12,13 +14,11 @@ architecture behav of TB is
 	CLK_SEMIPERIOD0 + CLK_SEMIPERIOD1;
 	constant RESET_TIME : time := 3 * CLK_PERIOD + 9 ns;
 	signal CLK, rst_n   : std_logic;
-	signal count        : std_logic_vector(23 downto 0) :=
-	(others => '0');
+	signal count        : std_logic_vector(23 downto 0) := (others => '0');
 	signal int_count    : integer := 0;
 	signal start        : integer := 0;
 	signal done         : integer := 0;
-	signal counter_data : std_logic_vector(23 downto 0) :=
-	(others => '0');
+	signal counter_data : std_logic_vector(23 downto 0) := (others => '0');
 	signal int_counter_data : integer := 0;
 	signal X                : std_logic_vector(7 downto 0);
 	signal OUTP             : std_logic_vector(7 downto 0);
@@ -38,7 +38,9 @@ architecture behav of TB is
 			OK         : out std_logic
 		);
 	end component;
+
 begin
+
 	DUT : onescounter
 	port map
 	(
@@ -50,6 +52,7 @@ begin
 		READY  => READY,
 		OK     => OK
 	);
+
 	start_process : process
 	begin
 		rst_n <= '1';
@@ -60,6 +63,7 @@ begin
 		start <= 1;
 		wait;
 	end process start_process;
+
 	clk_process : process
 	begin
 		if CLK = '0' then
@@ -114,4 +118,5 @@ begin
 				severity failure;
 		end if;
 	end process done_process;
+
 end behav;
