@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
+# ==============================================================================
+# Script Name:    dockermsim
+# Description:    Helper script to launch Modelsim dockerized
+# Author:         David Trevisan
+# Copyright:      (c) 2023 DT
+# License:        MIT
+# ==============================================================================
+# Usage:          ./dockermsim
+# Dependencies:   Docker, modelsim_ase container image
+# ==============================================================================
 
 set -euo pipefail
 # set -x

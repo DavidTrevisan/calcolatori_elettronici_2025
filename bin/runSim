@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Script Name:    runSim
+# Description:    Helper script to launch simulation
+# Author:         David Trevisan
+# Copyright:      (c) 2025 DT
+# License:        MIT
+# ==============================================================================
+# Usage:          ./runSim
+# Dependencies:   Docker, modelsim_ase container image
+# ==============================================================================
+
+set -euo pipefail
+# set -x
+
+scriptFull=$(readlink -f "$0")
+scriptPath=$(dirname "${scriptFull}")
+rootPath=$(dirname "${scriptPath}")
+hdlPath="${rootPath}/hdl"
+srcPath="${rootPath}/src"
+
+workLib="/work/msim/work"
+
+###########################################################
+DOCKER_ARGS="-it --rm --net=host "
+DOCKER_ARGS+="--privileged "
+DOCKER_ARGS+="-e DISPLAY=unix$DISPLAY "
+DOCKER_ARGS+="-v /tmp/.X11-unix:/tmp/.X11-unix "
+DOCKER_ARGS+="-v /etc/machine-id:/etc/machine-id "
+DOCKER_ARGS+="-v ${hdlPath}:/work "
+DOCKER_ARGS+="-v ${srcPath}:/src "
+###########################################################
+
+VCOM_CMD="vcom"
+
+VCOM_ARGS="-64 -work ${workLib} -93 -lint "
+VCOM_ARGS+='-l /work/msim/transcript '
+
+# VC_FILE="/${1}/$(basename ${1}).vc"
+VC_FILE="/${1}/sources.vc"
+
+VCOM_ARGS+="-f ${VC_FILE} "
+
+###########################################################
+
+VMAP_CMD="vmap work ${workLib};"
+VSIM_CMD="vsim"
+
+VSIM_ARGS="-64 -work ${workLib} -msgmode both"
+VSIM_ARGS+='-l /work/msim/transcript '
+VSIM_ARGS+='-keepstdout '
+VSIM_ARGS+="-title 'MSIM ASE - $(basename ${1})' "
+# VSIM_ARGS+='-c work.tb '
+
+TCLSCRIPT="/${1}/mti.doc"
+# VSIM_ARGS+='-do ${TCLSCRIPT} '
+
+###########################################################
+# Compile with modelsim on docker
+echo "Compile with modelsim on docker"
+docker run ${DOCKER_ARGS} modelsim_ase \
+    bash -c "${VCOM_CMD} ${VCOM_ARGS}"
+
+# Run simulation with modelsim on docker
+echo "Run simulation with modelsim on docker"
+docker run ${DOCKER_ARGS} modelsim_ase \
+    bash -c "${VMAP_CMD} ${VSIM_CMD} ${VSIM_ARGS}"
+    # bash -c "vsim -help all"
