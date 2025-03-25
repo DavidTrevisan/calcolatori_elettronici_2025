@@ -22,7 +22,7 @@ srcPath="${rootPath}/src"
 workLib="/work/msim/work"
 
 ###########################################################
-DOCKER_ARGS="-it --rm --net=host "
+DOCKER_ARGS="--rm -it --net=host "
 DOCKER_ARGS+="--privileged "
 DOCKER_ARGS+="-e DISPLAY=unix$DISPLAY "
 DOCKER_ARGS+="-v /tmp/.X11-unix:/tmp/.X11-unix "
@@ -43,26 +43,29 @@ VCOM_ARGS+="-f ${VC_FILE} "
 
 ###########################################################
 
-VMAP_CMD="vmap work ${workLib};"
+VMAP_CMD="vmap work ${workLib}"
 VSIM_CMD="vsim"
+
+TCLSCRIPT="/${1}/mti.do"
 
 VSIM_ARGS="-64 -work ${workLib} -msgmode both"
 VSIM_ARGS+='-l /work/msim/transcript '
 VSIM_ARGS+='-keepstdout '
 VSIM_ARGS+="-title 'MSIM ASE - $(basename ${1})' "
-# VSIM_ARGS+='-c work.tb '
-
-TCLSCRIPT="/${1}/mti.doc"
-# VSIM_ARGS+='-do ${TCLSCRIPT} '
+VSIM_ARGS+='-gui '
+VSIM_ARGS+="-do 'vsim work.tb; vsim work.tb; do ${TCLSCRIPT}' "
+# Modelsim (free edition) transient bug:
+# Running the vsim work.tb command fails at the first execution...so run it twice...
 
 ###########################################################
 # Compile with modelsim on docker
-echo "Compile with modelsim on docker"
+echo "Compile with modelsim on docker: "
 docker run ${DOCKER_ARGS} modelsim_ase \
     bash -c "${VCOM_CMD} ${VCOM_ARGS}"
 
 # Run simulation with modelsim on docker
 echo "Run simulation with modelsim on docker"
+echo "${VMAP_CMD}; cd /${1}; ${VSIM_CMD} ${VSIM_ARGS}"
 docker run ${DOCKER_ARGS} modelsim_ase \
-    bash -c "${VMAP_CMD} ${VSIM_CMD} ${VSIM_ARGS}"
+    bash -c "${VMAP_CMD}; cd /${1}; ${VSIM_CMD} ${VSIM_ARGS}"
     # bash -c "vsim -help all"
