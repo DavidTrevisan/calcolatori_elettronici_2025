@@ -49,7 +49,7 @@ VSIM_CMD="vsim"
 TCLSCRIPT="/${1}/mti.do"
 
 VSIM_ARGS="-64 -work ${workLib} -msgmode both"
-VSIM_ARGS+='-l /work/msim/transcript '
+# VSIM_ARGS+='-l /work/msim/transcript '
 VSIM_ARGS+='-keepstdout '
 VSIM_ARGS+="-title 'MSIM ASE - $(basename ${1})' "
 VSIM_ARGS+='-gui '
