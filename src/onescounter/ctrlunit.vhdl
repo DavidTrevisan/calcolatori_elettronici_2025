@@ -9,13 +9,14 @@ entity ctrlunit is
 		-- control inputs
 		DATAIN : in std_logic;
 		CALC   : in std_logic;
+		DEBUG  : in std_logic;
 		-- control outputs
 		READY    : out std_logic;
 		OK       : out std_logic;
 		loadA    : out std_logic;
 		selA     : out std_logic;
 		loadONES : out std_logic;
-		selONES  : out std_logic;
+		selONES  : out std_logic_vector(1 downto 0);
 		-- status signals
 		LSB_A : in std_logic;
 		zA    : in std_logic
@@ -92,9 +93,13 @@ begin
 	        state = SHIFT or
 	        state = INC or
 	        state = CALC_A else '0';
-	loadONES <= '1' when state = START or
-	            state = INC else '0';
-	selONES <= '1' when state = INC else '0';
+	loadONES <= '1' when 	state = START or
+							state = INC or
+							((state = INIT or state = WAITDATA) and DEBUG = '1')
+				else '0';
+	selONES <= "01" when state = INC else
+				"10" when (state = INIT or state = WAITDATA) else
+				"00";
 	READY   <= '1' when state = INIT or
 	         state = WAITDATA else '0';
 	OK <= '1' when state = INIT else '0';
