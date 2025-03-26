@@ -86,16 +86,23 @@ begin
 	begin
 		if (clk = '0') and (start = 1) and (READY = '1') then
 			-- read new data from file
+			--
+			-- WARNING!!!
+			-- data.txt requires TWO newlines at the end of file for graceful exit
+			--
 			if not endfile(infile) then
 				readline(infile, inputline);
 				read(inputline, in_X);
 				X <= to_UX01(in_X);
+
 				readline(infile, inputline);
 				read(inputline, in_DATAIN);
 				DATAIN <= to_UX01(in_DATAIN);
+
 				readline(infile, inputline);
 				read(inputline, in_CALC);
 				CALC <= to_UX01(in_CALC);
+
 				readline(infile, inputline);
 				counter_data     <= std_logic_vector(unsigned(counter_data) + 1);
 				int_counter_data <= int_counter_data + 1;
