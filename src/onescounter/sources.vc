@@ -2,6 +2,7 @@
 /src/onescounter/zerodetect.vhdl
 /src/onescounter/rshift.vhdl
 /src/onescounter/mux2x8.vhdl
+/src/onescounter/mux4x8.vhdl
 /src/onescounter/adder.vhdl
 /src/onescounter/datapath.vhdl
 /src/onescounter/ctrlunit.vhdl

@@ -20,6 +20,7 @@ architecture behav of TB is
 	signal done         : integer := 0;
 	signal counter_data : std_logic_vector(23 downto 0) := (others => '0');
 	signal int_counter_data : integer := 0;
+	signal DEBUG            : std_logic;
 	signal X                : std_logic_vector(7 downto 0);
 	signal OUTP             : std_logic_vector(7 downto 0);
 	signal DATAIN           : std_logic := '0';
@@ -31,6 +32,7 @@ architecture behav of TB is
 		(
 			CLK, rst_n : in std_logic;
 			X          : in std_logic_vector(7 downto 0);
+			DEBUG      : in std_logic;
 			OUTP       : out std_logic_vector(7 downto 0);
 			DATAIN     : in std_logic;
 			CALC       : in std_logic;
@@ -46,6 +48,7 @@ begin
 	(
 		CLK    => CLK, rst_n => rst_n,
 		X      => X,
+		DEBUG  => DEBUG,
 		OUTP   => OUTP,
 		DATAIN => DATAIN,
 		CALC   => CALC,
@@ -81,6 +84,7 @@ begin
 		file infile        : TEXT open READ_MODE is "data.txt";
 		variable inputline : LINE;
 		variable in_X      : bit_vector(X'range);
+		variable in_DEBUG  : bit;
 		variable in_DATAIN : bit;
 		variable in_CALC   : bit;
 	begin
@@ -94,6 +98,10 @@ begin
 				readline(infile, inputline);
 				read(inputline, in_X);
 				X <= to_UX01(in_X);
+
+				readline(infile, inputline);
+				read(inputline, in_DEBUG);
+				DEBUG <= to_UX01(in_DEBUG);
 
 				readline(infile, inputline);
 				read(inputline, in_DATAIN);

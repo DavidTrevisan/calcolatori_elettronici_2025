@@ -14,7 +14,7 @@ entity datapath is
 		loadA    : in std_logic;
 		selA     : in std_logic;
 		loadONES : in std_logic;
-		selONES  : in std_logic;
+		selONES  : in std_logic_vector(1 downto 0);
 		-- status signals
 		LSB_A : out std_logic;
 		zA    : out std_logic
@@ -36,7 +36,8 @@ begin
 	A_in <= X when '0',
 	        '0' & A(7 downto 1) when others;
 	-- MUX for ONES
-	ONES_in <= (others => '0') when selONES = '0' else
+	ONES_in <= (others => '0') when selONES = "00" else
+				X when selONES = "10" else
 	           adder1;
 	-- ADDER
 	adder1 <= std_logic_vector(unsigned(ONES) + 1);
@@ -63,6 +64,17 @@ architecture struct of datapath is
 			sel : in std_logic;
 			I0  : in std_logic_vector(7 downto 0);
 			I1  : in std_logic_vector(7 downto 0);
+			Y   : out std_logic_vector(7 downto 0)
+		);
+	end component;
+	component mux4x8 is
+		port
+		(
+			sel : in std_logic_vector(1 downto 0);
+			I0  : in std_logic_vector(7 downto 0);
+			I1  : in std_logic_vector(7 downto 0);
+			I2  : in std_logic_vector(7 downto 0);
+			I3  : in std_logic_vector(7 downto 0);
 			Y   : out std_logic_vector(7 downto 0)
 		);
 	end component;
@@ -101,23 +113,32 @@ begin
 	-- MUX for A
 	MUX_A : mux2x8
 	port map(selA, X, shifter_out, A_in);
--- MUX for ONES
-MUX_ONES : mux2x8
-port map
-(
-	selONES,
-	(others => '0'),
-	adder1_out, ONES_in
-);
-SHIFTER : rshift
-port map(A_out, shifter_out);
--- ADDER
-ADDER1 : adder
-port map(ONES_out, "00000001", adder1_out);
--- status signals
-LSB_A <= A_out(0);
-ZD : zerodetect
-port map(A_out, zA);
--- data outputs
-OUTP <= ONES_out;
+
+	-- MUX for ONES
+	MUX_ONES : mux4x8
+	port map
+	(
+		selONES,
+		(others => '0'),
+		adder1_out,
+		X,
+		(others => '0'),
+		ONES_in
+	);
+
+	SHIFTER : rshift
+	port map(A_out, shifter_out);
+
+	-- ADDER
+	ADDER1 : adder
+	port map(ONES_out, "00000001", adder1_out);
+
+	-- status signals
+	LSB_A <= A_out(0);
+
+	ZD : zerodetect
+	port map(A_out, zA);
+
+	-- data outputs
+	OUTP <= ONES_out;
 end struct;

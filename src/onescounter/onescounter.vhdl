@@ -7,6 +7,7 @@ entity onescounter is
 		CLK, rst_n : in std_logic;
 		-- data inputs
 		X : in std_logic_vector(7 downto 0);
+		DEBUG : in std_logic;
 		-- data outputs
 		OUTP : out std_logic_vector(7 downto 0);
 		-- control inputs
@@ -24,12 +25,13 @@ architecture struct of onescounter is
 			CLK, rst_n : in std_logic;
 			DATAIN     : in std_logic;
 			CALC       : in std_logic;
+			DEBUG      : in std_logic;
 			READY      : out std_logic;
 			OK         : out std_logic;
 			loadA      : out std_logic;
 			selA       : out std_logic;
 			loadONES   : out std_logic;
-			selONES    : out std_logic;
+			selONES    : out std_logic_vector(1 downto 0);
 			LSB_A      : in std_logic;
 			zA         : in std_logic
 		);
@@ -43,7 +45,7 @@ architecture struct of onescounter is
 			loadA      : in std_logic;
 			selA       : in std_logic;
 			loadONES   : in std_logic;
-			selONES    : in std_logic;
+			selONES    : in std_logic_vector(1 downto 0);
 			LSB_A      : out std_logic;
 			zA         : out std_logic
 		);
@@ -51,7 +53,7 @@ architecture struct of onescounter is
 	signal loadA    : std_logic;
 	signal selA     : std_logic;
 	signal loadONES : std_logic;
-	signal selONES  : std_logic;
+	signal selONES  : std_logic_vector(1 downto 0);
 	signal LSB_A    : std_logic;
 	signal zA       : std_logic;
 begin
@@ -60,6 +62,7 @@ begin
 	(
 		CLK, rst_n, DATAIN => DATAIN,
 		CALC => CALC,
+		DEBUG => DEBUG,
 		READY => READY,
 		OK => OK,
         loadA => loadA,

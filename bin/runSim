@@ -53,7 +53,7 @@ VSIM_ARGS="-64 -work ${workLib} -msgmode both"
 VSIM_ARGS+='-keepstdout '
 VSIM_ARGS+="-title 'MSIM ASE - $(basename ${1})' "
 VSIM_ARGS+='-gui '
-VSIM_ARGS+="-do 'vsim work.tb; vsim work.tb; do ${TCLSCRIPT}' "
+VSIM_ARGS+="-do '${VMAP_CMD}; vsim work.tb; vsim work.tb; do ${TCLSCRIPT}' "
 # Modelsim (free edition) transient bug:
 # Running the vsim work.tb command fails at the first execution...so run it twice...
 
@@ -67,5 +67,5 @@ docker run ${DOCKER_ARGS} modelsim_ase \
 echo "Run simulation with modelsim on docker"
 echo "${VMAP_CMD}; cd /${1}; ${VSIM_CMD} ${VSIM_ARGS}"
 docker run ${DOCKER_ARGS} modelsim_ase \
-    bash -c "${VMAP_CMD}; cd /${1}; ${VSIM_CMD} ${VSIM_ARGS}"
+    bash -c "cd /${1}; ${VSIM_CMD} ${VSIM_ARGS}"
     # bash -c "vsim -help all"
