@@ -80,7 +80,7 @@ begin
 
     MEM : entity work.memory
         generic map (
-            MEM_LAT         => 15
+            MEM_LAT         => 4
         )
         port map (
             CLK             => CLK,
