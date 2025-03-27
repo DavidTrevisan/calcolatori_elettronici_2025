@@ -4,6 +4,9 @@ use ieee.numeric_std.all;
 use STD.textio.all;
 
 entity memory is
+    generic (
+        MEM_LAT : integer := 1
+    );
     port (
         CLK     : in  std_logic;
         address : in  std_logic_vector(31 downto 0);
@@ -16,8 +19,10 @@ entity memory is
 end memory;
 
 architecture s of memory is
+
     type ram_type is array (0 to 1023) of bit_vector(7 downto 0);
-------------------------------
+
+    ------------------------------
     impure function loadmem return ram_type is
         file memory_file    : text;
         variable fstatus    : file_open_status;
@@ -42,19 +47,46 @@ architecture s of memory is
 
     shared variable RAM : ram_type := loadmem;
 
+------------------------------
+
+    signal latcnt : integer := 0;
+
+    signal Raddress : std_logic_vector(31 downto 0);
+    signal Renable  : std_logic;
+    signal Rwe      : std_logic;
+    signal Rdatain  : std_logic_vector(7 downto 0);
+
 begin
 
     process(CLK)
     begin
-        if rising_edge(CLK) and enable = '1' then
-            if we = '1' then
-                RAM(to_integer(unsigned(address))) := to_bitvector(datain);
-                dataout <= (others => '-'); -- writing policy not specified
-            else
-                dataout <= to_stdlogicvector(RAM(to_integer(unsigned(address))));
+        if rising_edge(CLK) and latcnt = 0 then
+            if Renable = '1' then
+                if Rwe = '1' then
+                    RAM(to_integer(unsigned(Raddress))) := to_bitvector(Rdatain);
+                    dataout <= (others => '-'); -- writing policy not specified
+                else
+                    dataout <= to_stdlogicvector(RAM(to_integer(unsigned(Raddress))));
+                end if;
             end if;
         end if;
     end process;
 
-    ready <= '1'; -- latency: 1 cycle
+    process(CLK)
+    begin
+        if rising_edge(CLK) then
+            if enable = '1' then
+                latcnt      <= MEM_LAT - 1;
+                Raddress    <= address;
+                Renable     <= enable;
+                Rwe         <= we;
+                Rdatain     <= datain;
+            elsif latcnt /= 0 then
+                latcnt <= latcnt - 1;
+            end if;
+        end if;
+    end process;
+
+    ready <= '1' when latcnt = 0 else '0'; -- latency: 1 cycle
+
 end s;

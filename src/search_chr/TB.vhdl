@@ -79,6 +79,9 @@ begin
         );
 
     MEM : entity work.memory
+        generic map (
+            MEM_LAT         => 15
+        )
         port map (
             CLK             => CLK,
             address         => memory_address,
