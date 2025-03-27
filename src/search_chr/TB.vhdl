@@ -4,6 +4,9 @@ use ieee.numeric_std.all;
 use std.textio.all;
 
 entity tb is
+    generic (
+        MEM_LAT : positive := 4
+    );
 end tb;
 
 architecture behav of tb is

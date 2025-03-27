@@ -5,7 +5,7 @@ use STD.textio.all;
 
 entity memory is
     generic (
-        MEM_LAT : integer := 1
+        MEM_LAT : positive := 1
     );
     port (
         CLK     : in  std_logic;
@@ -88,5 +88,9 @@ begin
     end process;
 
     ready <= '1' when latcnt = 0 else '0'; -- latency: 1 cycle
+
+    assert MEM_LAT > 0
+        report "ERROR: Generic parameter 'MEM_LAT' can't be 0 or a negative number "
+        severity FAILURE;
 
 end s;
