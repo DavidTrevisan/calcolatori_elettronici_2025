@@ -5,7 +5,7 @@ use std.textio.all;
 
 entity tb is
     generic (
-        MEM_LAT : integer := 0
+        MEM_LAT : positive := 4
     );
 end tb;
 
