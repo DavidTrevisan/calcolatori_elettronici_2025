@@ -33,6 +33,8 @@ architecture s of memory is
                 read(inputline, memory(i));
                 i := i + 1;
             end loop;
+        else
+            write(output, string'("loadmem: ERROR, can't open data.bin"));
         end if;
         return memory;
     end function;
