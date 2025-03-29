@@ -1,6 +1,9 @@
 work/
 
 vsim.wlf
+*.ghw
+*.o
+*.cf
 *.cr.mti
 *.qdb
 *.qpg

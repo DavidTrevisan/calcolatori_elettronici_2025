@@ -27,7 +27,7 @@ architecture s of memory is
         file memory_file    : text;
         variable fstatus    : file_open_status;
         variable inputline  : line;
-        variable memory     : ram_type;
+        variable mem        : ram_type;
         variable i          : integer;
     begin
         file_open(fstatus, memory_file, "data.bin", READ_MODE);
@@ -35,13 +35,13 @@ architecture s of memory is
             i := 0;
             while (i < 1024 and not endfile(memory_file)) loop
                 readline(memory_file, inputline);
-                read(inputline, memory(i));
+                read(inputline, mem(i));
                 i := i + 1;
             end loop;
         else
             write(output, string'("loadmem: ERROR, can't open data.bin"));
         end if;
-        return memory;
+        return mem;
     end function;
 ------------------------------
 

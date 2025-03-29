@@ -7,7 +7,7 @@
 # License:        MIT
 # ==============================================================================
 # Usage:          ./runSim
-# Dependencies:   Docker, modelsim_ase container image
+# Dependencies:   GHDL, GTKWAVE
 # ==============================================================================
 
 set -euo pipefail
@@ -20,26 +20,25 @@ rootPath=$(dirname "${scriptPath}")
 hdlPath="${rootPath}/hdl"
 srcPath="${rootPath}/src"
 
-workLib="/work/msim/work"
+workPath="${hdlPath}/work"
+transcriptFile="${workPath}/$(date --iso-8601=seconds).log"
 
 ###########################################################
-DOCKER_ARGS="--rm -it --net=host "
-DOCKER_ARGS+="--privileged "
-DOCKER_ARGS+="-e DISPLAY=unix$DISPLAY "
-DOCKER_ARGS+="-v /tmp/.X11-unix:/tmp/.X11-unix "
-DOCKER_ARGS+="-v /etc/machine-id:/etc/machine-id "
-DOCKER_ARGS+="-v ${hdlPath}:/work "
-DOCKER_ARGS+="-v ${srcPath}:/src "
-###########################################################
 
-echoUsage() {
+function echoUsage() {
     echo "Usage: ./${scriptName} <target directory> <Optional Overrides (GEN_NAME=X)> "
+}
+
+function exec()
+{
+    echo "$1";
+    eval "$1"
+    # eval time "$1"
 }
 
 ###########################################################
 
 if [ "${1:-}" == "" ]; then
-
     echoUsage
     exit 1
 fi
@@ -55,46 +54,83 @@ fi
 
 GENERIC_OVERRIDE=""
 while [ "${1:-}" != "" ]; do
-    GENERIC_OVERRIDE+="-G${1} "
+    GENERIC_OVERRIDE+="-g${1} "
     shift
 done
 ###########################################################
+parseVCSources() {
+    local file="$1"
+    local sources=()
 
-VCOM_CMD="vcom"
+    while IFS= read -r line; do
+        # Remove leading '/' if present
+        line="${line#/}"
+        sources+=("$(basename ${line})")
+    done < "$file"
 
-VCOM_ARGS="-64 -work ${workLib} -93 -lint "
-VCOM_ARGS+='-l /work/msim/transcript '
+    echo "${sources[@]}"
+}
 
-# VC_FILE="/${TARGET}/$(basename ${TARGET}).vc"
-VC_FILE="/${TARGET}/sources.vc"
+getTbEntityName() {
+    local file="$1"
+    local lastFile=""
+    local entityName=""
 
-VCOM_ARGS+="-f ${VC_FILE} "
+    lastFile=$(tail -n 1 "$file")
+    lastFile="${lastFile#/}"
+
+    if [[ -f "$lastFile" ]]; then
+        entityName=$(grep -oP 'entity \K\w+' "$lastFile" | head -n 1)
+    else
+        echo "Error: File '$lastFile' does not exist."
+        return 1
+    fi
+
+    echo "$entityName"
+}
 
 ###########################################################
 
-VMAP_CMD="vmap work ${workLib}"
-VSIM_CMD="vsim"
+ANALYSIS_CMD="ghdl"
+COMMON_ARGS="-v --std=93c "
 
-TCLSCRIPT="/${TARGET}/mti.do"
+ANALYSIS_ARGS+="-a ${COMMON_ARGS}"
 
-VSIM_ARGS="-64 -work ${workLib} -msgmode both"
-# VSIM_ARGS+='-l /work/msim/transcript '
-VSIM_ARGS+='-keepstdout '
-VSIM_ARGS+="-title 'MSIM ASE - $(basename ${TARGET})' "
-VSIM_ARGS+='-gui '
-VSIM_ARGS+="-do '${VMAP_CMD}; vsim work.tb; vsim ${GENERIC_OVERRIDE}work.tb; do ${TCLSCRIPT}' "
-# Modelsim (free edition) transient bug:
-# Running the vsim work.tb command fails at the first execution...so run it twice...
+VC_FILE="${TARGET}/sources.vc"
+
+ANALYSIS_ARGS+="$(parseVCSources ${VC_FILE}) "
 
 ###########################################################
-# Compile with modelsim on docker
-echo "Compile with modelsim on docker: "
-docker run ${DOCKER_ARGS} modelsim_ase \
-    bash -c "${VCOM_CMD} ${VCOM_ARGS}"
 
-# Run simulation with modelsim on docker
-echo "Run simulation with modelsim on docker"
-echo "${VMAP_CMD}; cd /${TARGET}; ${VSIM_CMD} ${VSIM_ARGS}"
-docker run ${DOCKER_ARGS} modelsim_ase \
-    bash -c "cd /${TARGET}; ${VSIM_CMD} ${VSIM_ARGS}"
-    # bash -c "vsim -help all"
+ELAB_CMD="ghdl"
+
+ELAB_ARGS="--elab-run ${COMMON_ARGS}"
+
+TB_ENTITY_NAME="$(getTbEntityName ${VC_FILE})"
+ELAB_ARGS+="${GENERIC_OVERRIDE} "
+ELAB_ARGS+="${TB_ENTITY_NAME} "
+
+###########################################################
+SIM_CMD="ghdl"
+SIM_ARGS="-r ${COMMON_ARGS} "
+SIM_ARGS+="${TB_ENTITY_NAME} "
+WAVE_FILE="$(basename ${TARGET}).ghw"
+SIM_ARGS+="--wave=${WAVE_FILE} "
+###########################################################
+
+# Move into target folder, pop back at the end
+pushd ${TARGET}
+
+echo "GHDL Analysis: "
+    exec "${ANALYSIS_CMD} ${ANALYSIS_ARGS}"
+
+echo "Elaborate TB "
+    exec "${ELAB_CMD} ${ELAB_ARGS}"
+
+echo "Run simulation"
+    exec "${SIM_CMD} ${SIM_ARGS}"
+
+echo "Open waves"
+    exec "gtkwave ${WAVE_FILE}"
+
+popd
