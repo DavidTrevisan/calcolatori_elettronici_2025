@@ -113,6 +113,7 @@ ELAB_ARGS+="${TB_ENTITY_NAME} "
 ###########################################################
 SIM_CMD="ghdl"
 SIM_ARGS="-r ${COMMON_ARGS} "
+SIM_ARGS+="${GENERIC_OVERRIDE} "
 SIM_ARGS+="${TB_ENTITY_NAME} "
 WAVE_FILE="$(basename ${TARGET}).ghw"
 SIM_ARGS+="--wave=${WAVE_FILE} "

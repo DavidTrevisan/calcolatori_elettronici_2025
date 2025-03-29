@@ -73,9 +73,9 @@ architecture behav of tb is
     signal instr_data : array_of_arrays_of_integers := load_instr;
 
     -- Unpack into separate signals for simulation
-    signal ADDRESSES : array_of_integers := instr_data(0);
-    signal CHARS     : array_of_integers := instr_data(1);
-    signal LENS      : array_of_integers := instr_data(2);
+    signal ADDRESSES : array_of_integers;
+    signal CHARS     : array_of_integers;
+    signal LENS      : array_of_integers;
 
     signal START                    : std_logic;
     signal ADDRESS                  : std_logic_vector(31 downto 0);
@@ -95,8 +95,14 @@ architecture behav of tb is
 begin
     start_process: process
         begin
+            report "Generic parameter check: MEM_LAT = " & integer'image(MEM_LAT);
+
             rst_n <= '1' , '0' after 1 ns , '1' after 199 ns;
             started <= true;
+
+            ADDRESSES <= instr_data(0);
+            CHARS     <= instr_data(1);
+            LENS      <= instr_data(2);
             wait;
         end process;
 
@@ -134,7 +140,7 @@ begin
 
     MEM : entity work.memory
         generic map (
-            MEM_LAT         => 4
+            MEM_LAT         => MEM_LAT
         )
         port map (
             CLK             => CLK,
