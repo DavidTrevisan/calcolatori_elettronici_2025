@@ -4,10 +4,10 @@ use ieee.numeric_std.all;
 use STD.textio.all;
 
 -- interface
-entity TB is
-end TB;
+entity tb is
+end tb;
 
-architecture behav of TB is
+architecture behav of tb is
 	constant CLK_SEMIPERIOD0 : time := 25 ns;
 	constant CLK_SEMIPERIOD1 : time := 15 ns;
 	constant CLK_PERIOD      : time :=

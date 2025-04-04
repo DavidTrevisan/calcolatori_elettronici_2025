@@ -121,10 +121,10 @@ SIM_ARGS+="--wave=${WAVE_FILE} "
 
 # Move into target folder, pop back at the end
 pushd ${TARGET}
+set +euo
 
 echo "GHDL Analysis: "
     exec "${ANALYSIS_CMD} ${ANALYSIS_ARGS}"
-
 echo "Elaborate TB "
     exec "${ELAB_CMD} ${ELAB_ARGS}"
 

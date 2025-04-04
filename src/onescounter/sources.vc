@@ -8,3 +8,4 @@
 /src/onescounter/ctrlunit.vhdl
 /src/onescounter/onescounter.vhdl
 /src/onescounter/TB.vhdl
+/src/onescounter/config.vhdl
