@@ -1,0 +1,55 @@
+xmsim(64): 20.09-s001: (c) Copyright 1995-2020 Cadence Design Systems, Inc.
+xcelium> help
+
+Simulator commands:
+
+alias             analog            assertion         attribute         call              
+check             conn              constraint        coverage          database          
+debug_analyzer    deposit           describe          drivers           dumpsaif          
+dumptcf           esw               fault             find              finish            
+fmibkpt           force             fs_strobe         heap              help              
+ida_database      ida_probe         ida_report        idao_report       indago            
+indago_database   indago_probe      input             iprof             logfile           
+loopvar           memory            pause             power             probe             
+process           profile           release           reset             restart           
+run               save              scope             scparam           scprofcount       
+sctlmcheck        sctlmperf         sctlmrecord       scverbosity       simtfile          
+simvision         sn                stack             status            stop              
+strobe            svrnc             task              tcheck            time              
+tlmcpu            tlmtime           undolr            value             version           
+vsp               vsplog            warn              where             xceligen          
+xprop             
+
+Tcl standard commands:
+
+append      array       break       case        catch       cd          
+close       concat      continue    eof         error       eval        
+exec        exit        expr        file        flush       for         
+foreach     format      gets        glob        global      history     
+if          incr        info        join        lappend     lindex      
+linsert     list        llength     lrange      lreplace    lsearch     
+lsort       open        pid         proc        puts        pwd         
+read        regexp      regsub      rename      return      scan        
+seek        set         source      split       string      switch      
+tell        trace       unset       uplevel     upvar       while       
+
+
+For detailed information about a command, type 'help <command>'
+For more help options, type 'help help'
+
+
+xcelium> help call
+call <CFC-function> | <user-defined-task>
+                              Call a user-defined or predefined CFC function or
+                              a user-defined VPI system task or function. For
+                              VPI system tasks and functions, the leading
+                              dollar-sign ($) is optional.  For VPI system
+                              functions, the result of the command is the
+                              function's return value.
+   -predefined................Look for the given name only in the table of
+                              predefined cfc library functions (Leapfrog
+                              compatible)
+   -systf.....................Look for the given name only in the table of
+                              user-defined VPI system tasks
+xcelium> exit
+xmsim: *F,C58EXS: Coverage database file already exists in the test output directory './cov_work/scope/test', and will not be overwritten. Specify a different name for the test output directory or use the '-covoverwrite' option to overwrite the existing test output directory, and rerun the simulation.

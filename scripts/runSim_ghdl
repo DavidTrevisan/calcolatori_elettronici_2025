@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Script Name:    elab_ghdl
+# Description:    Helper script: elaborate through GHDL
+# Author:         David Trevisan
+# Copyright:      (c) 2025 DT
+# License:        MIT
+# ==============================================================================
+# Usage:          --
+# Dependencies:   GHDL, GTKWAVE
+# ==============================================================================
+
+set -euo pipefail
+# set -x
+
+scriptFull=$(readlink -f "$0")
+scriptPath=$(dirname "${scriptFull}")
+scriptName=$(basename "${scriptFull}")
+rootPath=$(realpath $(dirname "${scriptPath}"))
+
+###########################################################
+
+function echoUsage() {
+    echo "Usage: ./${scriptName} <target directory> <Optional Overrides (GEN_NAME=X)> "
+}
+
+function exec()
+{
+    echo "$1";
+    eval "$1"
+    # eval time "$1"
+}
+
+###########################################################
+
+# Require at least one argument
+if [ "${1:-}" == "" ]; then
+    echoUsage
+    exit 1
+fi
+
+# Save first argument as target directory
+if [ "${1:-}" != "" ]; then
+    TARGET="$(realpath ${1})"
+    shift
+else
+    echo "Error: target argument needed (src/prj folder) and optional generic overrides"
+    echoUsage
+    exit 1
+fi
+
+# Create, if not existing, target/simul.rtl directory
+SIM_DIR="${TARGET}/simul.rtl"
+mkdir -p "${SIM_DIR}"
+
+# Optional arguments are generics overrides to pass to GHDL
+GENERIC_OVERRIDE=""
+while [ "${1:-}" != "" ]; do
+    GENERIC_OVERRIDE+="-g${1} "
+    shift
+done
+###########################################################
+# Utilities to parse the file list file (.vc)
+# and extract the testbench entity name
+# assuming the testbench is the last line
+# of the file list
+
+parseVCSources() {
+    local file="$1"
+    local sources=()
+
+    while IFS= read -r line; do
+        # Remove leading '/' if present
+        line="${line#/}"
+        sources+=("${TARGET}/${line}")
+    done < "$file"
+
+    echo "${sources[@]}"
+}
+
+getTbEntityName() {
+    local file="$1"
+    local lastFile=""
+    local entityName=""
+
+    lastFile=$(tail -n 1 "$file")
+    lastFile="${TARGET}/${lastFile#/}"
+
+    if [[ -f "$lastFile" ]]; then
+        entityName=$(grep -oP 'entity \K\w+' "$lastFile" | head -n 1)
+    else
+        echo "Error: File '$lastFile' does not exist." >&2
+        return 1
+    fi
+
+    echo "$entityName"
+}
+
+VC_FILE="${TARGET}/sources.vc"
+
+COMMON_ARGS="-v --std=93c "
+###########################################################
+
+ANALYSIS_CMD="ghdl"
+
+ANALYSIS_ARGS="-a ${COMMON_ARGS}"
+ANALYSIS_ARGS+="$(parseVCSources ${VC_FILE}) "
+
+###########################################################
+TB_ENTITY_NAME="$(getTbEntityName ${VC_FILE})"
+
+ELAB_CMD="ghdl"
+
+ELAB_ARGS="--elab-run ${COMMON_ARGS}"
+ELAB_ARGS+="${GENERIC_OVERRIDE} "
+ELAB_ARGS+="${TB_ENTITY_NAME} "
+
+###########################################################
+WAVE_FILE="$(basename ${TARGET}).ghw"
+WAVE_FILE_PATH="${TARGET}/simul.rtl/${WAVE_FILE}"
+
+SIM_CMD="ghdl"
+
+SIM_ARGS="-r ${COMMON_ARGS} "
+SIM_ARGS+="${GENERIC_OVERRIDE} "
+SIM_ARGS+="${TB_ENTITY_NAME} "
+SIM_ARGS+="--wave=${WAVE_FILE} "
+###########################################################
+# Move into target folder, pop back at the end
+pushd "${SIM_DIR}"
+
+# Disable exit on errors for GHDL to run until the end
+# Comment below to keep exit on error
+set +euo
+
+echo "GHDL Analysis: "
+    exec "${ANALYSIS_CMD} ${ANALYSIS_ARGS}"
+echo "Elaborate TB "
+    exec "${ELAB_CMD} ${ELAB_ARGS}"
+
+echo "Run simulation"
+    exec "${SIM_CMD} ${SIM_ARGS}"
+
+echo "Open waves"
+    exec "gtkwave ${WAVE_FILE}"
+
+popd
