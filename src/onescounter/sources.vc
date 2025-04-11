@@ -6,5 +6,6 @@ code/mux4x8.vhdl
 code/adder.vhdl
 code/datapath.vhdl
 code/ctrlunit.vhdl
+code/onescounter_pkg.vhdl
 code/onescounter.vhdl
 code/TB.vhdl
