@@ -1,3 +1,0 @@
-xmelab(64): 20.09-s001: (c) Copyright 1995-2020 Cadence Design Systems, Inc.
-xmelab: *W,ARCMRA: Elaborating the WORKLIB.TESTBENCH:BEHAV, MRA (most recently analyzed) architecture.
-xmelab: *W,COVFHT: FSM hold transitions (transitions to the current state) are not extracted for any FSM in default mode.

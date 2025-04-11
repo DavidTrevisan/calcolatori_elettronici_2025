@@ -2,12 +2,21 @@
 *
 
 # But not these directories and their contents under src/
+# Also ensure the contents inside those dirs are not ignored
+!src/
+!src/*/
 !src/*/code/
 !src/*/scripts/
-
-# Also ensure the contents inside those dirs are not ignored
+!src/*/assets/
 !src/*/code/**
 !src/*/scripts/**
+!src/*/assets/**
+!src/*/sources.vc
+
+*.cf
+*.ghw
+*.log
+*.pdf
 
 # Keep other meaningful folders
 !doc/
