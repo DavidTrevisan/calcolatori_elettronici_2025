@@ -35,7 +35,7 @@ architecture behav of tb is
         variable i          : integer := 0;
         variable addr_val, char_val, len_val : integer;
     begin
-        file_open(fstatus, instr_file, "instr.txt", READ_MODE);
+        file_open(fstatus, instr_file, "../assets/instr.txt", READ_MODE);
         if fstatus = OPEN_OK then
             while (i < MAX_INSTR and not endfile(instr_file)) loop
                 -- Read three consecutive values (ADDRESS, CHAR, LEN)

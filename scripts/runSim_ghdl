@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # Script Name:    elab_ghdl
-# Description:    Helper script: elaborate through GHDL
+# Description:    Helper script: analyse, elaborate and sim with GHDL
 # Author:         David Trevisan
 # Copyright:      (c) 2025 DT
 # License:        MIT

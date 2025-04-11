@@ -30,7 +30,7 @@ architecture s of memory is
         variable mem        : ram_type;
         variable i          : integer;
     begin
-        file_open(fstatus, memory_file, "data.bin", READ_MODE);
+        file_open(fstatus, memory_file, "../assets/data.bin", READ_MODE);
         if (fstatus = OPEN_OK) then
             i := 0;
             while (i < 1024 and not endfile(memory_file)) loop
