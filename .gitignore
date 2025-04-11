@@ -1,12 +1,27 @@
-work/
+# Ignore everything
+*
 
-vsim.wlf
-*.ghw
-*.o
-*.cf
-*.cr.mti
-*.qdb
-*.qpg
-*.qtl
-_vmake
-transcript
+# But not these directories and their contents under src/
+!src/*/code/
+!src/*/scripts/
+
+# Also ensure the contents inside those dirs are not ignored
+!src/*/code/**
+!src/*/scripts/**
+
+# Keep other meaningful folders
+!doc/
+!doc/**
+!bin/
+!bin/**
+!ASMcharts/
+!ASMcharts/**
+!scripts/
+!scripts/**
+!projects/
+!projects/**
+
+# Keep base files
+!.gitignore
+!LICENSE
+!README.md
