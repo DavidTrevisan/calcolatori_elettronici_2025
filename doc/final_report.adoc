@@ -1,0 +1,25 @@
+= Calcolatori Elettronici 2025
+
+Demo
+
+== Resoconto finale
+
+Lista numerata
+
+. aaslkjdasd
+. aaslkjdasd
+. aaslkjdasd
+. aaslkjdasd
+. aaslkjdasd
+. aaslkjdasd
+
+Codice
+
+[source,ruby]
+----
+require 'sinatra'
+
+get '/hi' do
+  "Hello World!"
+end
+----
