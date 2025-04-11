@@ -81,7 +81,7 @@ begin
 	end process clk_process;
 
 	read_file_process  : process (clk)
-		file infile        : TEXT open READ_MODE is "data.txt";
+		file infile        : TEXT open READ_MODE is "../assets/data.txt";
 		variable inputline : LINE;
 		variable in_X      : bit_vector(X'range);
 		variable in_DEBUG  : bit;
