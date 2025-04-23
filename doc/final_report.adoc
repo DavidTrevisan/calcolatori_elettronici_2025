@@ -23,3 +23,47 @@ get '/hi' do
   "Hello World!"
 end
 ----
+
+== Ones Counter
+
+Il dispositivo `onescounter` viene presentato con le seguenti modifiche:
+
+. Versione Moore
+. Versione Mealy
+. Aggiunto segnale `DEBUG` che sovrascrive il registro `ONES` con il valore posto all'ingresso `X`.
+L'operazione é realizzabile e valida solo quando `READY = 1`.
+
+La modifica con il segnale `DEBUG` é stata effettuata in solo stile 'mealy'.
+
+Il dispositivo viene consegnato con un testbench modificato nelle seguenti maniere:
+
+. Terminazione `graceful` della simulazione al set del segnale `done`.
+. Istanza di entrambe le versioni `moore` e `mealy` del DUT, con input simultanei
+. Aggiunti `assert` per monitorare continuamente la corrispondenza tra gli output delle due versioni del dispositivo
+
+Per analizzare ed elaborare il design ed eseguirne la simulazione, uno script (`bash`) viene fornito, utilizzabile come segue:
+
+[source,bash]
+----
+$ scripts/runSim_ghdl projects/01_onescounter
+----
+
+Lo script richiede almeno un argomento, il path del progetto da simulare, ed assume la struttura directory presentata nella sezione specifica.
+Ulteriori argomenti saranno interpretati come 'generic overrides' e passati al design con il prefisso `-g` come atteso da GHDL.
+Lo script estrae i file da analizzare ed elaborare da una lista `sources.vc` nel root-path del progetto, con un file per linea indicato come percorso relativo.
+
+Le operazioni eseguite dallo script sono le seguenti
+
+[source,bash]
+----
+$ # Sposta la $PWD nel percorso indicato del progetto, sottocartella `simul.rtl`
+$ pushd <prj_path>/01_onescounter/simul.rtl
+$ # Analisi GHDL per tutti i file estratti da sources.vc
+$ ghdl -a -v --std=93c <prj_path>/01_onescounter/code/reg8.vhdl <prj_path>/01_onescounter/code/zerodetect.vhdl <prj_path>/01_onescounter/code/rshift.vhdl <prj_path>/01_onescounter/code/mux2x8.vhdl <prj_path>/01_onescounter/code/mux4x8.vhdl <prj_path>/01_onescounter/code/adder.vhdl <prj_path>/01_onescounter/code/datapath.vhdl <prj_path>/01_onescounter/code/ctrlunit.vhdl <prj_path>/01_onescounter/code/onescounter_pkg.vhdl <prj_path>/01_onescounter/code/onescounter.vhdl <prj_path>/01_onescounter/code/TB.vhdl
+$ # Elaborazione
+$ ghdl --elab-run -v --std=93c tb
+$ # Simulazione, salva wave-file in formato ghw
+$ ghdl -r -v --std=93c tb --wave=onescounter.ghw
+$ # Invoca `gtkwave` per visualizzare il wave-file
+$ gtkwave onescounter.ghw
+----

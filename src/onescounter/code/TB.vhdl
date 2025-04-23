@@ -98,14 +98,18 @@ begin
 
     clk_process : process
     begin
-        if CLK = '0' then
-            CLK <= '1';
-            wait for CLK_SEMIPERIOD1;
+        if (done = 1) then
+            wait;
         else
-            CLK <= '0';
-            wait for CLK_SEMIPERIOD0;
-            count     <= std_logic_vector(unsigned(count) + 1);
-            int_count <= int_count + 1;
+            if CLK = '0' then
+                CLK <= '1';
+                wait for CLK_SEMIPERIOD1;
+            else
+                CLK <= '0';
+                wait for CLK_SEMIPERIOD0;
+                count     <= std_logic_vector(unsigned(count) + 1);
+                int_count <= int_count + 1;
+            end if;
         end if;
     end process clk_process;
 
@@ -154,12 +158,9 @@ begin
     begin
         if (done = 1) then
             write(outputline, string'("END simulation - "));
-            write(outputline, string'("cycle counter IS "));
+            write(outputline, string'("cycle counter is "));
             write(outputline, int_count);
             writeline(output, outputline);
-            assert false
-            report "NONE. END OF simulation."
-                severity failure;
         end if;
     end process done_process;
 
