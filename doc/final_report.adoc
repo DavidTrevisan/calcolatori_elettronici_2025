@@ -1,13 +1,17 @@
 = Calcolatori Elettronici 2025
+:doctype: book
+:toc:
+:toclevels: 2
+:preface-title: Abstract
 David Trevisan
 
-Questo documento offre un resoconto per i progetti di esame del corso di Calcolatori Elettronici 2025.
+== Abstract
 
-:toc:
+Questo documento raccoglie il resoconto dei progetti di esame del corso di Calcolatori Elettronici 2025.
 
 == Directory Structure
 
-Ogni progetto assume la seguente struttura comune:
+Ogni progetto assume la seguente struttura di cartelle:
 
 [source,ruby]
 ----
@@ -23,11 +27,21 @@ Ogni progetto assume la seguente struttura comune:
 │ │
 │ └── <prj_tb>.vhdl
 │
+├── scripts
+│ │
+│ ├── runSim_ghdl
+│ │
+│ ├── ...
+│ │
+│ └── <synth>.tcl
+│
 ├── *simul.rtl
+│ └── ...
 │
-├── sources.vc
+├── *simul.gate
+│ └── ...
 │
-└── *simul.gate
+└── sources.vc
 ----
 
 Le cartelle `simul.gate` e `simul.rtl` non vengono consegnate, ma gli script possono generarle come percorsi di lavoro per le relative fasi.
