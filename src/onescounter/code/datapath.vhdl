@@ -33,12 +33,12 @@ begin
             ONES_in when CLK'EVENT and CLK = '1' and loadONES = '1';
     -- MUX for A
     with selA select
-    A_in <= X when '0',
-            '0' & A(7 downto 1) when others;
+        A_in <= X when '0',
+                '0' & A(7 downto 1) when others;
     -- MUX for ONES
     ONES_in <= (others => '0') when selONES = "00" else
                 X when selONES = "10" else
-                (ONES_in'LEFT downto 1 => '0') & '1' when selONES = "10" else
+                (ONES_in'LEFT downto 1 => '0') & '1' when selONES = "11" else
                adder1;
     -- ADDER
     adder1 <= std_logic_vector(unsigned(ONES) + 1);
