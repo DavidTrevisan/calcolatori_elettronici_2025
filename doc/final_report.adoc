@@ -53,16 +53,17 @@ Le cartelle `simul.gate` e `simul.rtl` possono non essere presenti, mentre gli s
 
 La cartella `code` contiene tutti i sorgenti necessari al funzionamento del dispositivo, ed i sorgenti necessari alla simulazione.
 
-La cartella `assets` contiene eventuali file di utilizzo del dispositivo e/o testbench;
+La cartella `assets` contiene eventuali file di utilizzo del dispositivo o del testbench;
 Ad esempio i file di input agli stimoli del TB potranno trovarsi in `<prj_path>/assets/data.txt`, se lo stesso viene chiamato dal codice in simulazione.
 
 [#sources_file]
 Il file `sources.vc` é una lista dei file sorgente che devono essere passati al tool di analisi.
-Per GHDL, non avendo l'opzione di accettare file-lists da parametri di comando, lo script fornito estrae i file in autonomia.
+Per compatibilitá con GHDL, che non fornisce l'opzione di utilizzare direttamente file-lists da parametri di _command line_, lo script fornito estrae i file in autonomia.
+
 Il formato atteso per il funzionamento é:
 
 * un nome file per riga.
-* termine `line-feed` (`\n`).
+* fine riga: `line-feed` (`\n`).
 * percorso del file relativo (plausibilemente `code/file.vhdl`).
 * l'ultimo file in lista contiene la top-entity da simulare (solitamente il `testbench`).
 * new-line finale (riga vuota) in stile sorgente C.
@@ -100,7 +101,7 @@ L'utilizzo dello script é definito come segue:
 $ scripts/runSim_ghdl projects/<prj_name> [(Optional) GENERIC_OVERRIDE=Value]
 ----
 
-Dove il primo argomento é obbligatorio e corrisponde al percorso del progetto che si vuole simulare, mentre i seguenti argomenti saranno interpretati come 'generic overrides' e passati al design con il prefisso -g come atteso da GHDL.
+Dove il primo argomento é obbligatorio e corrisponde al percorso del progetto che si vuole simulare, mentre i seguenti argomenti saranno interpretati come 'generic overrides' e passati alla linea di comando con il prefisso -g, come accettato da GHDL.
 Lo script estrae i file da analizzare ed elaborare da una lista `sources.vc` nel root-path del progetto, con un file per linea indicato come percorso relativo.
 Si veda il paragrafo <<sources_file, sources.vc>> per altri dettagl.
 

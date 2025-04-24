@@ -2,19 +2,21 @@
 
 Il dispositivo `onescounter` viene presentato con le seguenti modifiche:
 
-. Versione Moore.
-. Versione Mealy.
-. Entrambe le versioni sono descritte in `ctrlunit.vhdl` con due architetture separate.
+. Versione 'Moore'.
+. Versione 'Mealy'.
+** Entrambe le versioni sono descritte in `ctrlunit.vhdl` in due architetture separate.
 . Selezione dell'architettura della CTRL Unit tramite _generic_.
 . Aggiunto segnale `DEBUG` che sovrascrive il registro `ONES` con il valore posto all'ingresso `X`.
 
-NOTE: L'operazione é realizzabile e valida solo quando `READY = 1`.
+[NOTE]
+====
+* L'operazione é realizzabile e valida solo quando `READY = 1`.
+* La modifica con il segnale `DEBUG` é stata effettuata in solo stile 'mealy'.
+====
 
-NOTE: La modifica con il segnale `DEBUG` é stata effettuata in solo stile 'mealy'.
+Il dispositivo viene consegnato con un testbench contenente le seguenti modifiche:
 
-Il dispositivo viene consegnato con un testbench modificato come di seguito:
-
-. Terminazione `graceful` della simulazione al set del segnale `done`.
+. Terminazione _graceful_ della simulazione al set del segnale `done`.
 . Istanza simultanea di entrambe le versioni `moore` e `mealy` del DUT, input condivisi.
 . Aggiunti `assert` per monitorare continuamente la corrispondenza tra gli output delle due versioni del dispositivo.
 . Aggiunta la funzione `t2s_ns` per formattare i tempi in ns quando stampati da report.
@@ -32,8 +34,6 @@ Si verifichi che le dipendenze necessarie per eseguire lo script siano soddisfat
 ====
 
 Lo script richiede almeno un argomento, il path del progetto da simulare, ed assume la struttura directory come descritta nella <<#dir_struct, sezione dedicata>>.
-Ulteriori argomenti saranno interpretati come 'generic overrides' e passati al design con il prefisso `-g`, come atteso da GHDL.
-Lo script estrae i file da analizzare ed elaborare da una lista `sources.vc` nel root-path del progetto, con un file per linea indicato con il suo percorso relativo.
 
 Le operazioni eseguite dallo script sono le seguenti:
 
@@ -65,7 +65,7 @@ popd
 
 Lo script estrae il path assoluto per ognuno dei file sorgente, per cui `<prj_path>` assumerá il valore dipendente dal percorso del sistema.
 
-== Lista dei file sorgente
+== Analisi dei File Sorgente
 
 Il file `sources.vc` contiene la lista dei sorgenti utilizzati, che vengono di seguito elencati e brevemente descritti:
 
@@ -261,3 +261,35 @@ Considerato che GHDL utilizza il _femtosecondo_ quale unitá di tempo, é stata 
         return integer'image(ns) & " ns";
     end function;
 ====
+
+Per terminare in maniera _graceful_ la simulazione, é stato rimosso l' `assert` di interruzione alla fine degli stimoli di test.
+
+La generazione del clock é invece stata modificata come segue per fermarsi al set del segnale `done`:
+
+[source, vhdl]
+====
+    clk_process : process
+    begin
+        if (done = 1) then
+            wait;
+        else
+            if CLK = '0' then
+                CLK <= '1';
+                wait for CLK_SEMIPERIOD1;
+            else
+                CLK <= '0';
+                wait for CLK_SEMIPERIOD0;
+                count     <= std_logic_vector(unsigned(count) + 1);
+                int_count <= int_count + 1;
+            end if;
+        end if;
+    end process clk_process;
+====
+
+In assenza di costrutti errati che mettano indefinitamente in stallo la simulazione, GHDL terminerá la sua esecuzione quando tutti gli eventi si fermeranno a seguito del set del segnale `done`.
+
+== ASM Chart
+
+Per la versione 'moore', il dispositivo `onescounter` rispecchia il seguente ASM chart:
+
+image::images/
