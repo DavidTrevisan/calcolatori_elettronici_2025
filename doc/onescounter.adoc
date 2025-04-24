@@ -1,0 +1,208 @@
+= Ones Counter
+
+Il dispositivo `onescounter` viene presentato con le seguenti modifiche:
+
+. Versione Moore.
+. Versione Mealy.
+. Entrambe le versioni sono descritte in `ctrlunit.vhdl` con due architetture separate.
+. Selezione dell'architettura della CTRL Unit tramite _generic_.
+. Aggiunto segnale `DEBUG` che sovrascrive il registro `ONES` con il valore posto all'ingresso `X`.
+
+NOTE: L'operazione é realizzabile e valida solo quando `READY = 1`.
+
+NOTE: La modifica con il segnale `DEBUG` é stata effettuata in solo stile 'mealy'.
+
+Il dispositivo viene consegnato con un testbench modificato come di seguito:
+
+. Terminazione `graceful` della simulazione al set del segnale `done`.
+. Istanza simultanea di entrambe le versioni `moore` e `mealy` del DUT, input condivisi.
+. Aggiunti `assert` per monitorare continuamente la corrispondenza tra gli output delle due versioni del dispositivo.
+. Aggiunta la funzione `t2s_ns` per formattare i tempi in ns quando stampati da report.
+
+Per analizzare ed elaborare il design ed eseguirne la simulazione é stato creato uno script bash, che viene fornito, ed é utilizzabile come segue:
+
+[source,bash]
+----
+$ scripts/runSim_ghdl projects/01_onescounter
+----
+
+[NOTE]
+====
+Si verifichi che le dipendenze necessarie per eseguire lo script siano soddisfatte, come da sezione <<#script_ghdl>>.
+====
+
+Lo script richiede almeno un argomento, il path del progetto da simulare, ed assume la struttura directory come descritta nella <<#dir_struct, sezione dedicata>>.
+Ulteriori argomenti saranno interpretati come 'generic overrides' e passati al design con il prefisso `-g`, come atteso da GHDL.
+Lo script estrae i file da analizzare ed elaborare da una lista `sources.vc` nel root-path del progetto, con un file per linea indicato con il suo percorso relativo.
+
+Le operazioni eseguite dallo script sono le seguenti:
+
+[source,bash]
+----
+# Sposta la $PWD nel percorso indicato del progetto, sottocartella `simul.rtl`
+pushd <prj_path>/01_onescounter/simul.rtl
+# Analisi GHDL per tutti i file estratti da sources.vc
+ghdl -a -v --std=93c <prj_path>/01_onescounter/code/reg8.vhdl \
+                    <prj_path>/01_onescounter/code/zerodetect.vhdl \
+                    <prj_path>/01_onescounter/code/rshift.vhdl \
+                    <prj_path>/01_onescounter/code/mux2x8.vhdl \
+                    <prj_path>/01_onescounter/code/mux4x8.vhdl \
+                    <prj_path>/01_onescounter/code/adder.vhdl \
+                    <prj_path>/01_onescounter/code/datapath.vhdl \
+                    <prj_path>/01_onescounter/code/ctrlunit.vhdl \
+                    <prj_path>/01_onescounter/code/onescounter_pkg.vhdl \
+                    <prj_path>/01_onescounter/code/onescounter.vhdl \
+                    <prj_path>/01_onescounter/code/TB.vhdl
+# Elaborazione
+ghdl -e -v --std=93c tb
+# Simulazione, salva wave-file in formato ghw
+ghdl -r -v --std=93c --time-resolution=ns tb --wave=onescounter.ghw
+# Invoca `gtkwave` per visualizzare il wave-file
+gtkwave onescounter.ghw
+# Al termine, ritorna alla directory iniziale
+popd
+----
+
+Lo script estrae il path assoluto per ognuno dei file sorgente, per cui `<prj_path>` assumerá il valore dipendente dal percorso del sistema.
+
+== Lista dei file sorgente
+
+Il file `sources.vc` contiene la lista dei sorgenti utilizzati, che vengono di seguito elencati e brevemente descritti:
+
+[onescounter_sources,subs="attributes+"]
+[cols="25%,75%",options="header"]
+|===
+| File | Description
+
+| `reg8.vhdl`
+| Descrizione di un registro di larghezza 8 bit da usarsi nella rappresentazione strutturale.
+
+| `zerodetect.vhdl`
+| Descrizione di un comparatore con `0` di larghezza 8 bit da usarsi nella rappresentazione strutturale.
+
+| `rshift.vhdl`
+| Descrizione di un right-shift-register di larghezza 8 bit da usarsi nella rappresentazione strutturale.
+
+| `mux2x8.vhdl`
+| Descrizione di un multiplexer 2 ingressi da 8 bit ciascuno, da usarsi nella rappresentazione strutturale.
+
+| `mux4x8.vhdl`
+| Descrizione di un multiplexer 4 ingressi da 8 bit ciascuno, da usarsi nella rappresentazione strutturale.
+
+| `adder.vhdl`
+| Descrizione di un semplice adder (senza carry out) da 8 bit da usarsi nella rappresentazione strutturale
+
+| `datapath.vhdl`
+| Descrizione del Datapath del dispositivo.
+Contiene la versione comportamentale (architecture `s`) e strutturale (architecture `struct`).
+
+| `ctrlunit.vhdl`
+| Descrizione comportamentale della rete di controllo del dispositivo.
+Contiene due architetture corrispondenti agli ASM chart versione `moore` e versione `mealy`.
+
+| `onescounter_pkg.vhdl`
+| Package che contiene la descrizione del componente `onescounter`.
+
+| `onescounter.vhdl`
+| Descrizione strutturale del dispositivo (top level).
+
+| `TB.vhdl`
+| Testbench che istanzia il DUT ed i suoi stimoli.
+
+|===
+
+
+Vengono presentati di seguito alcuni snippets rilevanti per il funzionamento dei sorgenti.
+
+=== onescounter.vhdl
+Al dispositivo é stato aggiunto un _generic_ di tipo testuale (_string_) per indicare quale architettura istanziare.
+
+[source, vhdl]
+====
+    entity onescounter is
+        generic
+        (
+            CTRL_TYPE	: string := "moore"
+        );
+        ...
+====
+
+Per mantenere la compatibilitá con VHDL-1993, sono stati utilizzati due costrutti `if ... generate ... end generate` per istanziare l'architettura desiderata.
+
+[source, vhdl]
+====
+    gen_mealy : if (CTRL_TYPE = "mealy") generate
+        CTRL_mealy : entity work.ctrlunit(mealy)
+        port map
+        (
+            CLK         => CLK,
+            rst_n       => rst_n,
+            DATAIN      => DATAIN,
+            CALC        => CALC,
+            DEBUG       => DEBUG,
+            READY       => READY,
+            OK          => OK,
+            loadA       => loadA,
+            selA        => selA,
+            loadONES    => loadONES,
+            selONES     => selONES,
+            LSB_A       => LSB_A,
+            zA          => zA
+        );
+    end generate;
+
+    gen_moore : if (CTRL_TYPE /= "mealy") generate
+        CTRL_moore : entity work.ctrlunit(moore)
+        port map
+        (
+            CLK         => CLK,
+            rst_n       => rst_n,
+            DATAIN      => DATAIN,
+            CALC        => CALC,
+            DEBUG       => DEBUG,
+            READY       => READY,
+            OK          => OK,
+            loadA       => loadA,
+            selA        => selA,
+            loadONES    => loadONES,
+            selONES     => selONES,
+            LSB_A       => LSB_A,
+            zA          => zA
+        );
+    end generate;
+====
+
+=== datapath.vhdl
+
+Per il registro `ONES` sono stati aggiunti diversi ingressi selezionabili rispetto alla versione originale, che sono riassunti nello spezzone:
+
+[source, vhdl]
+====
+    -- MUX for ONES
+    ONES_in <= (others => '0')                          when selONES = "00" else
+                X                                       when selONES = "10" else
+                (ONES_in'LEFT downto 1 => '0') & '1'    when selONES = "11" else
+                adder1;
+====
+
+Considerando che ad ogni fronte di salita di `CLK` il segnale `ONES_in` viene registrato da `ONES`, la mappa di selezione del multiplexer al suo ingresso é:
+
+[table_onesSel,subs="attributes+"]
+[cols="^2,8",options="header"]
+|===
+| selOnes
+| Descrizione
+
+| `"00"`
+| Seleziona il valore `'0000_0000'`.
+
+| `"01"`
+| Seleziona il segnale in uscita dal sommatore `ONES + 1`.
+
+| `"10"`
+| Seleziona il valore `X`.
+
+| `"11"`
+| Seleziona il valore `'0000_0001'`.
+
+|===

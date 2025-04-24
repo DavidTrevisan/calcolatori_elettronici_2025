@@ -4,11 +4,12 @@
 :toc-title: Indice dei Contenuti
 :toclevels: 2
 :preface-title: Introduzione
+:note-caption: Nota
 David Trevisan
 
 == Introduzione
 
-Questo documento raccoglie il resoconto finale dei progetti di esame del corso di Calcolatori Elettronici 2025, tenuto dal prof. Mirko Loghi, Universitá degli Studi di Udine.
+Questo documento contiene il resoconto finale dei progetti di esame del corso di Calcolatori Elettronici 2025, tenuto dal prof. Mirko Loghi, Universitá degli Studi di Udine.
 
 == Informazioni Preliminari
 
@@ -79,7 +80,7 @@ Questo script é un _helper_ che colleziona alcune utilities per eseguire automa
 
 Per funzionare, lo script necessita delle seguenti dipendenze:
 
-* GHDL
+* GHDL (v5+)
 * GTKWave
 * Bash built-ins (POSIX):
 ** `readlink`, `realpath`
@@ -105,56 +106,4 @@ Si veda il paragrafo <<sources_file, sources.vc>> per altri dettagl.
 
 == Progetti
 
-=== Ones Counter
-
-Il dispositivo `onescounter` viene presentato con le seguenti modifiche:
-
-. Versione Moore.
-. Versione Mealy.
-. Entrambe le versioni sono descritte in `ctrlunit.vhdl` con due architetture separate.
-. Aggiunto segnale `DEBUG` che sovrascrive il registro `ONES` con il valore posto all'ingresso `X`.
-
-> L'operazione é realizzabile e valida solo quando `READY = 1`.
-
-La modifica con il segnale `DEBUG` é stata effettuata in solo stile 'mealy'.
-
-Il dispositivo viene consegnato con un testbench modificato come di seguito:
-
-. Terminazione `graceful` della simulazione al set del segnale `done`.
-. Istanza simultanea di entrambe le versioni `moore` e `mealy` del DUT, input condivisi.
-. Aggiunti `assert` per monitorare continuamente la corrispondenza tra gli output delle due versioni del dispositivo.
-. Aggiunta una funzione `t2s_ns` per formattare i tempi in ns quando stampati da report.
-
-Per analizzare ed elaborare il design ed eseguirne la simulazione, é stato creato uno script bash, che viene fornito ed utilizzabile come segue:
-
-[source,bash]
-----
-$ scripts/runSim_ghdl projects/01_onescounter
-----
-
-[NOTE]
-====
-Si verifichi che le dipendenze necessarie per eseguire lo script siano soddisfatte, come da sezione <<#script_ghdl>>.
-====
-
-Lo script richiede almeno un argomento, il path del progetto da simulare, ed assume la struttura directory presentata nella <<#script_ghdl, sezione specifica>>.
-Ulteriori argomenti saranno interpretati come 'generic overrides' e passati al design con il prefisso `-g` come atteso da GHDL.
-Lo script estrae i file da analizzare ed elaborare da una lista `sources.vc` nel root-path del progetto, con un file per linea indicato come percorso relativo.
-
-Le operazioni eseguite dallo script sono le seguenti
-
-[source,bash]
-----
-$ # Sposta la $PWD nel percorso indicato del progetto, sottocartella `simul.rtl`
-$ pushd <prj_path>/01_onescounter/simul.rtl
-$ # Analisi GHDL per tutti i file estratti da sources.vc
-$ ghdl -a -v --std=93c <prj_path>/01_onescounter/code/reg8.vhdl <prj_path>/01_onescounter/code/zerodetect.vhdl <prj_path>/01_onescounter/code/rshift.vhdl <prj_path>/01_onescounter/code/mux2x8.vhdl <prj_path>/01_onescounter/code/mux4x8.vhdl <prj_path>/01_onescounter/code/adder.vhdl <prj_path>/01_onescounter/code/datapath.vhdl <prj_path>/01_onescounter/code/ctrlunit.vhdl <prj_path>/01_onescounter/code/onescounter_pkg.vhdl <prj_path>/01_onescounter/code/onescounter.vhdl <prj_path>/01_onescounter/code/TB.vhdl
-$ # Elaborazione
-$ ghdl -e -v --std=93c tb
-$ # Simulazione, salva wave-file in formato ghw
-$ ghdl -r -v --std=93c --time-resolution=ns tb --wave=onescounter.ghw
-$ # Invoca `gtkwave` per visualizzare il wave-file
-$ gtkwave onescounter.ghw
-$ # Ritorna alla directory iniziale
-$ popd
-----
+include::onescounter.adoc[leveloffset=2]

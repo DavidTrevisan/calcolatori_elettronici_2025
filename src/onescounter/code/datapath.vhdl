@@ -123,7 +123,7 @@ begin
         (others => '0'),
         adder1_out,
         X,
-        (others => '0'),
+        (ONES_in'LEFT downto 1 => '0') & '1',
         ONES_in
     );
 

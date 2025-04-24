@@ -66,17 +66,19 @@ begin
         CTRL_mealy : entity work.ctrlunit(mealy)
         port map
         (
-            CLK, rst_n, DATAIN => DATAIN,
-            CALC => CALC,
-            DEBUG => DEBUG,
-            READY => READY,
-            OK => OK,
-            loadA => loadA,
-            selA => selA,
-            loadONES => loadONES,
-            selONES => selONES,
-            LSB_A => LSB_A,
-            zA => zA
+            CLK         => CLK,
+            rst_n       => rst_n,
+            DATAIN      => DATAIN,
+            CALC        => CALC,
+            DEBUG       => DEBUG,
+            READY       => READY,
+            OK          => OK,
+            loadA       => loadA,
+            selA        => selA,
+            loadONES    => loadONES,
+            selONES     => selONES,
+            LSB_A       => LSB_A,
+            zA          => zA
         );
     end generate;
 
@@ -84,17 +86,19 @@ begin
         CTRL_moore : entity work.ctrlunit(moore)
         port map
         (
-            CLK, rst_n, DATAIN => DATAIN,
-            CALC => CALC,
-            DEBUG => DEBUG,
-            READY => READY,
-            OK => OK,
-            loadA => loadA,
-            selA => selA,
-            loadONES => loadONES,
-            selONES => selONES,
-            LSB_A => LSB_A,
-            zA => zA
+            CLK         => CLK,
+            rst_n       => rst_n,
+            DATAIN      => DATAIN,
+            CALC        => CALC,
+            DEBUG       => DEBUG,
+            READY       => READY,
+            OK          => OK,
+            loadA       => loadA,
+            selA        => selA,
+            loadONES    => loadONES,
+            selONES     => selONES,
+            LSB_A       => LSB_A,
+            zA          => zA
         );
     end generate;
 
