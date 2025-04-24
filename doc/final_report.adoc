@@ -1,13 +1,14 @@
-= Calcolatori Elettronici 2025
+= Calcolatori Elettronici 2025: Final Report
 :doctype: book
 :toc:
+:toc-title: Indice dei Contenuti
 :toclevels: 2
-:preface-title: Introduction
+:preface-title: Introduzione
 David Trevisan
 
-== Introduction
+== Introduzione
 
-Questo documento raccoglie il resoconto dei progetti di esame del corso di Calcolatori Elettronici 2025.
+Questo documento raccoglie il resoconto finale dei progetti di esame del corso di Calcolatori Elettronici 2025, tenuto dal prof. Mirko Loghi, Universitá degli Studi di Udine.
 
 == Informazioni Preliminari
 

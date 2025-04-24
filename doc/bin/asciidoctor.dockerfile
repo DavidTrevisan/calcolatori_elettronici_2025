@@ -1,6 +1,3 @@
-# To build this container:
-# docker run -it -v $(pwd)/doc/:/documents/ adocbuilder asciidoctor-pdf -r asciidoctor-diagram mem-map.adoc
-
 FROM asciidoctor/docker-asciidoctor
 
 LABEL mantainer="David Trevisan david.trevisan@vemd.it"
