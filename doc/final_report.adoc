@@ -5,33 +5,92 @@ Questo documento offre un resoconto per i progetti di esame del corso di Calcola
 
 :toc:
 
+== Directory Structure
+
+Ogni progetto assume la seguente struttura comune:
+
+[source,ruby]
+----
+<prj_path>
+│
+├── assets
+│ └── <prj_assets>
+├── code
+│ │
+│ ├── <prj_srcs>.vhdl
+│ │
+│ ├── ...
+│ │
+│ └── <prj_tb>.vhdl
+│
+├── *simul.rtl
+│
+├── sources.vc
+│
+└── *simul.gate
+----
+
+Le cartelle `simul.gate` e `simul.rtl` non vengono consegnate, ma gli script possono generarle come percorsi di lavoro per le relative fasi.
+
+La cartella `code` contiene tutti i sorgenti necessari al funzionamento del dispositivo, ed i sorgenti necessari alla simulazione.
+
+La cartella `assets` contiene eventuali file di utilizzo del dispositivo e/o testbench;
+Ad esempio i file di input agli stimoli del TB potranno trovarsi in `<prj_path>/assets/data.txt`, se lo stesso viene chiamato dal codice in simulazione.
+
+Il file `sources.vc` é una lista dei file sorgente che devono essere passati al tool di analisi.
+Per GHDL, non avendo l'opzione di accettare file-lists da parametri di comando, lo script fornito estrae i file in autonomia.
+Il formato atteso per il funzionamento é:
+
+* un nome file per riga.
+* termine `line-feed` (`\n`).
+* percorso del file relativo (plausibilemente `code/file.vhdl`).
+* l'ultimo file in lista contiene la top-entity da simulare (solitamente il `testbench`).
+* new-line finale (riga vuota) in stile sorgente C.
+
 == Progetti
 
 === Ones Counter
 
 Il dispositivo `onescounter` viene presentato con le seguenti modifiche:
 
-. Versione Moore
-. Versione Mealy
-. Entrambe le versioni sono descritte in `ctrlunit.vhdl` con due architetture separate
+. Versione Moore.
+. Versione Mealy.
+. Entrambe le versioni sono descritte in `ctrlunit.vhdl` con due architetture separate.
 . Aggiunto segnale `DEBUG` che sovrascrive il registro `ONES` con il valore posto all'ingresso `X`.
-L'operazione é realizzabile e valida solo quando `READY = 1`.
+
+> L'operazione é realizzabile e valida solo quando `READY = 1`.
 
 La modifica con il segnale `DEBUG` é stata effettuata in solo stile 'mealy'.
 
-Il dispositivo viene consegnato con un testbench modificato nelle seguenti maniere:
+Il dispositivo viene consegnato con un testbench modificato come di seguito:
 
 . Terminazione `graceful` della simulazione al set del segnale `done`.
-. Istanza di entrambe le versioni `moore` e `mealy` del DUT, con input simultanei
-. Aggiunti `assert` per monitorare continuamente la corrispondenza tra gli output delle due versioni del dispositivo
-. Aggiunta una funzione `t2s_ns` per formattare i tempi in ns quando stampati da report
+. Istanza simultanea di entrambe le versioni `moore` e `mealy` del DUT, input condivisi.
+. Aggiunti `assert` per monitorare continuamente la corrispondenza tra gli output delle due versioni del dispositivo.
+. Aggiunta una funzione `t2s_ns` per formattare i tempi in ns quando stampati da report.
 
-Per analizzare ed elaborare il design ed eseguirne la simulazione, uno script (`bash`) viene fornito, utilizzabile come segue:
+Per analizzare ed elaborare il design ed eseguirne la simulazione, é stato creato uno script bash, che viene fornito ed utilizzabile come segue:
 
 [source,bash]
 ----
 $ scripts/runSim_ghdl projects/01_onescounter
 ----
+
+[NOTE]
+====
+Dipendenze per eseguire lo script:
+
+* GHDL
+* GTKWave
+* Bash built-ins (POSIX):
+** `readlink`, `realpath`
+** `dirname`, `basename`
+** `grep`
+** `tail`
+** `eval`
+** `mkdir`
+** `pushd`, `popd`
+====
 
 Lo script richiede almeno un argomento, il path del progetto da simulare, ed assume la struttura directory presentata nella sezione specifica.
 Ulteriori argomenti saranno interpretati come 'generic overrides' e passati al design con il prefisso `-g` come atteso da GHDL.
