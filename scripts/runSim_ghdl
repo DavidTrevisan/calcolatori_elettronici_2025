@@ -110,7 +110,8 @@ TB_ENTITY_NAME="$(getTbEntityName ${VC_FILE})"
 
 ELAB_CMD="ghdl"
 
-ELAB_ARGS="--elab-run ${COMMON_ARGS}"
+ELAB_ARGS="-e ${COMMON_ARGS}"
+# ELAB_ARGS="--elab-run ${COMMON_ARGS}"
 ELAB_ARGS+="${GENERIC_OVERRIDE} "
 ELAB_ARGS+="${TB_ENTITY_NAME} "
 
@@ -121,6 +122,7 @@ WAVE_FILE_PATH="${TARGET}/simul.rtl/${WAVE_FILE}"
 SIM_CMD="ghdl"
 
 SIM_ARGS="-r ${COMMON_ARGS} "
+SIM_ARGS+="--time-resolution=ns "
 SIM_ARGS+="${GENERIC_OVERRIDE} "
 SIM_ARGS+="${TB_ENTITY_NAME} "
 SIM_ARGS+="--wave=${WAVE_FILE} "

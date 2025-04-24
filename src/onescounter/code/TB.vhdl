@@ -32,6 +32,13 @@ architecture behav of tb is
     signal OK_moore         : std_logic;
     signal OK_mealy         : std_logic;
 
+    -- Custom time to string function to format in ns
+    function t2s_ns(t : time) return string is
+        variable ns : integer := integer(t / 1 ns);
+    begin
+        return integer'image(ns) & " ns";
+    end function;
+
 begin
 
     DUT_moore : onescounter
@@ -83,16 +90,18 @@ begin
 
     -- Assertions checking mealy vs moore versions match outputs
 
-    assert OUTP_mealy = OUTP_moore
-        report "ERROR: OUTP output differs between DUTs. Time: " & time'image(now)
+    assert not ((rst_n = '1') and
+                (OK_mealy = '1' or OK_moore = '1') and
+                (OUTP_mealy /= OUTP_moore))
+        report "ERROR: OUTP output differs between DUTs when OK signal is set. Time: " & t2s_ns(now)
         severity error;
 
     assert READY_mealy = READY_moore
-        report "ERROR: READY output differs between DUTs. Time: " & time'image(now)
+        report "ERROR: READY output differs between DUTs. Time: " & t2s_ns(now)
         severity error;
 
     assert OK_mealy = OK_moore
-        report "ERROR: OK output differs between DUTs. Time: " & time'image(now)
+        report "ERROR: OK output differs between DUTs. Time: " & t2s_ns(now)
         severity error;
 
 

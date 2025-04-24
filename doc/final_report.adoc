@@ -30,6 +30,7 @@ Il dispositivo `onescounter` viene presentato con le seguenti modifiche:
 
 . Versione Moore
 . Versione Mealy
+. Entrambe le versioni sono descritte in `ctrlunit.vhdl` con due architetture separate
 . Aggiunto segnale `DEBUG` che sovrascrive il registro `ONES` con il valore posto all'ingresso `X`.
 L'operazione é realizzabile e valida solo quando `READY = 1`.
 
@@ -40,6 +41,7 @@ Il dispositivo viene consegnato con un testbench modificato nelle seguenti manie
 . Terminazione `graceful` della simulazione al set del segnale `done`.
 . Istanza di entrambe le versioni `moore` e `mealy` del DUT, con input simultanei
 . Aggiunti `assert` per monitorare continuamente la corrispondenza tra gli output delle due versioni del dispositivo
+. Aggiunta una funzione `t2s_ns` per formattare i tempi in ns quando stampati da report
 
 Per analizzare ed elaborare il design ed eseguirne la simulazione, uno script (`bash`) viene fornito, utilizzabile come segue:
 
@@ -61,9 +63,11 @@ $ pushd <prj_path>/01_onescounter/simul.rtl
 $ # Analisi GHDL per tutti i file estratti da sources.vc
 $ ghdl -a -v --std=93c <prj_path>/01_onescounter/code/reg8.vhdl <prj_path>/01_onescounter/code/zerodetect.vhdl <prj_path>/01_onescounter/code/rshift.vhdl <prj_path>/01_onescounter/code/mux2x8.vhdl <prj_path>/01_onescounter/code/mux4x8.vhdl <prj_path>/01_onescounter/code/adder.vhdl <prj_path>/01_onescounter/code/datapath.vhdl <prj_path>/01_onescounter/code/ctrlunit.vhdl <prj_path>/01_onescounter/code/onescounter_pkg.vhdl <prj_path>/01_onescounter/code/onescounter.vhdl <prj_path>/01_onescounter/code/TB.vhdl
 $ # Elaborazione
-$ ghdl --elab-run -v --std=93c tb
+$ ghdl -e -v --std=93c tb
 $ # Simulazione, salva wave-file in formato ghw
-$ ghdl -r -v --std=93c tb --wave=onescounter.ghw
+$ ghdl -r -v --std=93c --time-resolution=ns tb --wave=onescounter.ghw
 $ # Invoca `gtkwave` per visualizzare il wave-file
 $ gtkwave onescounter.ghw
+$ # Ritorna alla directory iniziale
+$ popd
 ----
