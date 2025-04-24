@@ -13,11 +13,6 @@
 !src/*/assets/**
 !src/*/sources.vc
 
-*.cf
-*.ghw
-*.log
-*.pdf
-
 # Keep other meaningful folders
 !doc/
 !doc/**
@@ -34,3 +29,9 @@
 !.gitignore
 !LICENSE
 !README.md
+
+# Never track these files
+*.cf
+*.ghw
+*.log
+*.pdf
