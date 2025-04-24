@@ -2,14 +2,17 @@
 :doctype: book
 :toc:
 :toclevels: 2
-:preface-title: Abstract
+:preface-title: Introduction
 David Trevisan
 
-== Abstract
+== Introduction
 
 Questo documento raccoglie il resoconto dei progetti di esame del corso di Calcolatori Elettronici 2025.
 
-== Directory Structure
+== Informazioni Preliminari
+
+[#dir_struct]
+=== Directory Structure
 
 Ogni progetto assume la seguente struttura di cartelle:
 
@@ -51,6 +54,7 @@ La cartella `code` contiene tutti i sorgenti necessari al funzionamento del disp
 La cartella `assets` contiene eventuali file di utilizzo del dispositivo e/o testbench;
 Ad esempio i file di input agli stimoli del TB potranno trovarsi in `<prj_path>/assets/data.txt`, se lo stesso viene chiamato dal codice in simulazione.
 
+[#sources_file]
 Il file `sources.vc` é una lista dei file sorgente che devono essere passati al tool di analisi.
 Per GHDL, non avendo l'opzione di accettare file-lists da parametri di comando, lo script fornito estrae i file in autonomia.
 Il formato atteso per il funzionamento é:
@@ -60,6 +64,43 @@ Il formato atteso per il funzionamento é:
 * percorso del file relativo (plausibilemente `code/file.vhdl`).
 * l'ultimo file in lista contiene la top-entity da simulare (solitamente il `testbench`).
 * new-line finale (riga vuota) in stile sorgente C.
+
+=== Scripts
+
+[#script_ghdl]
+==== runSim_ghdl
+
+Questo script é un _helper_ che colleziona alcune utilities per eseguire automaticamente:
+
+* analisi ed elaborazione tramite GHDL
+* simulazione tramite GHDL
+* apertura del 'wave-file' generato tramite GTKWave
+
+Per funzionare, lo script necessita delle seguenti dipendenze:
+
+* GHDL
+* GTKWave
+* Bash built-ins (POSIX):
+** `readlink`, `realpath`
+** `dirname`, `basename`
+** `grep`
+** `tail`
+** `eval`
+** `mkdir`
+** `pushd`, `popd`
+
+Inoltre la struttura directory del progetto, passato come primo argomento quando si invoca lo script, si assume rispecchi quella definita nella sezione <<#dir_struct>>.
+
+L'utilizzo dello script é definito come segue:
+
+[source,bash]
+----
+$ scripts/runSim_ghdl projects/<prj_name> [(Optional) GENERIC_OVERRIDE=Value]
+----
+
+Dove il primo argomento é obbligatorio e corrisponde al percorso del progetto che si vuole simulare, mentre i seguenti argomenti saranno interpretati come 'generic overrides' e passati al design con il prefisso -g come atteso da GHDL.
+Lo script estrae i file da analizzare ed elaborare da una lista `sources.vc` nel root-path del progetto, con un file per linea indicato come percorso relativo.
+Si veda il paragrafo <<sources_file, sources.vc>> per altri dettagl.
 
 == Progetti
 
@@ -92,21 +133,10 @@ $ scripts/runSim_ghdl projects/01_onescounter
 
 [NOTE]
 ====
-Dipendenze per eseguire lo script:
-
-* GHDL
-* GTKWave
-* Bash built-ins (POSIX):
-** `readlink`, `realpath`
-** `dirname`, `basename`
-** `grep`
-** `tail`
-** `eval`
-** `mkdir`
-** `pushd`, `popd`
+Si verifichi che le dipendenze necessarie per eseguire lo script siano soddisfatte, come da sezione <<#script_ghdl>>.
 ====
 
-Lo script richiede almeno un argomento, il path del progetto da simulare, ed assume la struttura directory presentata nella sezione specifica.
+Lo script richiede almeno un argomento, il path del progetto da simulare, ed assume la struttura directory presentata nella <<#script_ghdl, sezione specifica>>.
 Ulteriori argomenti saranno interpretati come 'generic overrides' e passati al design con il prefisso `-g` come atteso da GHDL.
 Lo script estrae i file da analizzare ed elaborare da una lista `sources.vc` nel root-path del progetto, con un file per linea indicato come percorso relativo.
 
