@@ -69,7 +69,7 @@ Lo script estrae il path assoluto per ognuno dei file sorgente, per cui `<prj_pa
 
 Il file `sources.vc` contiene la lista dei sorgenti utilizzati, che vengono di seguito elencati e brevemente descritti:
 
-[onescounter_sources,subs="attributes+"]
+[table_onescounter_sources,subs="attributes+"]
 [cols="25%,75%",options="header"]
 |===
 | File | Description
@@ -206,3 +206,58 @@ Considerando che ad ogni fronte di salita di `CLK` il segnale `ONES_in` viene re
 | Seleziona il valore `'0000_0001'`.
 
 |===
+
+=== TB.vhdl
+
+Il testbench istanzia entrambe le architetture del dispositivo `onescounter` simultaneamente, raddoppiando solo i segnali di uscita e mantenendone invece i segnali di input unici.
+
+[source, vhdl]
+====
+    DUT_moore : onescounter
+    generic map
+    (
+        CTRL_TYPE => "moore"
+    )
+    port map
+    (
+        ...
+    );
+
+    DUT_mealy : onescounter
+    generic map
+    (
+        CTRL_TYPE => "mealy"
+    )
+    port map
+        ...
+====
+
+Sono stati quindi aggiunti degli `assert` per tenere monitorati i segnali di output che, in determinati momenti, sono da assumersi identici tra le due versioni.
+
+[source, vhdl]
+====
+    assert not ((rst_n = '1') and
+                (OK_mealy = '1' or OK_moore = '1') and
+                (OUTP_mealy /= OUTP_moore))
+        report "ERROR: OUTP output differs between DUTs when OK signal is set. Time: " & t2s_ns(now)
+        severity error;
+
+    assert READY_mealy = READY_moore
+        report "ERROR: READY output differs between DUTs. Time: " & t2s_ns(now)
+        severity error;
+
+    assert OK_mealy = OK_moore
+        report "ERROR: OK output differs between DUTs. Time: " & t2s_ns(now)
+        severity error;
+====
+
+Considerato che GHDL utilizza il _femtosecondo_ quale unitá di tempo, é stata introdotta la funzione `t2s_ns` (_time to string ns_) per stampare coerentemente l'eventuale tempo di simulazione di un `assert` fallito.
+
+[source, vhdl]
+====
+    function t2s_ns(t : time) return string is
+        variable ns : integer := integer(t / 1 ns);
+    begin
+        return integer'image(ns) & " ns";
+    end function;
+====

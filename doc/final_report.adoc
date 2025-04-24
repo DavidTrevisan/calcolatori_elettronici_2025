@@ -49,7 +49,7 @@ Ogni progetto assume la seguente struttura di cartelle:
 └── sources.vc
 ----
 
-Le cartelle `simul.gate` e `simul.rtl` non vengono consegnate, ma gli script possono generarle come percorsi di lavoro per le relative fasi.
+Le cartelle `simul.gate` e `simul.rtl` possono non essere presenti, mentre gli script potranno generarle come percorsi di lavoro per le relative fasi.
 
 La cartella `code` contiene tutti i sorgenti necessari al funzionamento del dispositivo, ed i sorgenti necessari alla simulazione.
 
