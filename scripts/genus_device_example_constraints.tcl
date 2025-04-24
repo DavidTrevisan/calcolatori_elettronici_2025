@@ -12,8 +12,10 @@ set allout [all_outputs]
 set_output_delay [expr 0.4 * $clock_time] $allout -clock mainclk
 
 set_drive 0 CLK
-set_driving_cell -cell INV_X8 $allin
-set_load 0.01862 $allout
+# Assuming BUF_X8 as the average driver
+set_driving_cell -cell BUF_X8 $allin
+# BUF_X8 input capacitance is 6.585178 ff
+set_load 0.006585 $allout
 
 remove_ideal_network $reset_name
 path_delay -delay [expr 0.9 * $clock_time * 1000] -name reset_delay -from $reset_name
