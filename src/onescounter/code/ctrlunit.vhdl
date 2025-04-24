@@ -161,9 +161,9 @@ begin
                             ((state = INIT or state = WAITDATA) and DEBUG = '1')
                 else '0';
     selONES <= "01" when (((state = SHIFT) or (state = CALC_A)) and LSB_A = '1') else
-                "10" when ((state = START) and LSB_A = '0') else
+                "00" when ((state = START) and LSB_A = '0') else
                 "11" when ((state = START) and LSB_A = '1') else
-                "00";
+                "10" when (state = INIT or state = WAITDATA);
     READY   <= '1' when state = INIT or
              state = WAITDATA else '0';
     OK <= '1' when state = INIT else '0';
