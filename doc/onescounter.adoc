@@ -172,6 +172,7 @@ Per mantenere la compatibilitá con VHDL-1993, sono stati utilizzati due costrut
     end generate;
 ====
 
+[#source_dp]
 === datapath.vhdl
 
 Per il registro `ONES` sono stati aggiunti diversi ingressi selezionabili rispetto alla versione originale, che sono riassunti nello spezzone:
@@ -288,8 +289,26 @@ La generazione del clock é invece stata modificata come segue per fermarsi al s
 
 In assenza di costrutti errati che mettano indefinitamente in stallo la simulazione, GHDL terminerá la sua esecuzione quando tutti gli eventi si fermeranno a seguito del set del segnale `done`.
 
+<<<
 == ASM Chart
 
 Per la versione 'moore', il dispositivo `onescounter` rispecchia il seguente ASM chart:
 
-image::images/
+// :page-layout: landscape
+image::images/ASM-onescounter_moore.drawio.svg[align=center,pdfwidth=100%]
+
+// :page-layout: portrait
+
+NOTE: La funzionalitá del segnale `DEBUG` é stata comunque implementata in stile 'mealy'.
+
+Come esplicitato nella sezione del diagramma relativo al datapath, al registro `ONES` é stato posto in ingresso un `mux` a 4 ingressi come spiegato nella sezione <<source_dp>>.
+
+<<<
+
+Il diagramma relativo alla versione 'mealy' é invece il seguente:
+
+image::images/ASM-onescounter_mealy.drawio.svg[align=center,pdfwidth=100%]
+
+Mentre il datapath é rimasto inalterato, l'utilizzo delle _conditional output box_ ha permesso di ridurre il numero degli stati, integrando la funzionalitá dello stato `INC` all'interno dello stato `SHIFT`.
+
+La funzionalitá del segnale `DEBUG` corrisponde a quella della versione precedente.
