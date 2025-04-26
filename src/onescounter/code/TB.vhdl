@@ -34,9 +34,9 @@ architecture behav of tb is
 
     -- Custom time to string function to format in ns
     function t2s_ns(t : time) return string is
-        variable ns : integer := integer(t / 1 ns);
+        variable nano : integer := integer(t / 1 ns);
     begin
-        return integer'image(ns) & " ns";
+        return integer'image(nano) & " ns";
     end function;
 
 begin

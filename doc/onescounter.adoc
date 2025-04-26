@@ -21,6 +21,7 @@ Il dispositivo viene consegnato con un testbench contenente le seguenti modifich
 . Aggiunti `assert` per monitorare continuamente la corrispondenza tra gli output delle due versioni del dispositivo.
 . Aggiunta la funzione `t2s_ns` per formattare i tempi in ns quando stampati da report.
 
+[#script_onescounter]
 Per analizzare ed elaborare il design ed eseguirne la simulazione é stato creato uno script bash, che viene fornito, ed é utilizzabile come segue:
 
 [source,bash]
@@ -257,9 +258,9 @@ Considerato che GHDL utilizza il _femtosecondo_ quale unitá di tempo, é stata 
 [source, vhdl]
 ====
     function t2s_ns(t : time) return string is
-        variable ns : integer := integer(t / 1 ns);
+        variable nano : integer := integer(t / 1 ns);
     begin
-        return integer'image(ns) & " ns";
+        return integer'image(nano) & " ns";
     end function;
 ====
 
@@ -289,6 +290,22 @@ La generazione del clock é invece stata modificata come segue per fermarsi al s
 
 In assenza di costrutti errati che mettano indefinitamente in stallo la simulazione, GHDL terminerá la sua esecuzione quando tutti gli eventi si fermeranno a seguito del set del segnale `done`.
 
+.Asset data.txt
+Il testbench utilizza un file esterno da cui leggere i dati da utilizzare per gli stimoli del Device Under Test.
+
+Il file `assets/data.txt` é un file di testo ASCII contentente stringhe testuali da interpretarsi come valori binari.
+
+Ogni iterazione di lettura del file si aspetta quattro elementi, uno per riga, nel seguente ordine:
+
+. Una stringa da 8 bit per l'ingresso `X`
+. Un singolo bit per l'ingresso di `DEBUG`
+. Un singolo bit per l'ingresso `DATAIN`
+. Un singolo bit per l'ingresso `CALC`
+
+Al termine di questo set di stimoli, una riga vuota viene scartata e utilizzata per separare i gruppi di segnali.
+Per terminare il file e, quindi, il test occorre aggiungere una seconda riga vuota che verrá decodificata dal processo `read_file_process` quale trigger per la terminazione della simulazione.
+
+
 <<<
 == ASM Chart
 
@@ -312,3 +329,55 @@ image::images/ASM-onescounter_mealy.drawio.svg[align=center,pdfwidth=100%]
 Mentre il datapath é rimasto inalterato, l'utilizzo delle _conditional output box_ ha permesso di ridurre il numero degli stati, integrando la funzionalitá dello stato `INC` all'interno dello stato `SHIFT`.
 
 La funzionalitá del segnale `DEBUG` corrisponde a quella della versione precedente.
+
+Si nota come nella versione Mealy l'ottimizzazione risultante dalla rimozione dello stato `INC` a favore dell'utilizzo delle conditional output boxes, stimoli un incremento immediato del registro `ONES` rispetto alla versione Moore.
+Questa cosa verrá infatti osservata in fase di simulazione e verifica.
+
+La decisione di fornire un testbench unico per stimolare simultaneamente le diverse architetture, viene avvallata dai seguenti motivi:
+
+* Il datapath resta identico.
+* Le specifiche sugli input/output restano identiche.
+* La funzionalitá e le tempestiche del device rispetto ai suoi ingressi ed uscite non cambiano.
+
+Si deduce quindi che, pur assumendo delle possibili variazioni di tempistiche interne alla macchina a stati, le due architetture si debbano comportare in maniera equivalente quando osservate sulle loro porte.
+
+== Risultati
+
+Seguendo le fasi indicate nel paragrafo relativo allo <<#script_onescounter, script>>, si raccolgono le relative considerazioni in questa sezione.
+
+.Analisi ed elaborazione
+Non sono state incontrate particolari criticitá nella fase di analisi ed elaborazione dei listati.
+
+I sorgenti sono stati costruiti in modo da non causare warning od errori in questa fase, assumendo l'utilizzo dello standard VHDL-1993 con regole di binding aggiornate (_GHDL option_ `--std=93c` - default).
+
+.Simulazione
+
+L'esecuzione del simulatore cosí generato da GHDL riporta alcuni warning, ed il completamento dei test secondo quanto impostato nel file `assets/data.txt`.
+
+[source, bash]
+====
+    ghdl -r -v --std=93c  --time-resolution=ns  tb --wave=onescounter.ghw
+
+    Linking in memory
+    ../../src/ieee/v93/numeric_std-body.vhdl:1710:7:@0ms:(assertion warning): NUMERIC_STD."=": metavalue detected, returning FALSE
+    ../../src/ieee/v93/numeric_std-body.vhdl:1710:7:@0ms:(assertion warning): NUMERIC_STD."=": metavalue detected, returning FALSE
+    ../../src/ieee/v93/numeric_std-body.vhdl:1710:7:@145ns:(assertion warning): NUMERIC_STD."=": metavalue detected, returning FALSE
+    ../../src/ieee/v93/numeric_std-body.vhdl:1710:7:@145ns:(assertion warning): NUMERIC_STD."=": metavalue detected, returning FALSE
+    END simulation - cycle counter is 59
+====
+
+I primi due warning si riferiscono alla presenza di segnali _"uninitialized"_ all'inizio della simulazione (0ms).
+Questi segnali sono gli input `X` e `DEBUG` del device.
+Inoltre, a tempo 0, il segnale `rst_n` indica che cié un reset in corso sul dispositivo.
+
+I secondi warning si riferiscono allo stesso problema, ma al primo istante utile (fronte di clock) all'uscita dal reset, ossia a tempo 145ns come visibile nell'immagine.
+
+image::images/onescounter_Xprop.png[]
+
+In questo caso, essendo iniziato il funzionamento del dispositivo, il segnale `X` non ancora inizializzato viene ora acquisito nel registro `A` ed il suo bit inferiore salvato in `LSB_A`.
+Registrando valori non inizializzati si attiva quindi il warning ulteriormente.
+
+Poiché gli stessi input vengono assegnati dal test sulla base di quanto letto nel file di `assets/data.txt`, che avviene solo all'uscita dal reset e con device pronto (`READY`), si assume che entrambi i gruppi di warning siano "innoqui".
+Inoltre il dispositivo si configura correttamente anche nel caso della propagazione delle `'U'` ai registri.
+
+Per eliminare questi warning occorrerebbe modificare il file di stimolo e la lettura relativa al fine di forzare l'inizializzazione dei segnali relativi all'istante 0.
