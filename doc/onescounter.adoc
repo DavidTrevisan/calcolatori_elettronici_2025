@@ -1,5 +1,54 @@
 = Ones Counter
 
+Il dispositivo effettua il conteggio dei bit impostati ad `1` per una sequenza di vettori di bit iniettati al suo ingresso.
+
+Per implementare questa funzionalitá il dispositivo é descritto dalle seguenti porte di input ed output:
+
+[table_onescounter_IOports,subs="attributes+"]
+[cols="^2m,^2,6",options="header"]
+|===
+
+|Signal
+|Direction
+|Description
+
+|OUTP
+|OUT
+|Total number of bits equal to '1' received on `X`.
+
+|DATAIN
+|IN
+|Signals a new input data when set.
+
+|CALC
+|IN
+|When set, signals that input data are finished.
+Asks device to provide result.
+
+|READY
+|OUT
+|Signals that the device is ready to receive a new data.
+
+|OK
+|OUT
+|Signals that the device has finished the computation.
+Result on `OUTP` is valid.
+A new computation can start.
+
+|===
+
+[.center,ditaa-onescounter_ports]
+[ditaa]
+----
+               +----------------+
+  X (8) ------>|                |---> OUTP (8)
+               |                |
+DATAIN  ------>|  onescounter   |---> READY
+               |                |
+ CALC   ------>|                |---> OK
+               +----------------+
+----
+
 Il dispositivo `onescounter` viene presentato con le seguenti modifiche:
 
 . Versione 'Moore'.
@@ -119,19 +168,19 @@ Vengono presentati di seguito alcuni snippets rilevanti per il funzionamento dei
 Al dispositivo é stato aggiunto un _generic_ di tipo testuale (_string_) per indicare quale architettura istanziare.
 
 [source, vhdl]
-====
+----
     entity onescounter is
         generic
         (
             CTRL_TYPE	: string := "moore"
         );
         ...
-====
+----
 
 Per mantenere la compatibilitá con VHDL-1993, sono stati utilizzati due costrutti `if ... generate ... end generate` per istanziare l'architettura desiderata.
 
 [source, vhdl]
-====
+----
     gen_mealy : if (CTRL_TYPE = "mealy") generate
         CTRL_mealy : entity work.ctrlunit(mealy)
         port map
@@ -171,7 +220,7 @@ Per mantenere la compatibilitá con VHDL-1993, sono stati utilizzati due costrut
             zA          => zA
         );
     end generate;
-====
+----
 
 [#source_dp]
 === datapath.vhdl
@@ -179,13 +228,13 @@ Per mantenere la compatibilitá con VHDL-1993, sono stati utilizzati due costrut
 Per il registro `ONES` sono stati aggiunti diversi ingressi selezionabili rispetto alla versione originale, che sono riassunti nello spezzone:
 
 [source, vhdl]
-====
+----
     -- MUX for ONES
     ONES_in <= (others => '0')                          when selONES = "00" else
                 X                                       when selONES = "10" else
                 (ONES_in'LEFT downto 1 => '0') & '1'    when selONES = "11" else
                 adder1;
-====
+----
 
 Considerando che ad ogni fronte di salita di `CLK` il segnale `ONES_in` viene registrato da `ONES`, la mappa di selezione del multiplexer al suo ingresso é:
 
@@ -214,7 +263,7 @@ Considerando che ad ogni fronte di salita di `CLK` il segnale `ONES_in` viene re
 Il testbench istanzia entrambe le architetture del dispositivo `onescounter` simultaneamente, raddoppiando solo i segnali di uscita e mantenendone invece i segnali di input unici.
 
 [source, vhdl]
-====
+----
     DUT_moore : onescounter
     generic map
     (
@@ -232,12 +281,12 @@ Il testbench istanzia entrambe le architetture del dispositivo `onescounter` sim
     )
     port map
         ...
-====
+----
 
 Sono stati quindi aggiunti degli `assert` per tenere monitorati i segnali di output che, in determinati momenti, sono da assumersi identici tra le due versioni.
 
 [source, vhdl]
-====
+----
     assert not ((rst_n = '1') and
                 (OK_mealy = '1' or OK_moore = '1') and
                 (OUTP_mealy /= OUTP_moore))
@@ -251,25 +300,25 @@ Sono stati quindi aggiunti degli `assert` per tenere monitorati i segnali di out
     assert OK_mealy = OK_moore
         report "ERROR: OK output differs between DUTs. Time: " & t2s_ns(now)
         severity error;
-====
+----
 
 Considerato che GHDL utilizza il _femtosecondo_ quale unitá di tempo, é stata introdotta la funzione `t2s_ns` (_time to string ns_) per stampare coerentemente l'eventuale tempo di simulazione di un `assert` fallito.
 
 [source, vhdl]
-====
+----
     function t2s_ns(t : time) return string is
         variable nano : integer := integer(t / 1 ns);
     begin
         return integer'image(nano) & " ns";
     end function;
-====
+----
 
 Per terminare in maniera _graceful_ la simulazione, é stato rimosso l' `assert` di interruzione alla fine degli stimoli di test.
 
 La generazione del clock é invece stata modificata come segue per fermarsi al set del segnale `done`:
 
 [source, vhdl]
-====
+----
     clk_process : process
     begin
         if (done = 1) then
@@ -286,7 +335,7 @@ La generazione del clock é invece stata modificata come segue per fermarsi al s
             end if;
         end if;
     end process clk_process;
-====
+----
 
 In assenza di costrutti errati che mettano indefinitamente in stallo la simulazione, GHDL terminerá la sua esecuzione quando tutti gli eventi si fermeranno a seguito del set del segnale `done`.
 
@@ -345,43 +394,170 @@ Si deduce quindi che, pur assumendo delle possibili variazioni di tempistiche in
 
 Seguendo le fasi indicate nel paragrafo relativo allo <<#script_onescounter, script>>, si raccolgono le relative considerazioni in questa sezione.
 
-.Analisi ed elaborazione
+=== Analisi ed elaborazione
 Non sono state incontrate particolari criticitá nella fase di analisi ed elaborazione dei listati.
 
 I sorgenti sono stati costruiti in modo da non causare warning od errori in questa fase, assumendo l'utilizzo dello standard VHDL-1993 con regole di binding aggiornate (_GHDL option_ `--std=93c` - default).
 
-.Simulazione
+=== Simulazione
 
 L'esecuzione del simulatore cosí generato da GHDL riporta alcuni warning, ed il completamento dei test secondo quanto impostato nel file `assets/data.txt`.
 
 [source, bash]
-====
-    ghdl -r -v --std=93c  --time-resolution=ns  tb --wave=onescounter.ghw
+----
+ghdl -r -v --std=93c  --time-resolution=ns  tb --wave=onescounter.ghw
 
-    Linking in memory
-    ../../src/ieee/v93/numeric_std-body.vhdl:1710:7:@0ms:(assertion warning): NUMERIC_STD."=": metavalue detected, returning FALSE
-    ../../src/ieee/v93/numeric_std-body.vhdl:1710:7:@0ms:(assertion warning): NUMERIC_STD."=": metavalue detected, returning FALSE
-    ../../src/ieee/v93/numeric_std-body.vhdl:1710:7:@145ns:(assertion warning): NUMERIC_STD."=": metavalue detected, returning FALSE
-    ../../src/ieee/v93/numeric_std-body.vhdl:1710:7:@145ns:(assertion warning): NUMERIC_STD."=": metavalue detected, returning FALSE
-    END simulation - cycle counter is 59
-====
+Linking in memory
+../../src/ieee/v93/numeric_std-body.vhdl:1710:7:@0ms:(assertion warning): NUMERIC_STD."=": metavalue detected, returning FALSE
+../../src/ieee/v93/numeric_std-body.vhdl:1710:7:@0ms:(assertion warning): NUMERIC_STD."=": metavalue detected, returning FALSE
+../../src/ieee/v93/numeric_std-body.vhdl:1710:7:@145ns:(assertion warning): NUMERIC_STD."=": metavalue detected, returning FALSE
+../../src/ieee/v93/numeric_std-body.vhdl:1710:7:@145ns:(assertion warning): NUMERIC_STD."=": metavalue detected, returning FALSE
+END simulation - cycle counter is 59
+----
 
 I primi due warning si riferiscono alla presenza di segnali _"uninitialized"_ all'inizio della simulazione (0ms).
 Questi segnali sono gli input `X` e `DEBUG` del device.
-Inoltre, a tempo 0, il segnale `rst_n` indica che cié un reset in corso sul dispositivo.
+Inoltre, a tempo 0, il segnale `rst_n` indica che c'é un reset in corso sul dispositivo.
 
 I secondi warning si riferiscono allo stesso problema, ma al primo istante utile (fronte di clock) all'uscita dal reset, ossia a tempo 145ns come visibile nell'immagine.
 
 image::images/onescounter_Xprop.png[]
 
-In questo caso, essendo iniziato il funzionamento del dispositivo, il segnale `X` non ancora inizializzato viene ora acquisito nel registro `A` ed il suo bit inferiore salvato in `LSB_A`.
-Registrando valori non inizializzati si attiva quindi il warning ulteriormente.
+In questo caso, essendo iniziato il funzionamento del dispositivo, il segnale `X` non ancora inizializzato viene ora acquisito nel registro `A` ed il suo bit meno significativo salvato in `LSB_A`.
+Registrando valori non inizializzati si attiva quindi il warning.
 
-Poiché gli stessi input vengono assegnati dal test sulla base di quanto letto nel file di `assets/data.txt`, che avviene solo all'uscita dal reset e con device pronto (`READY`), si assume che entrambi i gruppi di warning siano "innoqui".
-Inoltre il dispositivo si configura correttamente anche nel caso della propagazione delle `'U'` ai registri.
+Poiché gli stessi input vengono assegnati dal test sulla base di quanto letto nel file di `assets/data.txt`, che avviene solo all'uscita dal reset e con device pronto (`READY`), si assume che entrambi i gruppi di warnings siano "innoqui".
+Inoltre il dispositivo si riconfigura correttamente anche nel caso della propagazione delle `'U'` ai registri.
 
-Per eliminare questi warning occorrerebbe modificare il file di stimolo e la lettura relativa al fine di forzare l'inizializzazione dei segnali relativi all'istante 0, ma per le considerazioni precedenti si é scelto di non modificarne il comportamento rispetto all'originale.
+Per eliminare questi warnings occorrerebbe modificare il file di stimolo e la lettura relativa al fine di forzare l'inizializzazione dei segnali relativi all'istante 0, ma per le considerazioni precedenti si é scelto di non alterarne il comportamento rispetto all'originale.
 
-.Verifica del funzionamento
-Il dispositivo é stato quindi simulato e verificato nel suo funzionamento attraverso test diretti ed ispezione manuale delle forme d'onda, e la corrispondenza del funzionamento in maniera automatica tramite gli assert sugli output.
+=== Verifica del funzionamento
+Il dispositivo é stato quindi simulato e verificato nel suo funzionamento attraverso test diretti ed ispezione manuale delle forme d'onda, e la corrispondenza del funzionamento tra architetture in maniera automatica tramite gli assert sugli output.
 
+Si presentano alcune sezioni rilevanti del test.
+
+.Funzione DEBUG input
+
+Il funzionamento del segnale `DEBUG` é stato stimolato con le sequenze presenti in `assets/data.txt`:
+
+[source, ascii]
+----
+
+    10000010    # 0x82
+    1           # DEBUG
+    0           # DATAIN
+    0           # CALC
+
+    00000000    # 0x00
+    0           # DEBUG
+    0           # DATAIN
+    1           # CALC
+
+    10101010    # 0XAA
+    1           # DEBUG
+    1           # DATAIN
+    1           # CALC
+
+    00000000    # 0x00
+    1           # DEBUG
+    0           # DATAIN
+    0           # CALC
+
+----
+
+Dove il vettore di bit della prima riga si richiede venga immediatamente registrato in `ONES` al set di `DEBUG`.
+
+L'output `OUTP` corrisponde al registro menzionato, e ci si aspetta che gli altri segnali di controllo (`DATAIN` e `CALC`) non abbiano effetto istantaneo.
+Perció il loro funzionamento verrá 'sovrascritto' da `DEBUG`.
+
+Nell'immagine seguente é possibile osservare le transazioni che verificano questo comportamento.
+
+image::images/onescounter_DEBUG.png[]
+
+I marker **A**, **B** e **C** identificano i fronti del clock sul quale il segnale `DEBUG` viene letto e conseguentemente l'uscita `OUTP` viene
+aggiornata con i valori attesi.
+
+.Funzionamento normale del dispositivo
+
+Con il test proposto, risulta necessario osservare manualmente lo stato dei segnali di `onescounter` per verificarne il correto funzionamento secondo i requisiti.
+
+Vengono presentate alcune transazioni esemplificative prese dalla sequenza di test.
+
+[source]
+----
+# data.txt
+00010000    # 0x10
+0           # DEBUG
+1           # DATAIN
+0           # CALC
+
+00000100    # 0x04
+0           # DEBUG
+0           # DATAIN
+0           # CALC
+
+00111000    # 0x38
+0           # DEBUG
+1           # DATAIN
+0           # CALC
+----
+
+La sequenza inietta (`DATAIN @ 1`) un vettore con uno dei bit centrali ad `1`, al prossimo `READY` sostituisce il vettore di ingresso, ma non ne stimola l'acquisizione e per finire inietta dei dati con tre bit ad uno.
+
+L'analisi dei segnali mostra che il conteggio e lo shift viene eseguito nei vari casi come da ASM chart.
+
+image::images/onescounter_DATAIN.png[]
+
+Il segnale `a_out` in uscita dallo shift register, mostra come i bit vengano traslati per portarli al conteggio.
+Si vede come il dispositivo si disponga immediatamente in attesa di un nuovo dato quando identifica il vettore `A` composto da soli zeri.
+
+Si puó giá notare come le due architetture della Control Unit differenzino nell'istante di inizio del conteggio dei bit ad uno, con la versione in stile `mealy` anticipataria, come si era anticipato al livello ASM chart.
+
+La prossima sequenza mostra il comportamento al set del segnali `CALC` e l'impostazione del risultato corretto insieme all'output `OK`.
+
+[source]
+----
+# data.txt
+00000001    # 0x01
+0           # DEBUG
+1           # DATAIN
+0           # CALC
+
+00000001    # 0x01
+0           # DEBUG
+1           # DATAIN
+0           # CALC
+
+00000001    # 0x01
+0           # DEBUG
+0           # DATAIN
+1           # CALC
+
+10000000    # 0x80
+0           # DEBUG
+1           # DATAIN
+0           # CALC
+
+10000000    # 0x80
+0           # DEBUG
+0           # DATAIN
+0           # CALC
+
+10000000    # 0x80
+0           # DEBUG
+0           # DATAIN
+1           # CALC
+----
+
+La sequenza inietta due volte il valore `0x01` per poi richiedere la computazione.
+Si attende quindi il valore `2` all'uscita `OUTP`.
+Successivamente inietta il valore `0x80` e ne richiede la computazione, aspettando il valore `1` su `OUTP`.
+
+Nelle seguenti forme d'onda la verifica di quanto descritto.
+
+image::images/onescounter_CALC.png[]
+
+Ai diversi marker, é possibile seguire la sequenza identificata ed i risultati attesi nei segnali di uscita.
+
+L'interezza del test e gli altri casi non descritti sono eseguibili e verificabili con l'infrastruttura fornita.
+Si considera quindi il buon funzionamento di base del dispositivo `onescounter` secondo le specifiche ed i requisiti, per quanto identificabile dalla breve sequenza di test diretti inclusi.
