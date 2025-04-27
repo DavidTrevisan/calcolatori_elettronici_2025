@@ -2,7 +2,7 @@
 :doctype: book
 :toc:
 :toc-title: Indice dei Contenuti
-:toclevels: 2
+:toclevels: 3
 :preface-title: Introduzione
 :note-caption: Nota
 David Trevisan
@@ -58,17 +58,21 @@ Ad esempio i file di input agli stimoli del TB potranno trovarsi in `<prj_path>/
 
 [#sources_file]
 Il file `sources.vc` é una lista dei file sorgente che devono essere passati al tool di analisi.
-Per compatibilitá con GHDL, che non fornisce l'opzione di utilizzare direttamente file-lists da parametri di _command line_, lo script fornito estrae i file in autonomia.
+Per compatibilitá con GHDL, che non fornisce l'opzione di utilizzare direttamente file-lists da parametri di _command line_, lo script fornito estrae i nomi e percorsi dei file in autonomia.
 
-Il formato atteso per il funzionamento é:
+Il formato atteso per questo funzionamento é:
 
 * un nome file per riga.
 * fine riga: `line-feed` (`\n`).
-* percorso del file relativo (plausibilemente `code/file.vhdl`).
+* percorso del file relativo (plausibilemente sempre `code/file.vhdl`).
 * l'ultimo file in lista contiene la top-entity da simulare (solitamente il `testbench`).
 * new-line finale (riga vuota) in stile sorgente C.
 
 === Scripts
+
+Vengono presentati di seguito gli script che sono stati compilati come parte del _framework_ per l'esecuzione sistematica dei progetti inclusi.
+
+Si riportano la descrizione del funzionamento e le eventuali dipendenze per gli script inclusi.
 
 [#script_ghdl]
 ==== runSim_ghdl
@@ -94,17 +98,24 @@ Per funzionare, lo script necessita delle seguenti dipendenze:
 
 Inoltre la struttura directory del progetto, passato come primo argomento quando si invoca lo script, si assume rispecchi quella definita nella sezione <<#dir_struct>>.
 
-L'utilizzo dello script é definito come segue:
+Per utilizzare lo script, la linea di comando tipica segue la forma:
 
 [source,bash]
 ----
 $ scripts/runSim_ghdl projects/<prj_name> [(Optional) GENERIC_OVERRIDE=Value]
 ----
 
-Dove il primo argomento é obbligatorio e corrisponde al percorso del progetto che si vuole simulare, mentre i seguenti argomenti saranno interpretati come 'generic overrides' e passati alla linea di comando con il prefisso -g, come accettato da GHDL.
+Dove il primo argomento é obbligatorio e corrisponde al percorso del progetto che si vuole simulare, mentre i seguenti argomenti saranno interpretati come 'generic overrides' e passati alla linea di comando con il prefisso `-g`, come accettato da GHDL.
 Lo script estrae i file da analizzare ed elaborare da una lista `sources.vc` nel root-path del progetto, con un file per linea indicato come percorso relativo.
 Si veda il paragrafo <<sources_file, sources.vc>> per altri dettagl.
 
 == Progetti
 
 include::onescounter.adoc[leveloffset=2]
+
+<<<
+include::search_chr.adoc[leveloffset=2]
+
+
+<<<
+include::multiplier_and_clz.adoc[leveloffset=2]

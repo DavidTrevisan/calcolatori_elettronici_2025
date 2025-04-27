@@ -1,0 +1,8 @@
+= Search Character
+
+== Analisi dei File Sorgente
+== ASM Chart
+== Risultati
+=== Analisi ed elaborazione
+=== Simulazione
+=== Verifica del funzionamento
