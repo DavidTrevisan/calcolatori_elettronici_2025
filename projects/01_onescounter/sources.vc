@@ -1,0 +1,11 @@
+code/reg8.vhdl
+code/zerodetect.vhdl
+code/rshift.vhdl
+code/mux2x8.vhdl
+code/mux4x8.vhdl
+code/adder.vhdl
+code/datapath.vhdl
+code/ctrlunit.vhdl
+code/onescounter_pkg.vhdl
+code/onescounter.vhdl
+code/TB.vhdl

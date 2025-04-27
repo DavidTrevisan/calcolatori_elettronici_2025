@@ -124,9 +124,7 @@ begin
                     nextstate <= START;
                 end if;
             when START =>
-                if LSB_A = '0' then
-                    nextstate <= SHIFT;
-                end if;
+                nextstate <= SHIFT;
             when SHIFT =>
                 if zA = '1' then
                     nextstate <= WAITDATA;
@@ -157,13 +155,16 @@ begin
     selA <= '1' when state = START or
             state = SHIFT or
             state = CALC_A else '0';
-    loadONES <= '1' when 	state = START or
-                            ((state = INIT or state = WAITDATA) and DEBUG = '1')
-                else '0';
+    loadONES <= '1' when (state = START) or
+                        ((state = CALC_A) and (LSB_A = '1')) or
+                        ((state = SHIFT) and (LSB_A = '1')) or
+                        (((state = INIT) or (state = WAITDATA)) and (DEBUG = '1'))
+               else '0';
+
     selONES <= "01" when (((state = SHIFT) or (state = CALC_A)) and LSB_A = '1') else
-                "10" when ((state = START) and LSB_A = '0') else
+                "00" when ((state = START) and LSB_A = '0') else
                 "11" when ((state = START) and LSB_A = '1') else
-                "00";
+                "10" when (state = INIT or state = WAITDATA);
     READY   <= '1' when state = INIT or
              state = WAITDATA else '0';
     OK <= '1' when state = INIT else '0';
