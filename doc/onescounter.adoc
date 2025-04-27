@@ -380,4 +380,8 @@ Registrando valori non inizializzati si attiva quindi il warning ulteriormente.
 Poiché gli stessi input vengono assegnati dal test sulla base di quanto letto nel file di `assets/data.txt`, che avviene solo all'uscita dal reset e con device pronto (`READY`), si assume che entrambi i gruppi di warning siano "innoqui".
 Inoltre il dispositivo si configura correttamente anche nel caso della propagazione delle `'U'` ai registri.
 
-Per eliminare questi warning occorrerebbe modificare il file di stimolo e la lettura relativa al fine di forzare l'inizializzazione dei segnali relativi all'istante 0.
+Per eliminare questi warning occorrerebbe modificare il file di stimolo e la lettura relativa al fine di forzare l'inizializzazione dei segnali relativi all'istante 0, ma per le considerazioni precedenti si é scelto di non modificarne il comportamento rispetto all'originale.
+
+.Verifica del funzionamento
+Il dispositivo é stato quindi simulato e verificato nel suo funzionamento attraverso test diretti ed ispezione manuale delle forme d'onda, e la corrispondenza del funzionamento in maniera automatica tramite gli assert sugli output.
+
