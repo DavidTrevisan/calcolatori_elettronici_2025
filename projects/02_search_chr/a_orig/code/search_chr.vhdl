@@ -79,7 +79,7 @@ begin
     READY       <= '1' when state = INIT else '0';
 
     MEM_ENABLE  <= '1' when (state = START_READ) or
-                           (state = COMPARE and COUNT_eq_L = '1')
+                           (state = COMPARE and COUNT_eq_L = '0')
                    else '0';
 
     MEM_WE      <= '0';
@@ -101,10 +101,6 @@ begin
                    else '0';
 
     loadD       <= '1' when (state = FETCH and MEM_READY = '1') else '0';
-
-    selA        <= '1' when (state = FETCH) else '0';
-    selCOUNT    <= '1' when (state = FETCH) else '0';
-    selCNT      <= '1' when (state = COMPARE) else '0';
 
     -- DP
     -- registers
