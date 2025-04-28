@@ -119,6 +119,89 @@ Il dispositivo viene presentato nelle seguenti versioni:
 . Testbench che riceve i dati di input da un file esterno.
 
 == Analisi dei File Sorgente
+
+Il file `sources.vc`, presente nella root-path di ogni versione di progetto, contiene la lista dei sorgenti utilizzati.
+Di seguito un riassunto degli stessi:
+
+[table_onescounter_sources,subs="attributes+"]
+[cols="25%,75%",options="header"]
+|===
+| File | Description
+
+| `search_chr.vhdl`
+| Descrizione completa del dispositivo, Control Unit e Datapath.
+
+| `memory.vhdl`
+| Modello funzionale della memoria esterna da usarsi in congiunzione con il dispositivo.
+
+| `TB.vhdl`
+| Testbench che istanzia la memoria, il DUT ed i suoi stimoli.
+
+|===
+
+=== search_chr.vhdl
+
+Il dispositivo é completamente descritto in questo file sorgente, utilizzando uno stile a singolo processo per la macchina a stati della parte di controllo.
+I segnali della control unit sono generati da degli statement concorrenti in stile 'compatto'.
+
+Per esempio, considerando il segnale `loadCOUNT`:
+
+[source, vhdl]
+----
+    loadCOUNT   <= '1' when state = INIT or
+                          (state = FETCH and MEM_READY = '1')
+                   else '0';
+----
+
+Il datapath é composto da costrutti sequenziali _in-line_ per descrivere i registri nella forma:
+
+[source, vhdl]
+----
+    COUNT   <= in_COUNT when rising_edge(CLK) and loadCOUNT = '1';
+----
+
+Dove i segnali combinatori sono descritti da statement concorrenti.
+
+Anche per le modifiche operate sulle componenti del dispositivo si é deciso di mantenere lo stile più aderente possibile all'originale.
+
+Il dispositivo `search_chr` gestisce una semplice macchina a stati finiti ed i relativi segnali di controllo per i seguenti scopi:
+
+* Acquisire gli input di definizione della ricerca da eseguire.
+* Preparare gli output verso la memoria in lettura.
+* Ricevere i dati iterativamente nel segmento indicato.
+* Confrontare e contare i byte corrispondenti all'elemento di ricerca.
+
+Si veda la sezione <<asm_search_chr>> per altri dettagli ed una rappresentazinone della Control Unit e delle risorse del Datapath.
+
+=== memory.vhdl
+
+La memoria esterna é completamente descritta nel file `memory.vhdl`.
+
+La stessa non si suppone sintetizzabile, ma é rappresentata in maniera funzionale per corrispondere al comportamento ed interfaccia di una generica implementazione tecnologica di una memoria SRAM.
+
+Il modello non specifica la _writing policy_, lasciando quindi l'uscita della stessa (`dataout`) non definito (`(others => '0')`) in fase di scrittura.
+Questo fattore non é comunque impattante per il dispositivo sotto test il quale si interfaccia solamente in lettura con il presente modello di memoria.
+
+Si nota in particolare il metodo di construzione della memoria nei seguenti costrutti:
+
+[source, vhdl]
+----
+    type ram_type is array (0 to 1023) of bit_vector(7 downto 0);
+...
+    shared variable RAM : ram_type := loadmem;
+----
+
+Il tipo `ram_type` viene costruito come un array bidimensionale di dimensioni `1024x8` bit, strutturato per modellare la memoria.
+L'istanza della `shared variable` (`RAM`) invece rappresenta il contenuto della memoria in simulazione.
+
+Si rimarca l'apposizione dell'attributo `shared` per assicurare che la variabile `RAM` sia accessibile da _tutti_ i processi concorrenti che vogliono usarla.
+Nel caso specifico del modello descritto in `memory.vhdl`, la presenza di un unico processo sequenziale, implica un solo _scope_ di esecuzione.
+Tuttavia la qualifica `shared` é mantenuta per garantire la correttezza semantica anche in caso di future estesioni.
+
+=== TB.vhdl
+
+
+[#asm_search_chr]
 == ASM Chart
 
 Il dispositivo in versione originale implementa una `CTRL Unit` corrispondente al ASM-chart:
@@ -137,7 +220,48 @@ In questa versione, il dispositivo:
 . Verifica la disponibilitá della memoria prima di effettuare una lettura.
 .
 
+Il datapath, per entrambe le versioni, comprende le risorse mostrate nell'immagine:
+
+image::images/ASM-search_chr_dp.drawio.png[]
+
+
 == Risultati
+
+Come per il dispositivo `onescounter`, lo script `runSim_ghdl` puó essere usato per lanciare automaticamente le fasi di analisi, elaborazione e simulazione di `search_chr`.
+
+
+[source,bash]
+----
+$ scripts/runSim_ghdl projects/02_search_chr/a_orig
+$ scripts/runSim_ghdl projects/02_search_chr/b_mem_lat
+$ scripts/runSim_ghdl projects/02_search_chr/c_improved
+$ scripts/runSim_ghdl projects/02_search_chr/d_tb_file
+----
+
+NOTE : Si verifichi che le dipendenze necessarie per eseguire lo script siano soddisfatte, come da sezione <<#script_ghdl>>.
+
+I comandi estrapolati dallo script sono come da esempio, assumendo di testare la versione `a_orig`:
+
+[source,bash]
+----
+    # Sposta la $PWD nel percorso indicato del progetto, sottocartella `simul.rtl`
+pushd <prj_path>/02_search_chr/a_orig/simul.rtl
+    # Analisi GHDL per tutti i file estratti da sources.vc
+ghdl -a -v --std=93c    <prj_path>/>02_search_chr/a_orig/code/search_chr.vhdl \
+                        <prj_path>/>02_search_chr/a_orig/code/memory.vhdl \
+                        <prj_path>/>02_search_chr/a_orig/code/TB.vhdl
+    # Elaborazione
+ghdl -e -v --std=93c tb
+    # Simulazione, salva wave-file in formato ghw
+ghdl -r -v --std=93c --time-resolution=ns tb --wave=a_orig.ghw
+    # Invoca `gtkwave` per visualizzare il wave-file
+gtkwave a_orig.ghw
+    # Al termine, ritorna alla directory iniziale
+popd
+----
+
+NOTE: Lo script estrae il path assoluto per ognuno dei file sorgente, per cui `<prj_path>` assumerá il valore dipendente dal percorso del sistema.
+
 === Analisi ed elaborazione
 === Simulazione
 === Verifica del funzionamento
