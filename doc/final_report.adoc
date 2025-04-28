@@ -5,6 +5,7 @@
 :toclevels: 3
 :preface-title: Introduzione
 :note-caption: Nota
+:warning-caption: Avvertenza
 David Trevisan
 
 == Introduzione
@@ -100,6 +101,7 @@ Inoltre la struttura directory del progetto, passato come primo argomento quando
 
 Per utilizzare lo script, la linea di comando tipica segue la forma:
 
+[#runSim_ghdl_generic]
 [source,bash]
 ----
 $ scripts/runSim_ghdl projects/<prj_name> [(Optional) GENERIC_OVERRIDE=Value]
