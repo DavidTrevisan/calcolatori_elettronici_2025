@@ -22,7 +22,7 @@ architecture behav of tb is
     signal tb_state, tb_nextstate   : tb_statetype;
 
     -- Parameterized array size
-    constant MAX_INSTR               : integer := 3;
+    constant MAX_INSTR               : integer := 30;
     type array_of_integers           is array (0 to MAX_INSTR - 1) of integer;
     type array_of_arrays_of_integers is array (0 to 2) of array_of_integers;
 
