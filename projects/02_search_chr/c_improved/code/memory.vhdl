@@ -87,7 +87,7 @@ begin
         end if;
     end process;
 
-    ready <= '1' when latcnt = 0 else '0'; -- latency: 1 cycle
+    ready <= '1' when latcnt = 0 else '0';
 
     assert MEM_LAT > 0
         report "ERROR: Generic parameter 'MEM_LAT' can't be 0 or a negative number "
