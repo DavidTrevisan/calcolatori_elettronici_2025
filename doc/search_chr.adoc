@@ -286,7 +286,32 @@ Il processo principale che modella la memoria ha quindi subito variazioni minime
 I nomi dei registri corrispondono ai nomi degli input, preposti dalla lettera `R` nel nome del segnale.
 Il processo sequenziale viene inoltre mascherato dal controllo sul contatore della latenza.
 
-Si considera che questa versione modelli una memoria a latenza variabile (superiore ad `1`) secondo le richieste e che il comportamento sia assimilabile ad un'implementazione tecnologica equivalente.
+Questa modifica presenta peró delle peculiaritá nel caso `MEM_LAT = 1`.
+Il componente infatti si comporta come segue al set del segnale `MEM_ENABLE`:
+
+. **Al ciclo N**: `latcnt` viene impostato, ed i segnali `R*` vengono catturati
+. **Al ciclo N+1**: `latcnt = 0` ed i segnali registrati vengono usati.
+
+Questo crea a tutti gli effetti un _ritardo_ di un ciclo anche nel caso di `MEM_LAT = 1` quando invece si desidera la disponibilitá immediata del dato.
+
+Per garantire il comportamento identico all'originale nel caso `MEM_LAT => 1`, sono stati utilizzati dei costrutti `if...generate` per sovrascrivere _l'extra buffering_ dei segnali in questo caso.
+
+[source,vhdl]
+----
+gen_no_lat : if MEM_LAT = 1 generate
+    latcnt      <= 0;
+    Raddress    <= address;
+    Renable     <= enable;
+    Rwe         <= we;
+    Rdatain     <= datain;
+
+    ready <= '1';
+end generate;
+----
+
+Il componente nella condizione descritta appare quindi identico all'originale, e non perderá alcun ciclo dovuto al _load_ dei registri.
+
+Si considera che questa versione modelli una memoria a latenza variabile secondo le richieste e che il comportamento sia assimilabile ad un'implementazione tecnologica equivalente.
 
 Tuttavia resta un modello non sintetizzabile da tenere sotto controllo per evitare comportamenti errati ed inattesi, come nel caso di una configurazione del parametro `MEM_LAT` nullo o negativo.
 La richiesta del tipo `positive` del _generic_ impone al tool di simulazione il controllo che questa situazione non si verifichi.
@@ -298,8 +323,6 @@ Tuttavia si é scelto di introdurre, seppur in maniera ridondante, un `assert` c
         report "ERROR: Generic parameter 'MEM_LAT' can't be 0 or a negative number "
         severity FAILURE;
 ----
-
-Si considera perció il modello funzionale ai fini dei test diretti alla simulazione del dispositivo `search_chr`.
 
 === TB.vhdl
 
@@ -367,9 +390,9 @@ Infine, la mappatura del parametro `MEM_LAT` viene fatta a livello di istanza de
 La versione modificata del testbench introduce la possibilitá di determinare i dati da assegnare agli input prendendoli da un file esterno `assets/instr.txt`.
 
 Ogni 'terzina' di segnali `{ADDRESS, CHAR, LEN}` viene descritta da gruppi di tre righe, separati da una riga vuota (`\n`), gruppi chiamati 'istruzioni' in questa versione.
-Il processo é stato modificato per analizzare il file in questo modo, e per terminare la simulazione una volta usati tutte le istruzioni.
+Il processo é stato modificato per analizzare il file in questo modo, e per terminare la simulazione una volta usate tutte le istruzioni.
 
-Per evitare di complicare eccessivamente il testbench senza una riscrittura massiccia, si é mantenuto lo stile originale di conteggio delle 'istruzioni' che ha un valore massimo raggiungibile dato dalla costante
+Per evitare di complicare eccessivamente il testbench con una riscrittura massiccia, si é mantenuto lo stile originale del conteggio delle 'istruzioni' che ha un valore massimo raggiungibile dato dalla costante
 
 [source,vhdl]
 ----
@@ -408,18 +431,18 @@ Il dispositivo in versione originale implementa una `CTRL Unit` corrispondente a
 
 image::images/ASM-search_chr_orig.drawio.png[]
 
-Si nota che, per ogni transazione con la memoria esterna, un ciclo viene 'sprecato' nello stato `START_READ` per preparare l'indirizzo ed il segnale di enable, mentre si attende il dato in uno stato diverso (`FETCH`).
-Inoltre la memoria viene abilitata, sempre in `START_READ`, assumendo che sia pronta, ma senza averne verificato l'effettiva disponibilitá con il segnale `MEM_READY`.
+Si nota che, per ogni transazione con la memoria esterna, un ciclo viene 'sprecato' tra la preparazione dell'indirizzo ed il segnale di enable, mentre si attende la disponibilitá del dato.
 
-La versione del dispositivo migliorata risolve entrambe queste osservazioni ed é rappresentata nel seguente ASM-chart:
+La versione del dispositivo migliorata (versione `c`) risolve questa osservazione ed é rappresentata nel seguente ASM-chart:
 
 image::images/ASM-search_chr_improved.drawio.png[]
 
-In questa versione, il dispositivo:
+In questa versione, il dispositivo effettua entrambe le operazioni di `FETCH` e `COMPARE` in un unico stato e quindi prepara continuamente la prossima richiesta verso la memoria.
+Il collo di bottiglia é dato perció dalla memoria stessa, ma ad un leggero incremento di percorsi combinatori nella control unit.
+Si nota infatti la dipendenza della conditional output box da _due comparatori_ a loro volta interdipendenti.
+In assenza di chiari limiti tecnologici, si considera comunque triviale questa modifica vista la poca complessitá del dispositivo.
 
-. Verifica la disponibilitá della memoria prima di effettuare una lettura.
-.
-
+<<<
 Il datapath, per entrambe le versioni, comprende le risorse mostrate nell'immagine:
 
 image::images/ASM-search_chr_dp.drawio.png[]
@@ -445,11 +468,11 @@ I comandi estrapolati dallo script sono come da esempio, assumendo di testare la
 [source,bash]
 ----
     # Sposta la $PWD nel percorso indicato del progetto, sottocartella `simul.rtl`
-pushd <prj_path>/02_search_chr/a_orig/simul.rtl
+pushd projects/02_search_chr/a_orig/simul.rtl
     # Analisi GHDL per tutti i file estratti da sources.vc
-ghdl -a -v --std=93c    <prj_path>/>02_search_chr/a_orig/code/search_chr.vhdl \
-                        <prj_path>/>02_search_chr/a_orig/code/memory.vhdl \
-                        <prj_path>/>02_search_chr/a_orig/code/TB.vhdl
+ghdl -a -v --std=93c    projects/02_search_chr/a_orig/code/search_chr.vhdl \
+                        projects/02_search_chr/a_orig/code/memory.vhdl \
+                        projects/02_search_chr/a_orig/code/TB.vhdl
     # Elaborazione
 ghdl -e -v --std=93c tb
     # Simulazione, salva wave-file in formato ghw
@@ -460,11 +483,11 @@ gtkwave a_orig.ghw
 popd
 ----
 
-NOTE: Lo script estrae il path assoluto per ognuno dei file sorgente, per cui `<prj_path>` assumerá il valore dipendente dal percorso del sistema.
+NOTE: Lo script estrae il path assoluto per ognuno dei file sorgente, per cui `projects` assumerá il valore dipendente dal percorso del sistema.
 
 === Versione 'b': Memoria con latenza variabile
 
-Come anche segnalato nella sezione <<runSim_ghdl_generic, relativa allo script>>, é possibile quindi utilizzare l'helper script configurando il test con diversi valori di latenza per la simulazione.
+Come anche segnalato nella sezione <<runSim_ghdl_generic, relativa allo script>>, é possibile utilizzare l'helper script configurando il test con diversi valori di latenza per la simulazione.
 
 [source, bash]
 ----

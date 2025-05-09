@@ -90,7 +90,7 @@ Le operazioni eseguite dallo script sono le seguenti:
 [source,bash]
 ----
 # Sposta la $PWD nel percorso indicato del progetto, sottocartella `simul.rtl`
-pushd <prj_path>/01_onescounter/simul.rtl
+pushd projects/01_onescounter/simul.rtl
 # Analisi GHDL per tutti i file estratti da sources.vc
 ghdl -a -v --std=93c    projects/01_onescounter/code/reg8.vhdl \
                         projects/01_onescounter/code/zerodetect.vhdl \
