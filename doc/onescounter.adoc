@@ -37,15 +37,15 @@ A new computation can start.
 
 |===
 
-[.center,ditaa-onescounter_ports]
-[ditaa]
+[.center,svgbob-onescounter_ports]
+[svgbob]
 ----
                +----------------+
-  X (8) ------>|                |---> OUTP (8)
+  X (8) ------>|                |----> OUTP (8)
                |                |
-DATAIN  ------>|  onescounter   |---> READY
+DATAIN  ------>|  onescounter   |----> READY
                |                |
- CALC   ------>|                |---> OK
+ CALC   ------>|                |----> OK
                +----------------+
 ----
 
