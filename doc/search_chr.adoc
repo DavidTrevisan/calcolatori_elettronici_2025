@@ -46,7 +46,7 @@ Per implementare questa funzionalitá il dispositivo é descritto dalle seguenti
 
 |===
 
-Per effettuare la ricerca nella memoria, il dispositivo necessita di un interfaccia adatta.
+Per effettuare la ricerca nella memoria, il dispositivo necessita di un'interfaccia adatta.
 Nella seguente tabella si identificano i segnali utilizzati per interfacciarsi con una generica memoria SRAM.
 
 [table_search_chr_MemoryIF,subs="attributes+"]
@@ -90,29 +90,28 @@ Nella seguente tabella si identificano i segnali utilizzati per interfacciarsi c
 
 |===
 
-[.center,ditaa-search_chr_ports]
-[ditaa]
+[.center,svgbob-search_chr_ports]
+[svgbob]
 ----
                     +----------------+
-ADDRESS (32)------> |                |---> MEM_ENABLE
+ADDRESS [32]------> |                |---> MEM_ENABLE
                     |                |---> MEM_WE
-    CHAR (8)------> |                |
-                    |   search_chr   |---> MEM_ADDRESS (32)
-    LEN     ------> |                |<--- MEM_DATAIN (8)
-                    |                |---> MEM_DATAOUT (8)
+    CHAR [8]------> |                |
+                    |   search_chr   |---> MEM_ADDRESS [32]
+    LEN     ------> |                |<--- MEM_DATAIN [8]
+                    |                |---> MEM_DATAOUT [8]
     nFOUND  <------ |                |
                     |                |<--- MEM_READY
                     +----------------+
                         ^       |
                         |       |
                         |       v
-
                       START   READY
 ----
 
 Il dispositivo viene presentato nelle seguenti versioni:
 
-[loweralpha]
+[loweralpha, bold]
 . Originale, secondo requisiti.
 . Memoria a latenza variabile.
 . Dispositivo senza ciclo 'di attesa' dopo una lettura in memoria.

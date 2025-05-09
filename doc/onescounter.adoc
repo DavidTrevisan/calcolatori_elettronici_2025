@@ -41,7 +41,7 @@ A new computation can start.
 [svgbob]
 ----
                +----------------+
-  X (8) ------>|                |----> OUTP (8)
+  X [8] ------>|                |----> OUTP [8]
                |                |
 DATAIN  ------>|  onescounter   |----> READY
                |                |
@@ -83,7 +83,7 @@ $ scripts/runSim_ghdl projects/01_onescounter
 Si verifichi che le dipendenze necessarie per eseguire lo script siano soddisfatte, come da sezione <<#script_ghdl>>.
 ====
 
-Lo script richiede almeno un argomento, il path del progetto da simulare, ed assume la struttura directory come descritta nella <<#dir_struct, sezione dedicata>>.
+Lo script richiede almeno un argomento, il path del progetto da simulare, che assuma la struttura directory come descritta nella <<#dir_struct, sezione dedicata>>.
 
 Le operazioni eseguite dallo script sono le seguenti:
 
@@ -92,17 +92,17 @@ Le operazioni eseguite dallo script sono le seguenti:
 # Sposta la $PWD nel percorso indicato del progetto, sottocartella `simul.rtl`
 pushd <prj_path>/01_onescounter/simul.rtl
 # Analisi GHDL per tutti i file estratti da sources.vc
-ghdl -a -v --std=93c <prj_path>/01_onescounter/code/reg8.vhdl \
-                    <prj_path>/01_onescounter/code/zerodetect.vhdl \
-                    <prj_path>/01_onescounter/code/rshift.vhdl \
-                    <prj_path>/01_onescounter/code/mux2x8.vhdl \
-                    <prj_path>/01_onescounter/code/mux4x8.vhdl \
-                    <prj_path>/01_onescounter/code/adder.vhdl \
-                    <prj_path>/01_onescounter/code/datapath.vhdl \
-                    <prj_path>/01_onescounter/code/ctrlunit.vhdl \
-                    <prj_path>/01_onescounter/code/onescounter_pkg.vhdl \
-                    <prj_path>/01_onescounter/code/onescounter.vhdl \
-                    <prj_path>/01_onescounter/code/TB.vhdl
+ghdl -a -v --std=93c    projects/01_onescounter/code/reg8.vhdl \
+                        projects/01_onescounter/code/zerodetect.vhdl \
+                        projects/01_onescounter/code/rshift.vhdl \
+                        projects/01_onescounter/code/mux2x8.vhdl \
+                        projects/01_onescounter/code/mux4x8.vhdl \
+                        projects/01_onescounter/code/adder.vhdl \
+                        projects/01_onescounter/code/datapath.vhdl \
+                        projects/01_onescounter/code/ctrlunit.vhdl \
+                        projects/01_onescounter/code/onescounter_pkg.vhdl \
+                        projects/01_onescounter/code/onescounter.vhdl \
+                        projects/01_onescounter/code/TB.vhdl
 # Elaborazione
 ghdl -e -v --std=93c tb
 # Simulazione, salva wave-file in formato ghw
@@ -113,7 +113,7 @@ gtkwave onescounter.ghw
 popd
 ----
 
-Lo script estrae il path assoluto per ognuno dei file sorgente, per cui `<prj_path>` assumerá il valore dipendente dal percorso del sistema.
+Lo script estrae il path assoluto per ognuno dei file sorgente, per cui `projects` assumerá il valore dipendente dal percorso del sistema.
 
 == Analisi dei File Sorgente
 
@@ -131,7 +131,7 @@ Il file `sources.vc` contiene la lista dei sorgenti utilizzati, che vengono di s
 | Descrizione di un comparatore con `0` di larghezza 8 bit da usarsi nella rappresentazione strutturale.
 
 | `rshift.vhdl`
-| Descrizione di un right-shift-register di larghezza 8 bit da usarsi nella rappresentazione strutturale.
+| Descrizione di uno right-shift-register di larghezza 8 bit da usarsi nella rappresentazione strutturale.
 
 | `mux2x8.vhdl`
 | Descrizione di un multiplexer 2 ingressi da 8 bit ciascuno, da usarsi nella rappresentazione strutturale.
@@ -339,10 +339,10 @@ La generazione del clock é invece stata modificata come segue per fermarsi al s
 
 In assenza di costrutti errati che mettano indefinitamente in stallo la simulazione, GHDL terminerá la sua esecuzione quando tutti gli eventi si fermeranno a seguito del set del segnale `done`.
 
-.Asset data.txt
+=== Asset data.txt
 Il testbench utilizza un file esterno da cui leggere i dati da utilizzare per gli stimoli del Device Under Test.
 
-Il file `assets/data.txt` é un file di testo ASCII contentente stringhe testuali da interpretarsi come valori binari.
+Il file `assets/data.txt` é un testo ASCII contentente stringhe testuali da interpretarsi come valori binari.
 
 Ogni iterazione di lettura del file si aspetta quattro elementi, uno per riga, nel seguente ordine:
 
@@ -352,8 +352,7 @@ Ogni iterazione di lettura del file si aspetta quattro elementi, uno per riga, n
 . Un singolo bit per l'ingresso `CALC`
 
 Al termine di questo set di stimoli, una riga vuota viene scartata e utilizzata per separare i gruppi di segnali.
-Per terminare il file e, quindi, il test occorre aggiungere una seconda riga vuota che verrá decodificata dal processo `read_file_process` quale trigger per la terminazione della simulazione.
-
+Per terminare il file ed il test occorre aggiungere una seconda riga vuota che verrá decodificata dal processo `read_file_process` quale trigger per la terminazione della simulazione.
 
 <<<
 == ASM Chart
@@ -380,9 +379,9 @@ Mentre il datapath é rimasto inalterato, l'utilizzo delle _conditional output b
 La funzionalitá del segnale `DEBUG` corrisponde a quella della versione precedente.
 
 Si nota come nella versione Mealy l'ottimizzazione risultante dalla rimozione dello stato `INC` a favore dell'utilizzo delle conditional output boxes, stimoli un incremento immediato del registro `ONES` rispetto alla versione Moore.
-Questa cosa verrá infatti osservata in fase di simulazione e verifica.
+Questo verrá infatti osservata in fase di simulazione e verifica.
 
-La decisione di fornire un testbench unico per stimolare simultaneamente le diverse architetture, viene avvallata dai seguenti motivi:
+La decisione di fornire un testbench unico per stimolare simultaneamente le diverse architetture, viene argomentata dai seguenti motivi:
 
 * Il datapath resta identico.
 * Le specifiche sugli input/output restano identiche.
@@ -436,7 +435,7 @@ Il dispositivo é stato quindi simulato e verificato nel suo funzionamento attra
 
 Si presentano alcune sezioni rilevanti del test.
 
-.Funzione DEBUG input
+==== Funzione DEBUG input
 
 Il funzionamento del segnale `DEBUG` é stato stimolato con le sequenze presenti in `assets/data.txt`:
 
@@ -477,7 +476,7 @@ image::images/onescounter_DEBUG.png[]
 I marker **A**, **B** e **C** identificano i fronti del clock sul quale il segnale `DEBUG` viene letto e conseguentemente l'uscita `OUTP` viene
 aggiornata con i valori attesi.
 
-.Funzionamento normale del dispositivo
+==== Funzionamento normale del dispositivo
 
 Con il test proposto, risulta necessario osservare manualmente lo stato dei segnali di `onescounter` per verificarne il correto funzionamento secondo i requisiti.
 
