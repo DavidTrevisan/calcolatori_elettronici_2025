@@ -72,6 +72,17 @@ begin
         end if;
     end process;
 
+gen_no_lat : if MEM_LAT = 1 generate
+    latcnt      <= 0;
+    Raddress    <= address;
+    Renable     <= enable;
+    Rwe         <= we;
+    Rdatain     <= datain;
+
+    ready <= '1';
+end generate;
+
+gen_mem_lat : if MEM_LAT > 1 generate
     process(CLK)
     begin
         if rising_edge(CLK) then
@@ -88,6 +99,7 @@ begin
     end process;
 
     ready <= '1' when latcnt = 0 else '0';
+end generate;
 
     assert MEM_LAT > 0
         report "ERROR: Generic parameter 'MEM_LAT' can't be 0 or a negative number "
