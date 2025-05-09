@@ -73,7 +73,7 @@ begin
     READY       <= '1' when state = INIT else '0';
 
     MEM_ENABLE  <= '1' when (state = START_READ) or
-                           (state = FETCH_AND_COMPARE and COUNT_eq_L = '0')
+                           (state = FETCH_AND_COMPARE and COUNT_eq_L = '0' and MEM_READY = '1')
                    else '0';
 
     MEM_WE      <= '0';
