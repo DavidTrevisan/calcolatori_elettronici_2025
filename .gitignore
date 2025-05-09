@@ -35,6 +35,7 @@
 .asciidoctor/**
 doc/diag-*
 doc/ditaa-*
+doc/svgbob-*
 *.cf
 *.ghw
 *.log
