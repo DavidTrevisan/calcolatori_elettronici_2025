@@ -442,6 +442,10 @@ Il collo di bottiglia é dato perció dalla memoria stessa, ma ad un leggero inc
 Si nota infatti la dipendenza della conditional output box da _due comparatori_ a loro volta interdipendenti.
 In assenza di chiari limiti tecnologici, si considera comunque triviale questa modifica vista la poca complessitá del dispositivo.
 
+WARNING: ##TODO## FIX VERSIONE CON RICHIESTA FINALE EXTRA!!!!
+
+image::images/fixme.png[]
+
 <<<
 Il datapath, per entrambe le versioni, comprende le risorse mostrate nell'immagine:
 
