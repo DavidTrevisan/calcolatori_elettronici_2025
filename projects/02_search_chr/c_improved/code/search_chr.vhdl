@@ -53,7 +53,7 @@ begin
         case state is
             when INIT =>
                 if START = '1' then
-                    nextstate <= START_READ;
+                    nextstate <= FETCH_AND_COMPARE;
                 else
                     nextstate <= INIT;
                 end if;
