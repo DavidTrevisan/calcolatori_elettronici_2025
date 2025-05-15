@@ -25,7 +25,7 @@ end search_chr;
 
 architecture rtl of search_chr is
 
-    type statetype is (INIT, START_READ, FETCH_AND_COMPARE);
+    type statetype is (INIT, FETCH_AND_COMPARE);
     signal state, nextstate : statetype;
 
     signal A, in_A          : std_logic_vector(31 downto 0);
@@ -57,8 +57,6 @@ begin
                 else
                     nextstate <= INIT;
                 end if;
-            when START_READ =>
-                nextstate <= FETCH_AND_COMPARE;
             when FETCH_AND_COMPARE =>
                 if COUNT_eq_L = '1' then
                     nextstate <= INIT;
@@ -72,7 +70,7 @@ begin
 
     READY       <= '1' when state = INIT else '0';
 
-    MEM_ENABLE  <= '1' when (state = START_READ) or
+    MEM_ENABLE  <= '1' when
                            (state = FETCH_AND_COMPARE and COUNT_eq_L = '0' and MEM_READY = '1')
                    else '0';
 
@@ -126,8 +124,7 @@ begin
     COUNT_eq_L <= '1' when COUNT = L else '0';
 
     -- data outputs
-    MEM_ADDRESS <= A when   state = START_READ or
-                            state = FETCH_AND_COMPARE
+    MEM_ADDRESS <= A when state = FETCH_AND_COMPARE
                     else
                         (others => '-');
     MEM_DATAOUT <= (others => '-');
