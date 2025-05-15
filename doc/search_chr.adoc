@@ -442,9 +442,7 @@ Il collo di bottiglia é dato perció dalla memoria stessa, ma ad un leggero inc
 Si nota infatti la dipendenza della conditional output box da _due comparatori_ a loro volta interdipendenti.
 In assenza di chiari limiti tecnologici, si considera comunque triviale questa modifica vista la poca complessitá del dispositivo.
 
-WARNING: ##TODO## FIX VERSIONE CON RICHIESTA FINALE EXTRA!!!!
-
-image::images/fixme.png[]
+NOTE: Trovato un possibile baco funzionale nel modello di memoria a latenza variabile. Questo porta i problemi successivi. Suggerisco l'uso di un semplice shift register impostato da `MEM_LAT` per trasportare il dato al ciclo desiderato.
 
 <<<
 Il datapath, per entrambe le versioni, comprende le risorse mostrate nell'immagine:
