@@ -72,7 +72,7 @@ begin
 
     READY       <= '1' when state = INIT else '0';
 
-    MEM_ENABLE  <= '1' when (state = START_READ) or
+    MEM_ENABLE  <= '1' when state = START_READ or
                            (state = FETCH_AND_COMPARE and COUNT_eq_L = '0' and MEM_READY = '1')
                    else '0';
 
@@ -126,8 +126,9 @@ begin
     COUNT_eq_L <= '1' when COUNT = L else '0';
 
     -- data outputs
-    MEM_ADDRESS <= A when   state = START_READ or
-                            state = FETCH_AND_COMPARE
+    MEM_ADDRESS <= A when
+                        state = START_READ or
+                        state = FETCH_AND_COMPARE
                     else
                         (others => '-');
     MEM_DATAOUT <= (others => '-');

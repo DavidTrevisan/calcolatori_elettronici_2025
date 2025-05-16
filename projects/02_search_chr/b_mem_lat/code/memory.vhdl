@@ -50,8 +50,8 @@ architecture s of memory is
 ------------------------------
 
     type sequencer_type is array (0 to MEM_LAT-1) of std_logic_vector(dataout'RANGE);
-    signal seq_dataout  : sequencer_type;
-    signal seq_ready    : std_logic_vector(0 to MEM_LAT-1);
+    signal seq_dataout  : sequencer_type                    := (others => (others => '0') ) ;
+    signal seq_ready    : std_logic_vector(0 to MEM_LAT-1)  := (others => '0') ;
 
 begin
 
@@ -76,22 +76,25 @@ end generate;
 gen_mem_lat : if MEM_LAT > 1 generate
     process(CLK)
     begin
-        if rising_edge(CLK) and enable = '1' then
-            seq_ready(MEM_LAT-1) <= '1';
-            if we = '1' then
-                RAM(to_integer(unsigned(address))) := to_bitvector(datain);
-                seq_dataout(MEM_LAT-1) <= (others => '-'); -- writing policy not specified
-            else
-                seq_dataout(MEM_LAT-1) <= to_stdlogicvector(RAM(to_integer(unsigned(address))));
-            end if;
+        if rising_edge(CLK) then
             -- Synchronizer chain
-        else
-            seq_dataout(MEM_LAT-1)  <= (others => '0');
             seq_ready(MEM_LAT-1)    <= '0';
             for i in MEM_LAT-1 downto 1 loop
-                seq_dataout(i-1)    <= seq_dataout(i);
+                if seq_ready(i) = '1' then
+                    seq_dataout(i-1)    <= seq_dataout(i);
+                end if;
                 seq_ready(i-1)      <= seq_ready(i);
             end loop;
+
+            if enable = '1' then
+                seq_ready(MEM_LAT-1) <= '1';
+                if we = '1' then
+                    RAM(to_integer(unsigned(address))) := to_bitvector(datain);
+                    seq_dataout(MEM_LAT-1) <= (others => '-'); -- writing policy not specified
+                else
+                    seq_dataout(MEM_LAT-1) <= to_stdlogicvector(RAM(to_integer(unsigned(address))));
+                end if;
+            end if;
         end if;
     end process;
 end generate;
