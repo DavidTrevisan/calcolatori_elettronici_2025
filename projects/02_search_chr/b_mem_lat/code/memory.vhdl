@@ -49,57 +49,55 @@ architecture s of memory is
 
 ------------------------------
 
-    signal latcnt : integer := 0;
-
-    signal Raddress : std_logic_vector(31 downto 0);
-    signal Renable  : std_logic;
-    signal Rwe      : std_logic;
-    signal Rdatain  : std_logic_vector(7 downto 0);
+    type sequencer_type is array (0 to MEM_LAT-1) of std_logic_vector(dataout'RANGE);
+    signal seq_dataout  : sequencer_type;
+    signal seq_ready    : std_logic_vector(0 to MEM_LAT-1);
 
 begin
 
-    process(CLK)
-    begin
-        if rising_edge(CLK) and latcnt = 0 then
-            if Renable = '1' then
-                if Rwe = '1' then
-                    RAM(to_integer(unsigned(Raddress))) := to_bitvector(Rdatain);
-                    dataout <= (others => '-'); -- writing policy not specified
-                else
-                    dataout <= to_stdlogicvector(RAM(to_integer(unsigned(Raddress))));
-                end if;
-            end if;
-        end if;
-    end process;
+
 
 gen_no_lat : if MEM_LAT = 1 generate
-    latcnt      <= 0;
-    Raddress    <= address;
-    Renable     <= enable;
-    Rwe         <= we;
-    Rdatain     <= datain;
+    seq_ready(0) <= '1';
 
-    ready <= '1';
+    process(CLK)
+        begin
+            if rising_edge(CLK) and enable = '1' then
+                if we = '1' then
+                    RAM(to_integer(unsigned(address))) := to_bitvector(datain);
+                    seq_dataout(0) <= (others => '-'); -- writing policy not specified
+                else
+                    seq_dataout(0) <= to_stdlogicvector(RAM(to_integer(unsigned(address))));
+                end if;
+            end if;
+        end process;
 end generate;
 
 gen_mem_lat : if MEM_LAT > 1 generate
     process(CLK)
     begin
-        if rising_edge(CLK) then
-            if enable = '1' then
-                latcnt      <= MEM_LAT - 1;
-                Raddress    <= address;
-                Renable     <= enable;
-                Rwe         <= we;
-                Rdatain     <= datain;
-            elsif latcnt /= 0 then
-                latcnt <= latcnt - 1;
+        if rising_edge(CLK) and enable = '1' then
+            seq_ready(MEM_LAT-1) <= '1';
+            if we = '1' then
+                RAM(to_integer(unsigned(address))) := to_bitvector(datain);
+                seq_dataout(MEM_LAT-1) <= (others => '-'); -- writing policy not specified
+            else
+                seq_dataout(MEM_LAT-1) <= to_stdlogicvector(RAM(to_integer(unsigned(address))));
             end if;
+            -- Synchronizer chain
+        else
+            seq_dataout(MEM_LAT-1)  <= (others => '0');
+            seq_ready(MEM_LAT-1)    <= '0';
+            for i in MEM_LAT-1 downto 1 loop
+                seq_dataout(i-1)    <= seq_dataout(i);
+                seq_ready(i-1)      <= seq_ready(i);
+            end loop;
         end if;
     end process;
-
-    ready <= '1' when latcnt = 0 else '0';
 end generate;
+
+    dataout <= seq_dataout(0);
+    ready   <= seq_ready(0);
 
     assert MEM_LAT > 0
         report "ERROR: Generic parameter 'MEM_LAT' can't be 0 or a negative number "
