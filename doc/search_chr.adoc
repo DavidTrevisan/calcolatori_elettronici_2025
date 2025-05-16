@@ -5,6 +5,7 @@ La ricerca viene effettuata a partire da un indirizzo e per una certa lunghezza,
 
 Per implementare questa funzionalitá il dispositivo é descritto dalle seguenti porte di input ed output:
 
+[%unbreakable]
 [table_search_chr_IOports,subs="attributes+"]
 [cols="^2m,^2,^2,6",options="header"]
 |===
@@ -49,6 +50,7 @@ Per implementare questa funzionalitá il dispositivo é descritto dalle seguenti
 Per effettuare la ricerca nella memoria, il dispositivo necessita di un'interfaccia adatta.
 Nella seguente tabella si identificano i segnali utilizzati per interfacciarsi con una generica memoria SRAM.
 
+[%unbreakable]
 [table_search_chr_MemoryIF,subs="attributes+"]
 [cols="^2m,^2,^1,5",options="header"]
 |===
@@ -147,6 +149,7 @@ I segnali della control unit sono generati da degli statement concorrenti in sti
 
 Per esempio, considerando il segnale `loadCOUNT`:
 
+[%unbreakable]
 [source, vhdl]
 ----
     loadCOUNT   <= '1' when state = INIT or
@@ -227,7 +230,7 @@ Il seguente diagramma esemplifica le due transazioni descritte.
   { name: 'address',wave: 'x=x.|.=x...',	data: ["A0", "A1"] },
   { name: 'we', 	wave: '0...|......' },
   { name: 'dataout',wave: 'x.=.|....=.',	data: ["D0", "D1"] },
-  { name: 'ready', 	wave: '0.1.|..0.1.' },
+  { name: 'ready', 	wave: 'x01x|.0..10' },
 ],
 
   head: {text:
@@ -240,8 +243,11 @@ Il seguente diagramma esemplifica le due transazioni descritte.
 }
 ....
 
-Il codice é stato quindi modificato di conseguenza:
+Dopo aver sperimentato una soluzione in cui gli ingressi venivano registrati e "trasportati" all'istante di lettura desiderato dalla latenza, si é scelto di seguire un'implementazione differente creando invece una catena di registri sui segnali di uscita.
 
+Si veda nella sezione <<bug_b_mem_lat, Risultati>>, per le considerazioni sulle differenze di approccio.
+
+[%unbreakable]
 [source, vhdl]
 ----
 entity memory is
@@ -251,70 +257,75 @@ entity memory is
 ...
 architecture s of memory is
 ...
-    signal latcnt : integer := 0;
-
-    signal Raddress : std_logic_vector(31 downto 0);
-    signal Renable  : std_logic;
-    signal Rwe      : std_logic;
-    signal Rdatain  : std_logic_vector(7 downto 0);
+    type sequencer_type is array (0 to MEM_LAT-1) of std_logic_vector(dataout'RANGE);
+    signal seq_dataout  : sequencer_type                    := (others => (others => '0') ) ;
+    signal seq_ready    : std_logic_vector(0 to MEM_LAT-1)  := (others => '0') ;
 ...
     process(CLK)
     begin
         if rising_edge(CLK) then
+            -- Synchronizer chain
+            seq_ready(MEM_LAT-1)    <= '0';
+            for i in MEM_LAT-1 downto 1 loop
+                if seq_ready(i) = '1' then
+                    seq_dataout(i-1)    <= seq_dataout(i);
+                end if;
+                seq_ready(i-1)      <= seq_ready(i);
+            end loop;
+
             if enable = '1' then
-                latcnt      <= MEM_LAT - 1;
-                Raddress    <= address;
-                Renable     <= enable;
-                Rwe         <= we;
-                Rdatain     <= datain;
-            elsif latcnt /= 0 then
-                latcnt <= latcnt - 1;
+                seq_ready(MEM_LAT-1) <= '1';
+                if we = '1' then
+                    RAM(to_integer(unsigned(address))) := to_bitvector(datain);
+                    seq_dataout(MEM_LAT-1) <= (others => '-'); -- writing policy not specified
+                else
+                    seq_dataout(MEM_LAT-1) <= to_stdlogicvector(RAM(to_integer(unsigned(address))));
+                end if;
             end if;
         end if;
     end process;
-
-    ready <= '1' when latcnt = 0 else '0';
+...
+    dataout <= seq_dataout(0);
+    ready   <= seq_ready(0);
 ...
 end s;
 ----
 
-Nello spezzone di codice appena illustrato é stato inserito un processo sequenziale che registra tutti i valori di input alla memoria ad ogni abilitazione della stessa (`enable = '1'`).
-Viene anche inizializzato un contatore al valore `MEM_LAT - 1`, che verrá decrementato fino a raggiungere il valore `'0'`.
-Questo contatore viene utilizzato per impostare il segnale `ready` ed abilitare l'output del dato al momento opportuno.
+Si é aggiunto un tipo personalizzato per creare una "pipeline" di registri ad 8 bit (`std_logic_vector`) denominato `sequencer_type`.
+Per il segnale di `ready` invece si é semplicemente utilizzato un vettore di `std_logic`.
 
-Il processo principale che modella la memoria ha quindi subito variazioni minime, atte solo ad introdurre l'utilizzo della versione registrata dei segnali di input.
-I nomi dei registri corrispondono ai nomi degli input, preposti dalla lettera `R` nel nome del segnale.
-Il processo sequenziale viene inoltre mascherato dal controllo sul contatore della latenza.
+Nel processo sequenziale principale sono state effettuate le modifiche salienti.
+In primo luogo si nota l'inserimento di una catena di registri collegati in cascata come nel caso di un sincronizzatore.
+Nel costrutto `for...in...loop`, controllato dal parametro `MEM_LAT`, si collegano i flip-flop interni fino all'ultimo (indice `0`), mentre i flip-flop di indice più alto (`MEM_LAT-1`) vengono sovrascritti dai segnali utili alla memoria nel momento in cui questa viene abilitata.
 
-Questa modifica presenta peró delle peculiaritá nel caso `MEM_LAT = 1`.
-Il componente infatti si comporta come segue al set del segnale `MEM_ENABLE`:
+Per mantenere il comportamento dell'output `dataout` simile all'originale, si é aggiunto un controllo al load di ogni stadio della sequenza `seq_dataout`.
+La registrazione dello stadio precedente avviene solo nel caso in cui stia avvenendo il trasporto di un impulso di `ready`.
+Gli output vengono infine collegati concorrentemente al valore del relativo registro di indice inferiore.
 
-. **Al ciclo N**: `latcnt` viene impostato, ed i segnali `R*` vengono catturati
-. **Al ciclo N+1**: `latcnt = 0` ed i segnali registrati vengono usati.
+[%unbreakable]
+[NOTE]
+====
+Tale scelta permette di mantenere la struttura di accesso alla memoria identica all'originale, modificando solamente il comportamento dei segnali di uscita.
 
-Questo crea a tutti gli effetti un _ritardo_ di un ciclo anche nel caso di `MEM_LAT = 1` quando invece si desidera la disponibilitá immediata del dato.
+Si rimarca peró che il modello presentato _non inferisce_ una memoria a latenza variabile.
+Rappresenta invece un modello funzionale della stessa, utile ai fini del progetto, ma completamente agnostica delle problematiche tecnologiche che richiederebbero la latenza di memoria qui rappresentata.
+====
 
-Per garantire il comportamento identico all'originale nel caso `MEM_LAT => 1`, sono stati utilizzati dei costrutti `if...generate` per sovrascrivere _l'extra buffering_ dei segnali in questo caso.
+Poiché si considera questo componente non sintetizzabile, si accetta l'approssimazione funzionale data da questa scelta implementativa.
+
+Per garantire il comportamento identico all'originale nel caso `MEM_LAT => 1`, e semplificarne la logica, sono stati utilizzati dei costrutti `if...generate` per sovrascrivere _l'extra buffering_ dei segnali in questo caso.
 
 [source,vhdl]
 ----
 gen_no_lat : if MEM_LAT = 1 generate
-    latcnt      <= 0;
-    Raddress    <= address;
-    Renable     <= enable;
-    Rwe         <= we;
-    Rdatain     <= datain;
-
-    ready <= '1';
+    seq_ready(0) <= '1';
+    ...
 end generate;
 ----
 
 Il componente nella condizione descritta appare quindi identico all'originale, e non perderá alcun ciclo dovuto al _load_ dei registri.
 
-Si considera che questa versione modelli una memoria a latenza variabile secondo le richieste e che il comportamento sia assimilabile ad un'implementazione tecnologica equivalente.
-
-Tuttavia resta un modello non sintetizzabile da tenere sotto controllo per evitare comportamenti errati ed inattesi, come nel caso di una configurazione del parametro `MEM_LAT` nullo o negativo.
-La richiesta del tipo `positive` del _generic_ impone al tool di simulazione il controllo che questa situazione non si verifichi.
+La richiesta del tipo `positive` del _generic_ impone al tool di simulazione il controllo che il parametro inserito sia accettabile dall'implementazione.
 Tuttavia si é scelto di introdurre, seppur in maniera ridondante, un `assert` che osservi la stessa regola e, in caso di violazione, stampi un messaggio di errore specifico terminando l'esecuzione.
 
 [source,vhdl]
@@ -345,6 +356,7 @@ signal LENS         : array_of_integers(0 to 2) := (10, 10, 15);
 
 ----
 
+[%unbreakable]
 [WARNING]
 ====
 Rispetto alla versione originale, 'da slides', ai segnali é stato apposto un range definito per evitare l'errore specifico dello standard `--std=93c` di GHDL, con signature:
@@ -359,17 +371,18 @@ Rispetto alla versione originale, 'da slides', ai segnali é stato apposto un ra
 
 Il processo principale del testbench implementa una semplice macchina a stati finiti.
 Questa osserva il segnale `READY` del dispositivo sotto test per iterare progressivamente lo stimolo di una combinazione di input `{ADDRESS, CHAR, LEN}`, incrementalmente ottenuta dai segnali descritti sopra.
-La selezione dei segnali di input avviene tramite statement concorrenti con segnali dipendenti dagli stati della FSM.
+La selezione degli input avviene tramite statement concorrenti con segnali dipendenti dagli stati della FSM.
 Quando tutte le '_terzine_' sono state elaborate, il test termina attivando il segnale `end_simul` dopo un'attesa di dieci cicli.
 
 Non é presente alcun report testuale del risultato, per cui anche in questo progetto risulta necessario osservare manualmente i segnali tramite le forme d'onda generate da simulatore.
 
 ==== Versione 'b': Supporto memoria con latenza variabile
 
-Con riferimento alla sezione <<memory_latency>> relativa al modello VHDL di memoria, il testbench ha dovuto implementare delle modifiche per supportare la latenza variabile.
+Con riferimento alla sezione <<memory_latency>> relativa al modello VHDL di memoria, il testbench ha dovuto subire delle modifiche per supportare la latenza variabile.
 
 In primo luogo si é scelto di esporre lo stesso parametro `MEM_LAT` a livello _top_ del testbench, in modo da poterlo configurare da linea di comando utilizzando le opzioni di GHDL.
 
+[%unbreakable]
 [source, vhdl]
 ----
 ...
@@ -411,6 +424,7 @@ Per gestire la lettura dal file, una funzione impura `load_instr`, confrontabile
 Questa struttura viene infine chiamata `instr_data` e corrisponde ad una _lista di vettori di interi_.
 Nel processo di generazione del reset, e quindi di inizio della simulazione, é stato aggiunto il codice:
 
+[%unbreakable]
 [source, vhdl]
 ----
 ...
@@ -420,7 +434,7 @@ Nel processo di generazione del reset, e quindi di inizio della simulazione, é 
 ...
 ----
 
-creando cosí una corrispondenza diretta con il sistema di assegnazione dei segnali di input precdentemente implementato.
+creando cosí una corrispondenza diretta con il sistema di assegnazione dei segnali di input precedentemente implementato.
 Diversamente dalla versione originale, i vettori `ADDRESSES`, `CHARS` e `LENS` sono ora determinati in lunghezza dalla costante `MAX_INSTRS`.
 Allo stesso modo, il controllo della FSM sul numero di istruzioni completate é stato modificato per usare direttamente la costante `MAX_INSTRS`.
 
@@ -429,32 +443,29 @@ Allo stesso modo, il controllo della FSM sul numero di istruzioni completate é 
 
 Il dispositivo in versione originale implementa una `CTRL Unit` corrispondente al ASM-chart:
 
-image::images/ASM-search_chr_orig.drawio.png[]
+image::images/ASM-search_chr_orig.drawio.svg[]
 
-Si nota che, per ogni transazione con la memoria esterna, un ciclo viene 'sprecato' tra la preparazione dell'indirizzo ed il segnale di enable, mentre si attende la disponibilitá del dato.
+Si nota che, per ogni transazione con la memoria esterna, un ciclo viene 'sprecato' tra `FETCH` e `COMPARE`.
 
 La versione del dispositivo migliorata (versione `c`) risolve questa osservazione ed é rappresentata nel seguente ASM-chart:
 
-image::images/ASM-search_chr_improved.drawio.png[]
+image::images/ASM-search_chr_improved.drawio.svg[]
 
-In questa versione, il dispositivo effettua entrambe le operazioni di `FETCH` e `COMPARE` in un unico stato e quindi prepara continuamente la prossima richiesta verso la memoria.
-Il collo di bottiglia é dato perció dalla memoria stessa, ma ad un leggero incremento di percorsi combinatori nella control unit.
+In questa versione, il dispositivo effettua entrambe le operazioni di `FETCH` e `COMPARE` in un unico stato e prepara continuamente la prossima richiesta verso la memoria.
+Il collo di bottiglia é dato perció dalla memoria stessa, a costo di un leggero incremento di percorsi combinatori nella control unit.
 Si nota infatti la dipendenza della conditional output box da _due comparatori_ a loro volta interdipendenti.
 In assenza di chiari limiti tecnologici, si considera comunque triviale questa modifica vista la poca complessitá del dispositivo.
-
-NOTE: Trovato un possibile baco funzionale nel modello di memoria a latenza variabile. Questo porta i problemi successivi. Suggerisco l'uso di un semplice shift register impostato da `MEM_LAT` per trasportare il dato al ciclo desiderato.
 
 <<<
 Il datapath, per entrambe le versioni, comprende le risorse mostrate nell'immagine:
 
-image::images/ASM-search_chr_dp.drawio.png[]
-
+image::images/ASM-search_chr_dp.drawio.svg[]
 
 == Risultati
 
 Come per il dispositivo `onescounter`, lo script `runSim_ghdl` puó essere usato per lanciare automaticamente le fasi di analisi, elaborazione e simulazione di `search_chr`.
 
-
+[%unbreakable]
 [source,bash]
 ----
 $ scripts/runSim_ghdl projects/02_search_chr/a_orig
@@ -467,6 +478,7 @@ NOTE : Si verifichi che le dipendenze necessarie per eseguire lo script siano so
 
 I comandi estrapolati dallo script sono come da esempio, assumendo di testare la versione `a_orig`:
 
+[%unbreakable]
 [source,bash]
 ----
     # Sposta la $PWD nel percorso indicato del progetto, sottocartella `simul.rtl`
@@ -497,6 +509,9 @@ $ scripts/runSim_ghdl projects/02_search_chr/b_mem_lat MEM_LAT=1 # Corrispondent
 $ scripts/runSim_ghdl projects/02_search_chr/b_mem_lat MEM_LAT=4 # Corrispondente alla versione 'b' in default
 $ scripts/runSim_ghdl projects/02_search_chr/b_mem_lat MEM_LAT=15 # latenza di 15 cicli
 ----
+
+[#bug_b_mem_lat]
+==== Problematiche riscontrate
 
 === Analisi ed elaborazione
 === Simulazione
