@@ -83,6 +83,7 @@ begin
                    else '0';
 
     loadA       <= '1' when (state = INIT and START = '1') or
+                            (state = START_READ) or
                             (state = FETCH_AND_COMPARE and COUNT_eq_L = '0' and MEM_READY = '1')
                    else '0';
 
