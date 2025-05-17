@@ -79,7 +79,8 @@ begin
     MEM_WE      <= '0';
 
     loadCOUNT   <= '1' when state = INIT or
-                          (state = FETCH_AND_COMPARE and COUNT_eq_L = '0' and MEM_READY = '1')
+                            (state = START_READ) or
+                            (state = FETCH_AND_COMPARE and COUNT_eq_L = '0' and MEM_READY = '1')
                    else '0';
 
     loadA       <= '1' when (state = INIT and START = '1') or
