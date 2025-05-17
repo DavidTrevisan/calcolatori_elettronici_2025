@@ -513,5 +513,35 @@ $ scripts/runSim_ghdl projects/02_search_chr/b_mem_lat MEM_LAT=15 # latenza di 1
 [#bug_b_mem_lat]
 ==== Problematiche riscontrate
 
+La prima versione prevedeva un'implementazione differente rispetto a quella descritta e consegnata insieme al presente documento.
+Il modello di memoria a latenza configurabile utilizzava un approccio basato sulla registrazione degli input e di un contatore per calcolare la latenza.
+
+I segnali di input venivano registrati al set del segnale `MEM_ENABLE`, mentre il contatore veniva caricato al valore `MEM_LAT-1`.
+Successivamente il contatore decrementava fino a raggiungere il valore `"0"`, e gli output venivano impostati utilizzando il valore registrato di `MEM_ADDRESS`.
+
+L'implementazione ha peró portato con se delle piccole differenze comportamentali del modello, in particolare riguardo all'impostazione di `dataout`.
+Questi comportamenti non sono stati rilevati e non hanno causato differenze fino all'implementazione della versione migliorata di `search_chr` (`c`).
+In questo caso il dispositivo non attendeva più un ciclo di `COMPARE`.
+Invece, confrontando ed incrementando il contatore dei caratteri simultaneamente appariva funzionalmente scorretto il ritardo introdotto dalla registrazione dei segnali nel modello di memoria.
+
+Nelle immagini seguenti é possibile visualizzare il problema confrontando il comportamento con `MEM_LAT=1` e `MEM_LAT=2`, nella sezione riguardante la prima istruzione di ricerca.
+
+[#fig_mem_lat_bug1,reftext='{figure-caption} {counter:refnum}']
+.Waveform search_chr versione c `MEM_LAT = 1`
+image::images/search_chr_oldmemBug_MEM_LAT_1.png[]
+
+[#fig_mem_lat_bug2,reftext='{figure-caption} {counter:refnum}']
+.Waveform search_chr versione c `MEM_LAT = 2` (Bug)
+image::images/search_chr_oldmemBug_MEM_LAT_2.png[]
+
+Confrontando i due esempi, si nota che nel primo caso il dato é presente in uscita dalla memoria al primo istante utile (`220 fs`) ed il dispositivo acquisisce e conta 10 caratteri come da istruzioni.
+Il primo carattere é `0xF3` e l'ultimo `0xFC`, in corrispondenza del contatore che raggiunge il decimo valore.
+
+Nel caso con `MEM_LAT=2`, la memoria impostava qundi il segnale di `MEM_READY` all'istante corretto, ma presentava i dati in output _al ciclo successivo_.
+Si puó infatti vedere come in <<fig_mem_lat_bug2>> il primo byte (`0xF3`) appaia in corrispondenza del fronte di discesa del segnale di `MEM_READY`.
+Inoltre, l'ultimo carattere della sequenza (`0xFC`) appare nella serie di istruzioni successiva, mentre il contatore raggiunge il valore 10 (`0xA`) in corrispondenza del byte `0xFB`.
+
+Nell'analisi e risoluzione di questo _bug_, si é considerato quindi l'approccio descritto nella sezione relativa ai sorgenti, <<memory_latency>>, che é stato mantenuto per le motivazioni ivi descritte.
+
 === Analisi ed elaborazione
 === Simulazione

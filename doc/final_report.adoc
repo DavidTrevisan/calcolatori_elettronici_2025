@@ -4,6 +4,7 @@
 :toc-title: Indice dei Contenuti
 :toclevels: 3
 :preface-title: Introduzione
+:figure-caption: Figura
 :note-caption: Nota
 :warning-caption: Avvertenza
 David Trevisan
