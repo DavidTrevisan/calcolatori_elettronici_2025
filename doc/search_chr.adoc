@@ -114,10 +114,10 @@ ADDRESS [32]------> |                |---> MEM_ENABLE
 Il dispositivo viene presentato nelle seguenti versioni:
 
 [loweralpha, bold]
-. Originale, secondo requisiti.
-. Memoria a latenza variabile.
-. Dispositivo senza ciclo 'di attesa' dopo una lettura in memoria.
-. Testbench che riceve i dati di input da un file esterno.
+. <<version_a, Originale, secondo requisiti.>>
+. <<memory_latency, Memoria a latenza variabile>>.
+. <<version_c,Dispositivo senza ciclo 'di attesa' dopo una lettura in memoria.>>
+. <<version_d,Testbench che riceve i dati di input da un file esterno.>>
 
 Le quattro versioni sono da considerarsi incrementali, per cui ogni modifica precedente resta integrata nelle successive revisioni.
 
@@ -142,6 +142,7 @@ Di seguito un riassunto degli stessi:
 
 |===
 
+[#version_a]
 === search_chr.vhdl
 
 Il dispositivo é completamente descritto in questo file sorgente, utilizzando uno stile a singolo processo per la macchina a stati della parte di controllo.
@@ -398,6 +399,7 @@ Viene anche aggiunto uno statement di `report` nel processo iniziale di generazi
 
 Infine, la mappatura del parametro `MEM_LAT` viene fatta a livello di istanza della `entity work.memory`.
 
+[#version_d]
 ==== Versione 'd': Testbench con input-data da file
 
 La versione modificata del testbench introduce la possibilitá di determinare i dati da assegnare agli input prendendoli da un file esterno `assets/instr.txt`.
@@ -447,6 +449,7 @@ image::images/ASM-search_chr_orig.drawio.svg[]
 
 Si nota che, per ogni transazione con la memoria esterna, un ciclo viene 'sprecato' tra `FETCH` e `COMPARE`.
 
+[#version_c]
 La versione del dispositivo migliorata (versione `c`) risolve questa osservazione ed é rappresentata nel seguente ASM-chart:
 
 image::images/ASM-search_chr_improved.drawio.svg[]
@@ -544,4 +547,36 @@ Inoltre, l'ultimo carattere della sequenza (`0xFC`) appare nella serie di istruz
 Nell'analisi e risoluzione di questo _bug_, si é considerato quindi l'approccio descritto nella sezione relativa ai sorgenti, <<memory_latency>>, che é stato mantenuto per le motivazioni ivi descritte.
 
 === Analisi ed elaborazione
+
+Come per il dispositivo `onescounter`, non ci sono particolari considerazioni per questa fase.
+I sorgenti non causano warning od errori in questa fase, assumendo l’utilizzo dello standard VHDL-1993 con regole di binding aggiornate (_GHDL option_ `--std=93c` - default).
+
+Si nota invece il _print_ dei report introdotti nella <<version_d,versione D>> del testbench:
+
+[source,bash]
+----
+...
+/code/calcolatori_elettronici_2025/projects/02_search_chr/d_tb_file/code/TB.vhdl:51:17:(report note): Read values - ADDRESS: 687, CHAR: 61, LEN: 6
+ called from: architecture "behav" of "tb" at /code/calcolatori_elettronici_2025/projects/02_search_chr/d_tb_file/code/TB.vhdl:12:14
+/code/calcolatori_elettronici_2025/projects/02_search_chr/d_tb_file/code/TB.vhdl:51:17:(report note): Read values - ADDRESS: 343, CHAR: 130, LEN: 44
+...
+----
+
+Questa conferma testuale corrisponde ai valori presenti in `assets/instr.txt`.
+
 === Simulazione
+
+In fase di simulazione si riscontrano nuovamente i messaggi del punto prima, e quello relativo all'impostazione del generic `MEM_LAT`:
+
+
+[source,bash]
+----
+$ scripts/runSim_ghdl projects/02_search_chr/d_tb_file MEM_LAT=4
+...
+/code/calcolatori_elettronici_2025/projects/02_search_chr/d_tb_file/code/TB.vhdl:51:17:(report note): Read values - ADDRESS: 343, CHAR: 130, LEN: 44
+ called from: architecture "behav" of "tb" at /code/calcolatori_elettronici_2025/projects/02_search_chr/d_tb_file/code/TB.vhdl:12:14
+Linking in memory
+/code/calcolatori_elettronici_2025/projects/02_search_chr/d_tb_file/code/TB.vhdl:98:13:@0ms:(report note): Generic parameter check: MEM_LAT = 4
+...
+----
+
