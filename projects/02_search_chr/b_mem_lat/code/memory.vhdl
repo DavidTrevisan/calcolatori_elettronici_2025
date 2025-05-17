@@ -53,6 +53,9 @@ architecture s of memory is
     signal seq_dataout  : sequencer_type                    := (others => (others => '0') ) ;
     signal seq_ready    : std_logic_vector(0 to MEM_LAT-1)  := (others => '0') ;
 
+    constant c_zeroes : std_logic_vector(seq_ready'RANGE) := (others => '0') ;
+
+
 begin
 
 
@@ -100,7 +103,7 @@ gen_mem_lat : if MEM_LAT > 1 generate
 end generate;
 
     dataout <= seq_dataout(0);
-    ready   <= seq_ready(0);
+    ready   <= '1' when seq_ready = c_zeroes else seq_ready(0);
 
     assert MEM_LAT > 0
         report "ERROR: Generic parameter 'MEM_LAT' can't be 0 or a negative number "
