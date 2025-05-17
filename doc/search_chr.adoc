@@ -455,7 +455,10 @@ La versione del dispositivo migliorata (versione `c`) risolve questa osservazion
 image::images/ASM-search_chr_improved.drawio.svg[]
 
 In questa versione, il dispositivo effettua entrambe le operazioni di `FETCH` e `COMPARE` in un unico stato e prepara continuamente la prossima richiesta verso la memoria.
-Il collo di bottiglia é dato perció dalla memoria stessa, a costo di un leggero incremento di percorsi combinatori nella control unit.
+Viene inoltre aggiunto l'incremento dell'indirizzo interno al dispositivo `A` nello stato `START_READ` e del relativo contatore.
+Questa compensazione é necessaria in quanto adesso il dispositivo ora risulta "anticipato", in quanto richiederá immediatamente una nuova lettura al set del segnale `MEM_READY` attraverso una _conditional output box_.
+
+A questo punto, il collo di bottiglia é dato dalla memoria stessa, a costo di un leggero incremento di percorsi combinatori nella control unit.
 Si nota infatti la dipendenza della conditional output box da _due comparatori_ a loro volta interdipendenti.
 In assenza di chiari limiti tecnologici, si considera comunque triviale questa modifica vista la poca complessitá del dispositivo.
 
