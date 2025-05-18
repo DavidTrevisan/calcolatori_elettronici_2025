@@ -454,18 +454,24 @@ La versione del dispositivo migliorata (versione `c`) risolve questa osservazion
 
 image::images/ASM-search_chr_improved.drawio.svg[]
 
-In questa versione, il dispositivo effettua entrambe le operazioni di `FETCH` e `COMPARE` in un unico stato e prepara continuamente la prossima richiesta verso la memoria.
-Viene inoltre aggiunto l'incremento dell'indirizzo interno al dispositivo `A` nello stato `START_READ` e del relativo contatore.
-Questa compensazione é necessaria in quanto adesso il dispositivo ora risulta "anticipato", in quanto richiederá immediatamente una nuova lettura al set del segnale `MEM_READY` attraverso una _conditional output box_.
+In questa versione, il dispositivo effettua entrambe le operazioni di `FETCH` e `COMPARE` in un unico stato e prepara la prossima richiesta verso la memoria appena questa diventa disponibile (`MEM_READY`).
+A questo punto, si anticipa il conteggio delle transazioni, contando il numero di quelle effettuate invece di quelle ricevute.
+Coerentemente la nuova richiesta verso la memoria utilizza l'indirizzo incrementato (l'uscita del sommatore) invece del valore registrato, ed il confronto del carattere da ricercare viene effettuato sul dato in ingresso (`MEM_DATAIN`) quando questo é pronto.
 
-A questo punto, il collo di bottiglia é dato dalla memoria stessa, a costo di un leggero incremento di percorsi combinatori nella control unit.
+A questo punto, il collo di bottiglia é dato dalla memoria stessa, a costo di un leggero incremento di livelli di logica combinatoria nella control unit.
 Si nota infatti la dipendenza della conditional output box da _due comparatori_ a loro volta interdipendenti.
-In assenza di chiari limiti tecnologici, si considera comunque triviale questa modifica vista la poca complessitá del dispositivo.
+Inoltre il secondo comparatore, `C = MEM_DATAIN`, risulta implementare una pratica sconsigliata: il segnale registrato `C` viene confrontato con un segnale esterno al dispositivo e di natura combinatoria.
+Questa condizione predispone il design a comportamenti non-deterministici, metastabilitá o differenze comportamentali tra simulazione funzionale e sintesi.
+Si assume peró che il segnale `MEM_DATAIN` sia stabile per la relazione di setup con il segnale `MEM_READY`, e che il valore sia mantenuto stabile almeno fino alla prossima richiesta alla memoria, ossia fino almeno il prossimo fronte di salita del clock.
+In queste condizioni si accetta di comparare il valore appena presentato dalla memoria, vista l'implicita sincronia con il controllo del dispositivo `search_chr`.
+In assenza di chiari limiti tecnologici, si é considerata comunque accettabile questa modifica vista la poca complessitá del dispositivo.
+Alternativamente si dovrebbero predisporre degli opportuni circuiti "synchronizer" su tutti gli output della memoria in ingresso al DUT.
 
-<<<
-Il datapath, per entrambe le versioni, comprende le risorse mostrate nell'immagine:
+Il datapath comprende le risorse mostrate nell'immagine:
 
 image::images/ASM-search_chr_dp.drawio.svg[]
+
+Per il dispositivo migliorato (<<version_c, versione `c`>>) si risparmia solamente un registro, `D`, che non risulta più necessario vista la comparazione immediata con l'output `dataout` della memoria.
 
 == Risultati
 
