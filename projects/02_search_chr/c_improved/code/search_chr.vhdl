@@ -25,7 +25,7 @@ end search_chr;
 
 architecture rtl of search_chr is
 
-    type statetype is (INIT, START_READ, FETCH_AND_COMPARE);
+    type statetype is (INIT, START_READ, FETCH);
     signal state, nextstate : statetype;
 
     signal A, in_A          : std_logic_vector(31 downto 0);
@@ -58,12 +58,13 @@ begin
                     nextstate <= INIT;
                 end if;
             when START_READ =>
-                nextstate <= FETCH_AND_COMPARE;
-            when FETCH_AND_COMPARE =>
-                if COUNT_eq_L = '1' then
-                    nextstate <= INIT;
-                else
-                    nextstate <= FETCH_AND_COMPARE;
+                nextstate <= FETCH;
+            when FETCH =>
+                nextstate <= FETCH;
+                if MEM_READY = '1' then
+                    if COUNT_eq_L = '1' then
+                        nextstate <= INIT;
+                    end if;
                 end if;
         end case;
     end process;
@@ -72,20 +73,19 @@ begin
 
     READY       <= '1' when state = INIT else '0';
 
-    MEM_ENABLE  <= '1' when state = START_READ or
-                           (state = FETCH_AND_COMPARE and COUNT_eq_L = '0' and MEM_READY = '1')
+    MEM_ENABLE  <= '1' when (state = START_READ) or
+                           (state = FETCH and MEM_READY = '1' and COUNT_eq_L = '0')
                    else '0';
 
     MEM_WE      <= '0';
 
     loadCOUNT   <= '1' when state = INIT or
-                            (state = START_READ) or
-                            (state = FETCH_AND_COMPARE and COUNT_eq_L = '0' and MEM_READY = '1')
+                          (state = START_READ) or
+                          (state = FETCH and MEM_READY = '1')
                    else '0';
 
     loadA       <= '1' when (state = INIT and START = '1') or
-                            (state = START_READ) or
-                            (state = FETCH_AND_COMPARE and COUNT_eq_L = '0' and MEM_READY = '1')
+                            (state = FETCH and MEM_READY = '1')
                    else '0';
 
     loadC       <= '1' when (state = INIT and START = '1') else '0';
@@ -93,10 +93,10 @@ begin
     loadL       <= '1' when (state = INIT and START = '1') else '0';
 
     loadCNT     <= '1' when (state = INIT and START = '1') or
-                        (state = FETCH_AND_COMPARE and C_eq_D = '1')
+                        (state = FETCH and MEM_READY = '1' and C_eq_D = '1')
                    else '0';
 
-    loadD       <= '1' when (state = FETCH_AND_COMPARE and COUNT_eq_L = '0' and MEM_READY = '1') else '0';
+    loadD       <= '1' when (state = FETCH and MEM_READY = '1') else '0';
 
     -- DP
     -- registers
@@ -124,15 +124,13 @@ begin
     in_D <= MEM_DATAIN;
 
     -- status
-    C_eq_D <= '1' when C = D else '0';
+    C_eq_D <= '1' when C = in_D else '0';
     COUNT_eq_L <= '1' when COUNT = L else '0';
 
     -- data outputs
-    MEM_ADDRESS <= A when
-                        state = START_READ or
-                        state = FETCH_AND_COMPARE
-                    else
-                        (others => '-');
+    MEM_ADDRESS <=  A when state = START_READ else
+                    in_A when state = FETCH else
+                    (others => '-');
     MEM_DATAOUT <= (others => '-');
     nFOUND <= CNT;
 
