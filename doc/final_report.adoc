@@ -9,6 +9,9 @@
 :warning-caption: Avvertenza
 David Trevisan
 
+// Use the following template to have only the caption text when linking to image
+// [#fig_mem_lat_bug2,reftext='{figure-caption} {counter:refnum}']
+
 == Introduzione
 
 Questo documento contiene il resoconto finale dei progetti di esame del corso di Calcolatori Elettronici 2025, tenuto dal prof. Mirko Loghi, Universitá degli Studi di Udine.
