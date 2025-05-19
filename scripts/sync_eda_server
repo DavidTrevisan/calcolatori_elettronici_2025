@@ -21,6 +21,7 @@ rootPath=$(realpath $(dirname "${scriptPath}"))
 
 prjs_to_sync=(
     "03_multiplier_and_clz"
+    "04_mcd"
 )
 
 # Prepend projects with absolute path
