@@ -1,54 +1,43 @@
 [*]
-[*] GTKWave Analyzer v3.3.118 (w)1999-2023 BSI
-[*] Wed Apr 30 15:29:48 2025
+[*] GTKWave Analyzer v3.3.121 (w)1999-2024 BSI
+[*] Mon May 19 10:36:07 2025
 [*]
-[dumpfile] "/home/dtrevisan/code/calcolatori_elettronici_2025/projects/02_search_chr/c_improved/simul.rtl/c_improved.ghw"
-[dumpfile_mtime] "Wed Apr 30 15:27:24 2025"
-[dumpfile_size] 7145
-[savefile] "/home/dtrevisan/code/calcolatori_elettronici_2025/projects/02_search_chr/c_improved/simul.rtl/search_chr_view.gtkw"
-[timestart] 0
-[size] 1920 986
-[pos] -461 -194
-*-5.967175 336 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[dumpfile] "/ajeje/code/calcolatori_elettronici_2025/projects/02_search_chr/d_tb_file/simul.rtl/d_tb_file.ghw"
+[dumpfile_mtime] "Mon May 19 10:30:30 2025"
+[dumpfile_size] 71782
+[savefile] "/ajeje/code/calcolatori_elettronici_2025/projects/02_search_chr/d_tb_file/simul.rtl/search_chr_view.gtkw"
+[timestart] 161
+[size] 2560 1392
+[pos] 1779 -397
+*-5.067175 210 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.tb.
 [treeopen] top.tb.dut.
 [sst_width] 209
 [signals_width] 174
 [sst_expanded] 1
-[sst_vpaned_height] 625
-@420
-top.tb.in_cnt2
-top.tb.cnt2
-top.tb.in_cnt
-top.tb.cnt
+[sst_vpaned_height] 930
 @28
+top.tb.clk
+top.tb.rst_n
 top.tb.memory_ready
-top.tb.memory_we
 top.tb.memory_enable
 top.tb.ready
 top.tb.start
 @420
-top.tb.tb_nextstate
-top.tb.tb_state
-@28
-top.tb.rst_n
-top.tb.clk
-@420
 top.tb.end_simul
 top.tb.started
-top.tb.nsimul_cycles
 @22
 #{top.tb.len[5:0]} top.tb.len[5] top.tb.len[4] top.tb.len[3] top.tb.len[2] top.tb.len[1] top.tb.len[0]
 #{top.tb.char[7:0]} top.tb.char[7] top.tb.char[6] top.tb.char[5] top.tb.char[4] top.tb.char[3] top.tb.char[2] top.tb.char[1] top.tb.char[0]
+[color] 3
 #{top.tb.nfound[5:0]} top.tb.nfound[5] top.tb.nfound[4] top.tb.nfound[3] top.tb.nfound[2] top.tb.nfound[1] top.tb.nfound[0]
 @420
 top.tb.dut.state
 @22
 #{top.tb.dut.count[5:0]} top.tb.dut.count[5] top.tb.dut.count[4] top.tb.dut.count[3] top.tb.dut.count[2] top.tb.dut.count[1] top.tb.dut.count[0]
 #{top.tb.data_from_mem[7:0]} top.tb.data_from_mem[7] top.tb.data_from_mem[6] top.tb.data_from_mem[5] top.tb.data_from_mem[4] top.tb.data_from_mem[3] top.tb.data_from_mem[2] top.tb.data_from_mem[1] top.tb.data_from_mem[0]
-#{top.tb.dut.d[7:0]} top.tb.dut.d[7] top.tb.dut.d[6] top.tb.dut.d[5] top.tb.dut.d[4] top.tb.dut.d[3] top.tb.dut.d[2] top.tb.dut.d[1] top.tb.dut.d[0]
-@23
-#{top.tb.dut.c[7:0]} top.tb.dut.c[7] top.tb.dut.c[6] top.tb.dut.c[5] top.tb.dut.c[4] top.tb.dut.c[3] top.tb.dut.c[2] top.tb.dut.c[1] top.tb.dut.c[0]
+@420
+top.tb.nsimul_cycles
 [pattern_trace] 1
 [pattern_trace] 0
