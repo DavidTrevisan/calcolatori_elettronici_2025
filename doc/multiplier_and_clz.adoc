@@ -1,8 +1,6 @@
 = Multiplier and Count Leading Zeroes
 
-== Analisi dei File Sorgente
-== ASM Chart
-== Risultati
-=== Analisi ed elaborazione
-=== Simulazione
-=== Verifica del funzionamento
+== RTL Simulations
+== Stdcells synthesis and evaluations
+== Gate-level simulations
+== Other evaluations

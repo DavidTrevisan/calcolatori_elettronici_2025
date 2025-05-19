@@ -1,0 +1,35 @@
+[*]
+[*] GTKWave Analyzer v3.3.121 (w)1999-2024 BSI
+[*] Mon May 19 20:38:39 2025
+[*]
+[dumpfile] "/home/dtrevisan/code/calcolatori_elettronici_2025/projects/03_multiplier_and_clz/simul.rtl/03_multiplier_and_clz.ghw"
+[dumpfile_mtime] "Mon May 19 20:37:10 2025"
+[dumpfile_size] 336118
+[savefile] "/home/dtrevisan/code/calcolatori_elettronici_2025/projects/03_multiplier_and_clz/simul.rtl/multiplier_and_clz_view.gtkw"
+[timestart] 460
+[size] 1920 986
+[pos] -461 -194
+*-4.500000 512 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.testbench.
+[sst_width] 209
+[signals_width] 134
+[sst_expanded] 1
+[sst_vpaned_height] 289
+@28
+top.testbench.test_finished
+@420
+top.testbench.end_simul
+@28
+top.testbench.done
+top.testbench.op
+top.testbench.start
+top.testbench.rst_n
+top.testbench.clk
+@22
+#{top.testbench.res[63:0]} top.testbench.res[63] top.testbench.res[62] top.testbench.res[61] top.testbench.res[60] top.testbench.res[59] top.testbench.res[58] top.testbench.res[57] top.testbench.res[56] top.testbench.res[55] top.testbench.res[54] top.testbench.res[53] top.testbench.res[52] top.testbench.res[51] top.testbench.res[50] top.testbench.res[49] top.testbench.res[48] top.testbench.res[47] top.testbench.res[46] top.testbench.res[45] top.testbench.res[44] top.testbench.res[43] top.testbench.res[42] top.testbench.res[41] top.testbench.res[40] top.testbench.res[39] top.testbench.res[38] top.testbench.res[37] top.testbench.res[36] top.testbench.res[35] top.testbench.res[34] top.testbench.res[33] top.testbench.res[32] top.testbench.res[31] top.testbench.res[30] top.testbench.res[29] top.testbench.res[28] top.testbench.res[27] top.testbench.res[26] top.testbench.res[25] top.testbench.res[24] top.testbench.res[23] top.testbench.res[22] top.testbench.res[21] top.testbench.res[20] top.testbench.res[19] top.testbench.res[18] top.testbench.res[17] top.testbench.res[16] top.testbench.res[15] top.testbench.res[14] top.testbench.res[13] top.testbench.res[12] top.testbench.res[11] top.testbench.res[10] top.testbench.res[9] top.testbench.res[8] top.testbench.res[7] top.testbench.res[6] top.testbench.res[5] top.testbench.res[4] top.testbench.res[3] top.testbench.res[2] top.testbench.res[1] top.testbench.res[0]
+#{top.testbench.b[31:0]} top.testbench.b[31] top.testbench.b[30] top.testbench.b[29] top.testbench.b[28] top.testbench.b[27] top.testbench.b[26] top.testbench.b[25] top.testbench.b[24] top.testbench.b[23] top.testbench.b[22] top.testbench.b[21] top.testbench.b[20] top.testbench.b[19] top.testbench.b[18] top.testbench.b[17] top.testbench.b[16] top.testbench.b[15] top.testbench.b[14] top.testbench.b[13] top.testbench.b[12] top.testbench.b[11] top.testbench.b[10] top.testbench.b[9] top.testbench.b[8] top.testbench.b[7] top.testbench.b[6] top.testbench.b[5] top.testbench.b[4] top.testbench.b[3] top.testbench.b[2] top.testbench.b[1] top.testbench.b[0]
+@23
+#{top.testbench.a[31:0]} top.testbench.a[31] top.testbench.a[30] top.testbench.a[29] top.testbench.a[28] top.testbench.a[27] top.testbench.a[26] top.testbench.a[25] top.testbench.a[24] top.testbench.a[23] top.testbench.a[22] top.testbench.a[21] top.testbench.a[20] top.testbench.a[19] top.testbench.a[18] top.testbench.a[17] top.testbench.a[16] top.testbench.a[15] top.testbench.a[14] top.testbench.a[13] top.testbench.a[12] top.testbench.a[11] top.testbench.a[10] top.testbench.a[9] top.testbench.a[8] top.testbench.a[7] top.testbench.a[6] top.testbench.a[5] top.testbench.a[4] top.testbench.a[3] top.testbench.a[2] top.testbench.a[1] top.testbench.a[0]
+[pattern_trace] 1
+[pattern_trace] 0
