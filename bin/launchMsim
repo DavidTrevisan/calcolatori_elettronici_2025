@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Script Name:    runSim
+# Description:    Helper script to launch simulation
+# Author:         David Trevisan
+# Copyright:      (c) 2025 DT
+# License:        MIT
+# ==============================================================================
+# Usage:          ./runSim
+# Dependencies:   Docker, modelsim_ase container image
+# ==============================================================================
+
+set -euo pipefail
+# set -x
+
+scriptFull=$(readlink -f "$0")
+scriptPath=$(dirname "${scriptFull}")
+scriptName=$(basename "${scriptFull}")
+rootPath=$(dirname "${scriptPath}")
+hdlPath="${rootPath}/hdl"
+srcPath="${rootPath}/src"
+
+workLib="/work/msim/work"
+
+###########################################################
+DOCKER_ARGS="--rm -it --net=host "
+DOCKER_ARGS+="--privileged "
+DOCKER_ARGS+="-e DISPLAY=unix$DISPLAY "
+DOCKER_ARGS+="-v /tmp/.X11-unix:/tmp/.X11-unix "
+DOCKER_ARGS+="-v /etc/machine-id:/etc/machine-id "
+DOCKER_ARGS+="-v ${hdlPath}:/work "
+DOCKER_ARGS+="-v ${srcPath}:/src "
+###########################################################
+
+echoUsage() {
+    echo "Usage: ./${scriptName} <target directory> <Optional Overrides (GEN_NAME=X)> "
+}
+
+###########################################################
+
+if [ "${1:-}" == "" ]; then
+
+    echoUsage
+    exit 1
+fi
+
+if [ "${1:-}" != "" ]; then
+    TARGET="${1}"
+    shift
+else
+    echo "Error: target argument needed (src/prj folder) and optional generic overrides"
+    echoUsage
+    exit 1
+fi
+
+GENERIC_OVERRIDE=""
+while [ "${1:-}" != "" ]; do
+    GENERIC_OVERRIDE+="-G${1} "
+    shift
+done
+###########################################################
+
+VCOM_CMD="vcom"
+
+VCOM_ARGS="-64 -work ${workLib} -93 -lint "
+VCOM_ARGS+='-l /work/msim/transcript '
+
+# VC_FILE="/${TARGET}/$(basename ${TARGET}).vc"
+VC_FILE="/${TARGET}/sources.vc"
+
+VCOM_ARGS+="-f ${VC_FILE} "
+
+###########################################################
+
+VMAP_CMD="vmap work ${workLib}"
+VSIM_CMD="vsim"
+
+TCLSCRIPT="/${TARGET}/mti.do"
+
+VSIM_ARGS="-64 -work ${workLib} -msgmode both"
+# VSIM_ARGS+='-l /work/msim/transcript '
+VSIM_ARGS+='-keepstdout '
+VSIM_ARGS+="-title 'MSIM ASE - $(basename ${TARGET})' "
+VSIM_ARGS+='-gui '
+VSIM_ARGS+="-do '${VMAP_CMD}; vsim work.tb; vsim ${GENERIC_OVERRIDE}work.tb; do ${TCLSCRIPT}' "
+# Modelsim (free edition) transient bug:
+# Running the vsim work.tb command fails at the first execution...so run it twice...
+
+###########################################################
+# Compile with modelsim on docker
+echo "Compile with modelsim on docker: "
+docker run ${DOCKER_ARGS} modelsim_ase \
+    bash -c "${VCOM_CMD} ${VCOM_ARGS}"
+
+# Run simulation with modelsim on docker
+echo "Run simulation with modelsim on docker"
+echo "${VMAP_CMD}; cd /${TARGET}; ${VSIM_CMD} ${VSIM_ARGS}"
+docker run ${DOCKER_ARGS} modelsim_ase \
+    bash -c "cd /${TARGET}; ${VSIM_CMD} ${VSIM_ARGS}"
+    # bash -c "vsim -help all"

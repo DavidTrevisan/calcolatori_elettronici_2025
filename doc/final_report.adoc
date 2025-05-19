@@ -1,0 +1,127 @@
+= Calcolatori Elettronici 2025: Final Report
+:doctype: book
+:toc:
+:toc-title: Indice dei Contenuti
+:toclevels: 3
+:preface-title: Introduzione
+:figure-caption: Figura
+:note-caption: Nota
+:warning-caption: Avvertenza
+David Trevisan
+
+// Use the following template to have only the caption text when linking to image
+// [#fig_mem_lat_bug2,reftext='{figure-caption} {counter:refnum}']
+
+== Introduzione
+
+Questo documento contiene il resoconto finale dei progetti di esame del corso di Calcolatori Elettronici 2025, tenuto dal prof. Mirko Loghi, Universitá degli Studi di Udine.
+
+== Informazioni Preliminari
+
+[#dir_struct]
+=== Directory Structure
+
+Ogni progetto assume la seguente struttura di cartelle:
+
+[source,ruby]
+----
+<prj_path>
+│
+├── assets
+│ └── <prj_assets>
+├── code
+│ │
+│ ├── <prj_srcs>.vhdl
+│ │
+│ ├── ...
+│ │
+│ └── <prj_tb>.vhdl
+│
+├── scripts
+│ │
+│ ├── runSim_ghdl
+│ │
+│ ├── ...
+│ │
+│ └── <synth>.tcl
+│
+├── *simul.rtl
+│ └── ...
+│
+├── *simul.gate
+│ └── ...
+│
+└── sources.vc
+----
+
+Le cartelle `simul.gate` e `simul.rtl` possono non essere presenti, mentre gli script potranno generarle come percorsi di lavoro per le relative fasi.
+
+La cartella `code` contiene tutti i sorgenti necessari al funzionamento del dispositivo, ed i sorgenti necessari alla simulazione.
+
+La cartella `assets` contiene eventuali file di utilizzo del dispositivo o del testbench;
+Ad esempio i file di input agli stimoli del TB potranno trovarsi in `<prj_path>/assets/data.txt`, se lo stesso viene chiamato dal codice in simulazione.
+
+[#sources_file]
+Il file `sources.vc` é una lista dei file sorgente che devono essere passati al tool di analisi.
+Per compatibilitá con GHDL, che non fornisce l'opzione di utilizzare direttamente file-lists da parametri di _command line_, lo script fornito estrae i nomi e percorsi dei file in autonomia.
+
+Il formato atteso per questo funzionamento é:
+
+* un nome file per riga.
+* fine riga: `line-feed` (`\n`).
+* percorso del file relativo (plausibilemente sempre `code/file.vhdl`).
+* l'ultimo file in lista contiene la top-entity da simulare (solitamente il `testbench`).
+* new-line finale (riga vuota) in stile sorgente C.
+
+=== Scripts
+
+Vengono presentati di seguito gli script che sono stati compilati come parte del _framework_ per l'esecuzione sistematica dei progetti inclusi.
+
+Si riportano la descrizione del funzionamento e le eventuali dipendenze per gli script inclusi.
+
+[#script_ghdl]
+==== runSim_ghdl
+
+Questo script é un _helper_ che colleziona alcune utilities per eseguire automaticamente:
+
+* analisi ed elaborazione tramite GHDL
+* simulazione tramite GHDL
+* apertura del 'wave-file' generato tramite GTKWave
+
+Per funzionare, lo script necessita delle seguenti dipendenze:
+
+* GHDL (v5+)
+* GTKWave
+* Bash built-ins (POSIX):
+** `readlink`, `realpath`
+** `dirname`, `basename`
+** `grep`
+** `tail`
+** `eval`
+** `mkdir`
+** `pushd`, `popd`
+
+Inoltre la struttura directory del progetto, passato come primo argomento quando si invoca lo script, si assume rispecchi quella definita nella sezione <<#dir_struct>>.
+
+Per utilizzare lo script, la linea di comando tipica segue la forma:
+
+[#runSim_ghdl_generic]
+[source,bash]
+----
+$ scripts/runSim_ghdl projects/<prj_name> [(Optional) GENERIC_OVERRIDE=Value]
+----
+
+Dove il primo argomento é obbligatorio e corrisponde al percorso del progetto che si vuole simulare, mentre i seguenti argomenti saranno interpretati come 'generic overrides' e passati alla linea di comando con il prefisso `-g`, come accettato da GHDL.
+Lo script estrae i file da analizzare ed elaborare da una lista `sources.vc` nel root-path del progetto, con un file per linea indicato come percorso relativo.
+Si veda il paragrafo <<sources_file, sources.vc>> per altri dettagl.
+
+== Progetti
+
+include::onescounter.adoc[leveloffset=2]
+
+<<<
+include::search_chr.adoc[leveloffset=2]
+
+
+<<<
+include::multiplier_and_clz.adoc[leveloffset=2]

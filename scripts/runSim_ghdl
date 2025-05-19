@@ -1,27 +1,21 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Script Name:    runSim
-# Description:    Helper script to launch simulation
+# Script Name:    runSim_ghdl
+# Description:    Helper script: analyse, elaborate and sim with GHDL
 # Author:         David Trevisan
 # Copyright:      (c) 2025 DT
 # License:        MIT
 # ==============================================================================
-# Usage:          ./runSim
+# Usage:          --
 # Dependencies:   GHDL, GTKWAVE
 # ==============================================================================
 
 set -euo pipefail
-# set -x
 
 scriptFull=$(readlink -f "$0")
 scriptPath=$(dirname "${scriptFull}")
 scriptName=$(basename "${scriptFull}")
-rootPath=$(dirname "${scriptPath}")
-hdlPath="${rootPath}/hdl"
-srcPath="${rootPath}/src"
-
-workPath="${hdlPath}/work"
-transcriptFile="${workPath}/$(date --iso-8601=seconds).log"
+rootPath=$(realpath $(dirname "${scriptPath}"))
 
 ###########################################################
 
@@ -38,13 +32,15 @@ function exec()
 
 ###########################################################
 
+# Require at least one argument
 if [ "${1:-}" == "" ]; then
     echoUsage
     exit 1
 fi
 
+# Save first argument as target directory
 if [ "${1:-}" != "" ]; then
-    TARGET="${1}"
+    TARGET="$(realpath ${1})"
     shift
 else
     echo "Error: target argument needed (src/prj folder) and optional generic overrides"
@@ -52,12 +48,22 @@ else
     exit 1
 fi
 
+# Create, if not existing, target/simul.rtl directory
+SIM_DIR="${TARGET}/simul.rtl"
+mkdir -p "${SIM_DIR}"
+
+# Optional arguments are generics overrides to pass to GHDL
 GENERIC_OVERRIDE=""
 while [ "${1:-}" != "" ]; do
     GENERIC_OVERRIDE+="-g${1} "
     shift
 done
 ###########################################################
+# Utilities to parse the file list file (.vc)
+# and extract the testbench entity name
+# assuming the testbench is the last line
+# of the file list
+
 parseVCSources() {
     local file="$1"
     local sources=()
@@ -65,7 +71,7 @@ parseVCSources() {
     while IFS= read -r line; do
         # Remove leading '/' if present
         line="${line#/}"
-        sources+=("$(basename ${line})")
+        sources+=("${TARGET}/${line}")
     done < "$file"
 
     echo "${sources[@]}"
@@ -77,50 +83,55 @@ getTbEntityName() {
     local entityName=""
 
     lastFile=$(tail -n 1 "$file")
-    lastFile="${lastFile#/}"
+    lastFile="${TARGET}/${lastFile#/}"
 
     if [[ -f "$lastFile" ]]; then
         entityName=$(grep -oP 'entity \K\w+' "$lastFile" | head -n 1)
     else
-        echo "Error: File '$lastFile' does not exist."
+        echo "Error: File '$lastFile' does not exist." >&2
         return 1
     fi
 
     echo "$entityName"
 }
 
+VC_FILE="${TARGET}/sources.vc"
+
+COMMON_ARGS="-v --std=93c "
 ###########################################################
 
 ANALYSIS_CMD="ghdl"
-COMMON_ARGS="-v --std=93c "
 
-ANALYSIS_ARGS+="-a ${COMMON_ARGS}"
-
-VC_FILE="${TARGET}/sources.vc"
-
+ANALYSIS_ARGS="-a ${COMMON_ARGS}"
 ANALYSIS_ARGS+="$(parseVCSources ${VC_FILE}) "
 
 ###########################################################
+TB_ENTITY_NAME="$(getTbEntityName ${VC_FILE})"
 
 ELAB_CMD="ghdl"
 
-ELAB_ARGS="--elab-run ${COMMON_ARGS}"
-
-TB_ENTITY_NAME="$(getTbEntityName ${VC_FILE})"
+ELAB_ARGS="-e ${COMMON_ARGS}"
+# ELAB_ARGS="--elab-run ${COMMON_ARGS}"
 ELAB_ARGS+="${GENERIC_OVERRIDE} "
 ELAB_ARGS+="${TB_ENTITY_NAME} "
 
 ###########################################################
+WAVE_FILE="$(basename ${TARGET}).ghw"
+WAVE_FILE_PATH="${TARGET}/simul.rtl/${WAVE_FILE}"
+
 SIM_CMD="ghdl"
+
 SIM_ARGS="-r ${COMMON_ARGS} "
+SIM_ARGS+="--time-resolution=ns "
 SIM_ARGS+="${GENERIC_OVERRIDE} "
 SIM_ARGS+="${TB_ENTITY_NAME} "
-WAVE_FILE="$(basename ${TARGET}).ghw"
 SIM_ARGS+="--wave=${WAVE_FILE} "
 ###########################################################
-
 # Move into target folder, pop back at the end
-pushd ${TARGET}
+pushd "${SIM_DIR}"
+
+# Disable exit on errors for GHDL to run until the end
+# Comment below to keep exit on error
 set +euo
 
 echo "GHDL Analysis: "

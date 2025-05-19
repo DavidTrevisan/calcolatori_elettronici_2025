@@ -1,9 +1,42 @@
-work/
+# Ignore everything
+*
 
-vsim.wlf
-*.cr.mti
-*.qdb
-*.qpg
-*.qtl
-_vmake
-transcript
+# But not these directories and their contents under src/
+# Also ensure the contents inside those dirs are not ignored
+!src/
+!src/*/
+!src/*/code/
+!src/*/scripts/
+!src/*/assets/
+!src/*/code/**
+!src/*/scripts/**
+!src/*/assets/**
+!src/*/sources.vc
+
+# Keep other meaningful folders
+!doc/
+!doc/**
+!bin/
+!bin/**
+!ASMcharts/
+!ASMcharts/**
+!scripts/
+!scripts/**
+!projects/
+!projects/**
+
+# Keep base files
+!.gitignore
+!LICENSE
+!README.md
+
+# Never track these files
+.asciidoctor/
+.asciidoctor/**
+doc/diag-*
+doc/ditaa-*
+doc/svgbob-*
+*.cf
+*.ghw
+*.log
+*.pdf

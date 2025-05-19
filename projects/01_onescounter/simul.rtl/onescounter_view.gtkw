@@ -1,0 +1,43 @@
+[*]
+[*] GTKWave Analyzer v3.3.121 (w)1999-2024 BSI
+[*] Sun Apr 27 10:30:29 2025
+[*]
+[dumpfile] "/ajeje/code/calcolatori_elettronici_2025/src/onescounter/simul.rtl/onescounter.ghw"
+[dumpfile_mtime] "Sun Apr 27 10:28:42 2025"
+[dumpfile_size] 7208
+[savefile] "/ajeje/code/calcolatori_elettronici_2025/src/onescounter/simul.rtl/onescounter_view.gtkw"
+[timestart] 0
+[size] 2560 1392
+[pos] -781 -397
+*-7.780755 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.tb.dut_moore.
+[sst_width] 209
+[signals_width] 150
+[sst_expanded] 1
+[sst_vpaned_height] 430
+@28
+top.tb.clk
+top.tb.rst_n
+@22
+#{top.tb.x[7:0]} top.tb.x[7] top.tb.x[6] top.tb.x[5] top.tb.x[4] top.tb.x[3] top.tb.x[2] top.tb.x[1] top.tb.x[0]
+@28
+top.tb.debug
+top.tb.datain
+top.tb.calc
+@200
+-MOORE
+@28
+top.tb.ready_moore
+top.tb.ok_moore
+@22
+#{top.tb.outp_moore[7:0]} top.tb.outp_moore[7] top.tb.outp_moore[6] top.tb.outp_moore[5] top.tb.outp_moore[4] top.tb.outp_moore[3] top.tb.outp_moore[2] top.tb.outp_moore[1] top.tb.outp_moore[0]
+@200
+-MEALY
+@28
+top.tb.ready_mealy
+top.tb.ok_mealy
+@22
+#{top.tb.outp_mealy[7:0]} top.tb.outp_mealy[7] top.tb.outp_mealy[6] top.tb.outp_mealy[5] top.tb.outp_mealy[4] top.tb.outp_mealy[3] top.tb.outp_mealy[2] top.tb.outp_mealy[1] top.tb.outp_mealy[0]
+[pattern_trace] 1
+[pattern_trace] 0
