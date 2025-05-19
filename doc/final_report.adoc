@@ -122,6 +122,8 @@ include::onescounter.adoc[leveloffset=2]
 <<<
 include::search_chr.adoc[leveloffset=2]
 
-
 <<<
 include::multiplier_and_clz.adoc[leveloffset=2]
+
+<<<
+include::mcd.adoc[leveloffset=2]
