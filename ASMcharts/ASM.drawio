@@ -1936,7 +1936,7 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="wk_p5Z9MVV6PVbd9yGNp-38" value="z_A or z_B" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="wk_p5Z9MVV6PVbd9yGNp-38" value="z_A &lt;br&gt;or &lt;br&gt;z_B" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="150" y="560" width="120" height="50" as="geometry" />
         </mxCell>
         <mxCell id="wk_p5Z9MVV6PVbd9yGNp-46" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="wk_p5Z9MVV6PVbd9yGNp-42" target="wk_p5Z9MVV6PVbd9yGNp-45">
@@ -1959,7 +1959,7 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="wk_p5Z9MVV6PVbd9yGNp-45" value="A &amp;gt;= B" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="wk_p5Z9MVV6PVbd9yGNp-45" value="A &amp;gt;= B&lt;br&gt;(A_majeq_B)" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="150" y="727.5" width="120" height="50" as="geometry" />
         </mxCell>
         <mxCell id="wk_p5Z9MVV6PVbd9yGNp-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="wk_p5Z9MVV6PVbd9yGNp-47" target="wk_p5Z9MVV6PVbd9yGNp-52">
@@ -2104,7 +2104,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="wg30Q3-2bG30GpiPtoOT" name="mcd_dp">
-    <mxGraphModel dx="2066" dy="2259" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="984" dy="1652" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -2217,7 +2217,14 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="RYR9ZuFxKvBLyJKU-cMo-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="xgwXtBhJYfU0MWkGTMhB-90" target="RYR9ZuFxKvBLyJKU-cMo-4">
-          <mxGeometry relative="1" as="geometry" />
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="364" y="50" />
+              <mxPoint x="279" y="50" />
+              <mxPoint x="279" />
+              <mxPoint x="254" />
+            </Array>
+          </mxGeometry>
         </mxCell>
         <mxCell id="RYR9ZuFxKvBLyJKU-cMo-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="xgwXtBhJYfU0MWkGTMhB-90" target="RYR9ZuFxKvBLyJKU-cMo-9">
           <mxGeometry relative="1" as="geometry">
@@ -2392,6 +2399,16 @@
               <mxPoint x="470" y="180" />
               <mxPoint x="566" y="180" />
             </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="UpbPita7JpbNw5IpNDDy-1" value="&amp;amp;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="xgwXtBhJYfU0MWkGTMhB-132">
+          <mxGeometry x="-0.6041" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="UpbPita7JpbNw5IpNDDy-2" value="&amp;amp;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="xgwXtBhJYfU0MWkGTMhB-132">
+          <mxGeometry x="0.4347" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
         <mxCell id="xgwXtBhJYfU0MWkGTMhB-129" value="&quot;0&quot;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;" vertex="1" parent="1">
