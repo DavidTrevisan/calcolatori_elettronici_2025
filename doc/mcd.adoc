@@ -80,6 +80,15 @@ Si veda la rappresentazione ASM-chart in <<fig_mcd_ctrl>>.
 Il file `mcd_dp.vhdl` implementa quindi il datapath in maniera gerarchica, istanziando il dispositivo `divider` al suo interno.
 Come visibile in <<fig_mcd_dp>>, nel datapath vengono istanziati tre registri (`R_A`, `R_B`, `R_res`), due comparatori, un sommatore ed un componente che effettua la divisione.
 I registri `R_A` ed `R_B` servono principalmente per trattenere gli operandi nelle fasi di elaborazione, mentre `R_res` salva il risultato dell'operazione.
+Il sommatore, più propriamente un _sottrattore_, esplicita l'operazione di confronto `A >= B` attraverso le seguenti operazioni:
+
+. Estende entrambi gli operandi sul MSB, aggiungendo uno `'0'` quale **MSB** (_Most Significant Bit_).
+. Sottrae `R_B` da `R_A` (somma con complemento a due) interpretandoli senza segno.
+.. `R_A + (~R_B + 1)`
+. Il *MSB* del risultato indica se é un valore **non negativo**:
+.. `MSB = 0` il risultato é nullo o positivo => `R_A >= R_B`
+.. `MSB = 1` il risultato é negativo => `R_A < R_B`
+
 Per il divisore si utilizza solo il segnale del _resto_ (`div1_remainder`) mentre il quoziente viene ignorato.
 
 === Analisi dell'algoritmo
@@ -121,10 +130,20 @@ Si assume che il primo operatore sia maggiore o uguale al secondo, cosa che vien
 Un'ulteriore accortezza é implementata in `mcd` nel caso in cui uno od entrambi gli operandi in ingresso siano uguali a zero.
 In questo caso l'algoritmo non é valido, quindi il dispositivo ritorna semplicemente in `S_IDLE` con zero quale risultato in uscita.
 
+==== Divider
+
+Il divisore utilizzato nell'implementazione di `mcd` non é parte delle stesse analisi sul funzionamento e sulle risorse.
+Tuttavia si considerano queste caratteristiche salienti a riguardo:
+
+. Divisore multi-ciclo di interi
+. Larghezza parametrica degli operandi e del risultato
+. Algoritmo usato: link:https://en.wikipedia.org/wiki/Division_algorithm#Restoring_division[Restoring Division]
+
 === ASM Chart
 
 La rappresentazione della CTRL-Unit del dispositivo `mcd` é visibile nel seguente diagramma:
 
+.`mcd` ASM-Chart CTRL-Unit
 [#fig_mcd_ctrl,reftext='{figure-caption} {counter:refnum}']
 image::images/ASM-mcd_ctrl.drawio.svg[]
 
@@ -132,10 +151,11 @@ Dove si é apposto un flusso fuori dal normale controllo della FSM per indicare 
 
 Le risorse visibili nel datapath sono invece rappresentate nella seguente immagine:
 
+.`mcd` Risorse Datapath
 [#fig_mcd_dp,reftext='{figure-caption} {counter:refnum}']
 image::images/ASM-mcd_dp.drawio.svg[]
 
-Si é rappresentato il componente `divider` come un blocco gerarchico 'a scatola nera', ossia considerandone solo il comportamento alle porte di input e di output.
+Si é rappresentato il componente `divider` come un blocco gerarchico di cui si considera solo il comportamento alle porte di input e di output.
 Il divisore appare come un dispositivo multi-ciclo, che inizia un'operazione al set del segnale `start` e segnala la validitá dei suoi output (quoziente e resto) tramite il segnale `ready`.
 Risulta presente un segnale di `abort` per terminare prematuramente una divisione in corso.
 Anche per il divisore é presente il `generic OPSIZE` corrispondente a quello del dispositivo `mcd` che controlla la larghezza in bit degli operandi e del risultato.
