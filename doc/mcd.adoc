@@ -12,7 +12,8 @@ Si concluderá infine il capitolo con valutazioni sulla sintesi del device ed i 
 Il dispositivo é progettato per calcolare il _massimo comun divisore_ tra due numeri (operandi) forniti in ingresso.
 
 Si ricorda che:
-> il massimo comun divisore di due numeri interi, entrambi non nulli, corrisponde al numero naturale più grande per il quale entrambi possono essere divisi esattamente.
+
+> il massimo comun divisore di due numeri interi, entrambi non nulli, corrisponde al numero naturale più grande per il quale entrambi possono essere divisi esattamente
 
 Dall'anilisi delle porte di _top-level_ del componente `mcd`, si ottiene il seguente prospetto:
 
@@ -72,11 +73,73 @@ Il dispositivo presenta un parametro `generic OPSIZE` di tipo intero, utilizzato
 
 Il file `mcd_ctrl.vhdl` rappresenta la control unit del dispositivo in maniera comportamentale, implementando una semplice FSM (`ns_process`) per gestire le operazioni ed i segnali di controllo.
 Lo stile utilizzato esplicita i segnali di load dei registri presenti nel datapath, ed i selettori dei multiplexer utilizzati attraverso statement concorrenti in maniera coerente con i dispositivi fin'ora analizzati.
+Oltre la transizione degli stati, é visibile un _override_ ogniqualvolta il segnale `abort` viene settato.
+Questo termina le eventuali operazioni in corso e riporta la CTRL-Unit allo stato `S_INIT`.
+Si veda la rappresentazione ASM-chart in <<fig_mcd_ctrl>>.
 
 Il file `mcd_dp.vhdl` implementa quindi il datapath in maniera gerarchica, istanziando il dispositivo `divider` al suo interno.
+Come visibile in <<fig_mcd_dp>>, nel datapath vengono istanziati tre registri (`R_A`, `R_B`, `R_res`), due comparatori, un sommatore ed un componente che effettua la divisione.
+I registri `R_A` ed `R_B` servono principalmente per trattenere gli operandi nelle fasi di elaborazione, mentre `R_res` salva il risultato dell'operazione.
+Per il divisore si utilizza solo il segnale del _resto_ (`div1_remainder`) mentre il quoziente viene ignorato.
 
+=== Analisi dell'algoritmo
+
+Giudicando dalla transizione degli stati e dalle risorse istanziate, si deduce che il dispositivo implementi link:https://it.wikipedia.org/wiki/Algoritmo_di_Euclide[l'algoritmo di Euclide] per trovare il massimo comun divisore tra due numeri interi.
+
+La sequenza delle operazioni del dispositivo `mcd` é:
+
+. `S_INIT`
+.. Salva `operand1 => R_A`.
+.. Salva `operand2 => R_B`.
+. `S_SUBTR`
+.. Se `R_A >= R_B` inizia una divisione (`div1_start`).
+.. Altrimenti scambia gli operandi (usando `R_res` come registro temporaneo) ed effettua la divisione.
+. `S_MOD_START` - `S_MOD_WAIT`
+.. Divide `R_A / R_B` in attesa del resto (`div1_remainder`).
+.. Quando `divider` ha completato, salva i nuovi valori nei registri:
+... `R_B <= R_A mod R_B` (il resto).
+... `R_A <= R_B`.
+.. Reitera l'operazione di divisione.
+... Termina quando uno dei due registri diventa zero.
+... Restituisce il valore non-nullo in `R_res`
+
+L'algoritmo di Euclide corrisponde a questo comportamento, come verificabile dal seguente spezzone di codice python che lo descrive:
+
+[source, python]
+----
+def mcd(a, b):
+    while b != 0:
+        t = b
+        b = a % b
+        a = t
+
+    return a
+----
+
+Si assume che il primo operatore sia maggiore o uguale al secondo, cosa che viene infatti verificata dal dispositivo.
+
+Un'ulteriore accortezza é implementata in `mcd` nel caso in cui uno od entrambi gli operandi in ingresso siano uguali a zero.
+In questo caso l'algoritmo non é valido, quindi il dispositivo ritorna semplicemente in `S_IDLE` con zero quale risultato in uscita.
 
 === ASM Chart
+
+La rappresentazione della CTRL-Unit del dispositivo `mcd` é visibile nel seguente diagramma:
+
+[#fig_mcd_ctrl,reftext='{figure-caption} {counter:refnum}']
+image::images/ASM-mcd_ctrl.drawio.svg[]
+
+Dove si é apposto un flusso fuori dal normale controllo della FSM per indicare il comportamento del segnale `abort` quale _override_ del normale funzionamento.
+
+Le risorse visibili nel datapath sono invece rappresentate nella seguente immagine:
+
+[#fig_mcd_dp,reftext='{figure-caption} {counter:refnum}']
+image::images/ASM-mcd_dp.drawio.svg[]
+
+Si é rappresentato il componente `divider` come un blocco gerarchico 'a scatola nera', ossia considerandone solo il comportamento alle porte di input e di output.
+Il divisore appare come un dispositivo multi-ciclo, che inizia un'operazione al set del segnale `start` e segnala la validitá dei suoi output (quoziente e resto) tramite il segnale `ready`.
+Risulta presente un segnale di `abort` per terminare prematuramente una divisione in corso.
+Anche per il divisore é presente il `generic OPSIZE` corrispondente a quello del dispositivo `mcd` che controlla la larghezza in bit degli operandi e del risultato.
+
 == Tester and Testbench development
 == Simulations, Synthesis and Evaluations
 === RTL Simulations
