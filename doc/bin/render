@@ -8,9 +8,10 @@ SRC_NAME="final_report.adoc"
 DOC_PATH=$(realpath $(dirname "${scriptPath}"))
 SRC_FILE="${DOC_PATH}/${SRC_NAME}"
 
+GIT_SHA=$(git rev-parse --short HEAD)
 
 echo "Rendering ${SRC_FILE}..."
 
-docker run -it -v "${DOC_PATH}":/documents/ adocbuilder asciidoctor-pdf -r asciidoctor-diagram "${SRC_NAME}" && \
+docker run -it -v "${DOC_PATH}":/documents/ adocbuilder asciidoctor-pdf -a git-sha=$GIT_SHA -r asciidoctor-diagram "${SRC_NAME}" && \
     echo "Build success!" ||\
     echo "ERROR: build failed"
