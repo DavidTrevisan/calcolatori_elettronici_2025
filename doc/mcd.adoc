@@ -138,6 +138,12 @@ Tuttavia si considerano queste caratteristiche salienti a riguardo:
 . Divisore multi-ciclo di interi
 . Larghezza parametrica degli operandi e del risultato
 . Algoritmo usato: link:https://en.wikipedia.org/wiki/Division_algorithm#Restoring_division[Restoring Division]
+.. Per ogni bit del dividendo originale (gli operandi vengono raddoppiati in larghezza):
+... Shift a sinistra del resto ed il prossimo bit del dividendo.
+... Sottrae il divisore dal resto.
+... Se la sottrazione é `>= 0`, imposta il bit del quoziente a 1.
+... Altrimenti _ripristina_ il resto ed imposta il bit del quoziente a 0.
+.. Al termine del loop si ottiene il resto ed il quoziente.
 
 === ASM Chart
 
