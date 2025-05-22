@@ -5,27 +5,27 @@ use ieee.std_logic_1164.all;
 package mcd_ctrl_pkg is
 component mcd_ctrl is
     port (
-        CLK		: in  std_logic;
-        rst_n		: in  std_logic;
+        CLK     : in  std_logic;
+        rst_n       : in  std_logic;
         -- control signals
-        abort 		: in  std_logic;
-        start		: in  std_logic;
+        abort       : in  std_logic;
+        start       : in  std_logic;
         -- status signals
-        ready		: out std_logic;
+        ready       : out std_logic;
         -- control signals: ctrl -> datapath
-        load_R_A	: out std_logic;
-        sel_R_A		: out std_logic;
-        load_R_B	: out std_logic;
-        sel_R_B		: out std_logic_vector(1 downto 0) ;
-        load_R_res	: out std_logic;
-        sel_R_res	: out std_logic;
-        div1_abort	: out std_logic;
-        div1_start	: out std_logic;
+        load_R_A    : out std_logic;
+        sel_R_A     : out std_logic;
+        load_R_B    : out std_logic;
+        sel_R_B     : out std_logic_vector(1 downto 0) ;
+        load_R_res  : out std_logic;
+        sel_R_res   : out std_logic;
+        div1_abort  : out std_logic;
+        div1_start  : out std_logic;
         -- status signals: datapath -> ctrl
-        A_majeq_B	: in  std_logic;
-        z_A		: in  std_logic;
-        z_B		: in  std_logic;
-        div1_ready	: in  std_logic
+        A_majeq_B   : in  std_logic;
+        z_A     : in  std_logic;
+        z_B     : in  std_logic;
+        div1_ready  : in  std_logic
     );
 end component;
 end mcd_ctrl_pkg;
@@ -39,33 +39,33 @@ use ieee.numeric_std.all;
 
 entity mcd_ctrl is
     port (
-        CLK		: in  std_logic;
-        rst_n		: in  std_logic;
+        CLK     : in  std_logic;
+        rst_n       : in  std_logic;
         -- control signals
-        abort 		: in  std_logic;
-        start		: in  std_logic;
+        abort       : in  std_logic;
+        start       : in  std_logic;
         -- status signals
-        ready		: out std_logic;
+        ready       : out std_logic;
         -- control signals: ctrl -> datapath
-        load_R_A	: out std_logic;
-        sel_R_A		: out std_logic;
-        load_R_B	: out std_logic;
-        sel_R_B		: out std_logic_vector(1 downto 0) ;
-        load_R_res	: out std_logic;
-        sel_R_res	: out std_logic;
-        div1_abort	: out std_logic;
-        div1_start	: out std_logic;
+        load_R_A    : out std_logic;
+        sel_R_A     : out std_logic;
+        load_R_B    : out std_logic;
+        sel_R_B     : out std_logic_vector(1 downto 0) ;
+        load_R_res  : out std_logic;
+        sel_R_res   : out std_logic;
+        div1_abort  : out std_logic;
+        div1_start  : out std_logic;
         -- status signals: datapath -> ctrl
-        A_majeq_B	: in  std_logic;
-        z_A		: in  std_logic;
-        z_B		: in  std_logic;
-        div1_ready	: in  std_logic
+        A_majeq_B   : in  std_logic;
+        z_A     : in  std_logic;
+        z_B     : in  std_logic;
+        div1_ready  : in  std_logic
     );
 end mcd_ctrl;
 
 architecture s of mcd_ctrl is
     type statetype is (S_INIT, S_SUBTR, S_MOD_START, S_MOD_WAIT);
-    signal state, nextstate		: statetype;
+    signal state, nextstate     : statetype;
 begin
     regs_process: process(CLK, rst_n)
     begin

@@ -5,30 +5,30 @@ use ieee.std_logic_1164.all;
 package mcd_dp_pkg is
 component mcd_dp is
     generic (
-        OPSIZE		: integer := 8
+        OPSIZE      : integer := 8
     );
     port (
-        CLK		: in  std_logic;
-        rst_n		: in  std_logic;
+        CLK     : in  std_logic;
+        rst_n       : in  std_logic;
         -- data inputs
-        operand1	: in  std_logic_vector(OPSIZE - 1 downto 0);
-        operand2	: in  std_logic_vector(OPSIZE - 1 downto 0);
+        operand1    : in  std_logic_vector(OPSIZE - 1 downto 0);
+        operand2    : in  std_logic_vector(OPSIZE - 1 downto 0);
         -- data outputs
-        res		: out std_logic_vector(OPSIZE - 1 downto 0);
+        res     : out std_logic_vector(OPSIZE - 1 downto 0);
         -- control signals: ctrl -> datapath
-        load_R_A	: in  std_logic;
-        sel_R_A		: in  std_logic;
-        load_R_B	: in  std_logic;
-        sel_R_B		: in  std_logic_vector(1 downto 0) ;
-        load_R_res	: in  std_logic;
-        sel_R_res	: in  std_logic;
-        div1_abort	: in std_logic;
-        div1_start	: in  std_logic;
+        load_R_A    : in  std_logic;
+        sel_R_A     : in  std_logic;
+        load_R_B    : in  std_logic;
+        sel_R_B     : in  std_logic_vector(1 downto 0) ;
+        load_R_res  : in  std_logic;
+        sel_R_res   : in  std_logic;
+        div1_abort  : in std_logic;
+        div1_start  : in  std_logic;
         -- status signals: datapath -> ctrl
-        A_majeq_B	: out std_logic;
-        z_A		: out std_logic;
-        z_B		: out std_logic;
-        div1_ready	: out std_logic
+        A_majeq_B   : out std_logic;
+        z_A     : out std_logic;
+        z_B     : out std_logic;
+        div1_ready  : out std_logic
     );
 end component;
 end mcd_dp_pkg;
@@ -44,44 +44,44 @@ use work.divider_pkg.all;
 
 entity mcd_dp is
     generic (
-        OPSIZE		: integer := 8
+        OPSIZE      : integer := 8
     );
     port (
-        CLK		: in  std_logic;
-        rst_n		: in  std_logic;
+        CLK     : in  std_logic;
+        rst_n       : in  std_logic;
         -- data inputs
-        operand1	: in  std_logic_vector(OPSIZE - 1 downto 0);
-        operand2	: in  std_logic_vector(OPSIZE - 1 downto 0);
+        operand1    : in  std_logic_vector(OPSIZE - 1 downto 0);
+        operand2    : in  std_logic_vector(OPSIZE - 1 downto 0);
         -- data outputs
-        res		: out std_logic_vector(OPSIZE - 1 downto 0);
+        res     : out std_logic_vector(OPSIZE - 1 downto 0);
         -- control signals: ctrl -> datapath
-        load_R_A	: in  std_logic;
-        sel_R_A		: in  std_logic;
-        load_R_B	: in  std_logic;
-        sel_R_B		: in  std_logic_vector(1 downto 0) ;
-        load_R_res	: in  std_logic;
-        sel_R_res	: in  std_logic;
-        div1_abort	: in std_logic;
-        div1_start	: in  std_logic;
+        load_R_A    : in  std_logic;
+        sel_R_A     : in  std_logic;
+        load_R_B    : in  std_logic;
+        sel_R_B     : in  std_logic_vector(1 downto 0) ;
+        load_R_res  : in  std_logic;
+        sel_R_res   : in  std_logic;
+        div1_abort  : in std_logic;
+        div1_start  : in  std_logic;
         -- status signals: datapath -> ctrl
-        A_majeq_B	: out std_logic;
-        z_A		: out std_logic;
-        z_B		: out std_logic;
-        div1_ready	: out std_logic
+        A_majeq_B   : out std_logic;
+        z_A     : out std_logic;
+        z_B     : out std_logic;
+        div1_ready  : out std_logic
     );
 end mcd_dp;
 
 architecture s of mcd_dp is
-    signal R_A, in_R_A		: std_logic_vector(OPSIZE - 1 downto 0);
-    signal R_B, in_R_B		: std_logic_vector(OPSIZE - 1 downto 0);
-    signal R_res, in_R_res		: std_logic_vector(OPSIZE - 1 downto 0);
+    signal R_A, in_R_A      : std_logic_vector(OPSIZE - 1 downto 0);
+    signal R_B, in_R_B      : std_logic_vector(OPSIZE - 1 downto 0);
+    signal R_res, in_R_res      : std_logic_vector(OPSIZE - 1 downto 0);
 
-    signal adder1_out		: std_logic_vector(OPSIZE downto 0);
-    signal adder1_in1, adder1_in2	: std_logic_vector(adder1_out'range);
+    signal adder1_out       : std_logic_vector(OPSIZE downto 0);
+    signal adder1_in1, adder1_in2   : std_logic_vector(adder1_out'range);
 
-    signal div1_operand1		: std_logic_vector(OPSIZE - 1 downto 0);
-    signal div1_operand2		: std_logic_vector(OPSIZE - 1 downto 0);
-    signal div1_remainder		: std_logic_vector(OPSIZE - 1 downto 0);
+    signal div1_operand1        : std_logic_vector(OPSIZE - 1 downto 0);
+    signal div1_operand2        : std_logic_vector(OPSIZE - 1 downto 0);
+    signal div1_remainder       : std_logic_vector(OPSIZE - 1 downto 0);
 
 begin
     regs_process: process(CLK, rst_n)
@@ -130,18 +130,18 @@ begin
 
     DIV1: divider
         generic map (
-            OPSIZE		=> OPSIZE
+            OPSIZE      => OPSIZE
         )
         port map (
-            CLK		=> CLK,
-            rst_n		=> rst_n,
-            abort 		=> div1_abort,
-            start		=> div1_start,
-            operand1	=> div1_operand1,
-            operand2	=> div1_operand2,
-            ready		=> div1_ready,
-            remainder	=> div1_remainder,
-            div		=> open
+            CLK     => CLK,
+            rst_n       => rst_n,
+            abort       => div1_abort,
+            start       => div1_start,
+            operand1    => div1_operand1,
+            operand2    => div1_operand2,
+            ready       => div1_ready,
+            remainder   => div1_remainder,
+            div     => open
         );
 
     res <= R_res;

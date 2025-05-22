@@ -1,0 +1,56 @@
+[*]
+[*] GTKWave Analyzer v3.3.121 (w)1999-2024 BSI
+[*] Thu May 22 11:21:22 2025
+[*]
+[dumpfile] "/ajeje/code/calcolatori_elettronici_2025/projects/04_mcd/simul.rtl/04_mcd.ghw"
+[dumpfile_mtime] "Thu May 22 11:19:42 2025"
+[dumpfile_size] 353497
+[savefile] "/ajeje/code/calcolatori_elettronici_2025/projects/04_mcd/simul.rtl/mcd_view.gtkw"
+[timestart] 604
+[size] 2560 1392
+[pos] -3341 -397
+*-1.295711 614 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.testbench.
+[treeopen] top.testbench.dut.
+[treeopen] top.testbench.dut.ctrl.
+[treeopen] top.testbench.tg.
+[sst_width] 209
+[signals_width] 186
+[sst_expanded] 1
+[sst_vpaned_height] 430
+@28
+top.testbench.ready
+top.testbench.abort
+top.testbench.test_finished
+top.testbench.rst_n
+top.testbench.clk
+@420
+top.testbench.end_simul
+top.testbench.started
+top.testbench.nsimul_cycles
+@24
+#{top.testbench.tg.a[7:0]} top.testbench.tg.a[7] top.testbench.tg.a[6] top.testbench.tg.a[5] top.testbench.tg.a[4] top.testbench.tg.a[3] top.testbench.tg.a[2] top.testbench.tg.a[1] top.testbench.tg.a[0]
+#{top.testbench.tg.b[7:0]} top.testbench.tg.b[7] top.testbench.tg.b[6] top.testbench.tg.b[5] top.testbench.tg.b[4] top.testbench.tg.b[3] top.testbench.tg.b[2] top.testbench.tg.b[1] top.testbench.tg.b[0]
+@c00024
+[color] 2
+#{top.testbench.tg.res[7:0]} top.testbench.tg.res[7] top.testbench.tg.res[6] top.testbench.tg.res[5] top.testbench.tg.res[4] top.testbench.tg.res[3] top.testbench.tg.res[2] top.testbench.tg.res[1] top.testbench.tg.res[0]
+@28
+top.testbench.tg.res[7]
+top.testbench.tg.res[6]
+top.testbench.tg.res[5]
+top.testbench.tg.res[4]
+top.testbench.tg.res[3]
+top.testbench.tg.res[2]
+top.testbench.tg.res[1]
+top.testbench.tg.res[0]
+@1401204
+-group_end
+@29
+top.testbench.dut.ready
+@28
+top.testbench.tg.start
+@420
+top.testbench.dut.ctrl.state
+[pattern_trace] 1
+[pattern_trace] 0

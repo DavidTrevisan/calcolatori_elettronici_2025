@@ -4,3 +4,6 @@ code/divider.vhdl
 code/mcd_ctrl.vhdl
 code/mcd_dp.vhdl
 code/mcd.vhdl
+code/lfsr_pkg.vhdl
+code/tester.vhdl
+code/testbench.vhdl
