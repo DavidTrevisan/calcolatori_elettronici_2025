@@ -1,24 +1,24 @@
 [*]
 [*] GTKWave Analyzer v3.3.121 (w)1999-2024 BSI
-[*] Thu May 22 11:21:22 2025
+[*] Thu May 22 11:27:46 2025
 [*]
 [dumpfile] "/ajeje/code/calcolatori_elettronici_2025/projects/04_mcd/simul.rtl/04_mcd.ghw"
-[dumpfile_mtime] "Thu May 22 11:19:42 2025"
-[dumpfile_size] 353497
+[dumpfile_mtime] "Thu May 22 11:25:55 2025"
+[dumpfile_size] 20662818
 [savefile] "/ajeje/code/calcolatori_elettronici_2025/projects/04_mcd/simul.rtl/mcd_view.gtkw"
-[timestart] 604
+[timestart] 0
 [size] 2560 1392
-[pos] -3341 -397
-*-1.295711 614 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -781 -397
+*-11.602321 2358 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.testbench.
 [treeopen] top.testbench.dut.
 [treeopen] top.testbench.dut.ctrl.
 [treeopen] top.testbench.tg.
 [sst_width] 209
-[signals_width] 186
+[signals_width] 302
 [sst_expanded] 1
-[sst_vpaned_height] 430
+[sst_vpaned_height] 930
 @28
 top.testbench.ready
 top.testbench.abort
@@ -30,12 +30,68 @@ top.testbench.end_simul
 top.testbench.started
 top.testbench.nsimul_cycles
 @24
-#{top.testbench.tg.a[7:0]} top.testbench.tg.a[7] top.testbench.tg.a[6] top.testbench.tg.a[5] top.testbench.tg.a[4] top.testbench.tg.a[3] top.testbench.tg.a[2] top.testbench.tg.a[1] top.testbench.tg.a[0]
-#{top.testbench.tg.b[7:0]} top.testbench.tg.b[7] top.testbench.tg.b[6] top.testbench.tg.b[5] top.testbench.tg.b[4] top.testbench.tg.b[3] top.testbench.tg.b[2] top.testbench.tg.b[1] top.testbench.tg.b[0]
+#{top.testbench.tg.b[63:0]} top.testbench.tg.b[63] top.testbench.tg.b[62] top.testbench.tg.b[61] top.testbench.tg.b[60] top.testbench.tg.b[59] top.testbench.tg.b[58] top.testbench.tg.b[57] top.testbench.tg.b[56] top.testbench.tg.b[55] top.testbench.tg.b[54] top.testbench.tg.b[53] top.testbench.tg.b[52] top.testbench.tg.b[51] top.testbench.tg.b[50] top.testbench.tg.b[49] top.testbench.tg.b[48] top.testbench.tg.b[47] top.testbench.tg.b[46] top.testbench.tg.b[45] top.testbench.tg.b[44] top.testbench.tg.b[43] top.testbench.tg.b[42] top.testbench.tg.b[41] top.testbench.tg.b[40] top.testbench.tg.b[39] top.testbench.tg.b[38] top.testbench.tg.b[37] top.testbench.tg.b[36] top.testbench.tg.b[35] top.testbench.tg.b[34] top.testbench.tg.b[33] top.testbench.tg.b[32] top.testbench.tg.b[31] top.testbench.tg.b[30] top.testbench.tg.b[29] top.testbench.tg.b[28] top.testbench.tg.b[27] top.testbench.tg.b[26] top.testbench.tg.b[25] top.testbench.tg.b[24] top.testbench.tg.b[23] top.testbench.tg.b[22] top.testbench.tg.b[21] top.testbench.tg.b[20] top.testbench.tg.b[19] top.testbench.tg.b[18] top.testbench.tg.b[17] top.testbench.tg.b[16] top.testbench.tg.b[15] top.testbench.tg.b[14] top.testbench.tg.b[13] top.testbench.tg.b[12] top.testbench.tg.b[11] top.testbench.tg.b[10] top.testbench.tg.b[9] top.testbench.tg.b[8] top.testbench.tg.b[7] top.testbench.tg.b[6] top.testbench.tg.b[5] top.testbench.tg.b[4] top.testbench.tg.b[3] top.testbench.tg.b[2] top.testbench.tg.b[1] top.testbench.tg.b[0]
+#{top.testbench.tg.a[63:0]} top.testbench.tg.a[63] top.testbench.tg.a[62] top.testbench.tg.a[61] top.testbench.tg.a[60] top.testbench.tg.a[59] top.testbench.tg.a[58] top.testbench.tg.a[57] top.testbench.tg.a[56] top.testbench.tg.a[55] top.testbench.tg.a[54] top.testbench.tg.a[53] top.testbench.tg.a[52] top.testbench.tg.a[51] top.testbench.tg.a[50] top.testbench.tg.a[49] top.testbench.tg.a[48] top.testbench.tg.a[47] top.testbench.tg.a[46] top.testbench.tg.a[45] top.testbench.tg.a[44] top.testbench.tg.a[43] top.testbench.tg.a[42] top.testbench.tg.a[41] top.testbench.tg.a[40] top.testbench.tg.a[39] top.testbench.tg.a[38] top.testbench.tg.a[37] top.testbench.tg.a[36] top.testbench.tg.a[35] top.testbench.tg.a[34] top.testbench.tg.a[33] top.testbench.tg.a[32] top.testbench.tg.a[31] top.testbench.tg.a[30] top.testbench.tg.a[29] top.testbench.tg.a[28] top.testbench.tg.a[27] top.testbench.tg.a[26] top.testbench.tg.a[25] top.testbench.tg.a[24] top.testbench.tg.a[23] top.testbench.tg.a[22] top.testbench.tg.a[21] top.testbench.tg.a[20] top.testbench.tg.a[19] top.testbench.tg.a[18] top.testbench.tg.a[17] top.testbench.tg.a[16] top.testbench.tg.a[15] top.testbench.tg.a[14] top.testbench.tg.a[13] top.testbench.tg.a[12] top.testbench.tg.a[11] top.testbench.tg.a[10] top.testbench.tg.a[9] top.testbench.tg.a[8] top.testbench.tg.a[7] top.testbench.tg.a[6] top.testbench.tg.a[5] top.testbench.tg.a[4] top.testbench.tg.a[3] top.testbench.tg.a[2] top.testbench.tg.a[1] top.testbench.tg.a[0]
 @c00024
 [color] 2
-#{top.testbench.tg.res[7:0]} top.testbench.tg.res[7] top.testbench.tg.res[6] top.testbench.tg.res[5] top.testbench.tg.res[4] top.testbench.tg.res[3] top.testbench.tg.res[2] top.testbench.tg.res[1] top.testbench.tg.res[0]
+#{top.testbench.tg.res[63:0]} top.testbench.tg.res[63] top.testbench.tg.res[62] top.testbench.tg.res[61] top.testbench.tg.res[60] top.testbench.tg.res[59] top.testbench.tg.res[58] top.testbench.tg.res[57] top.testbench.tg.res[56] top.testbench.tg.res[55] top.testbench.tg.res[54] top.testbench.tg.res[53] top.testbench.tg.res[52] top.testbench.tg.res[51] top.testbench.tg.res[50] top.testbench.tg.res[49] top.testbench.tg.res[48] top.testbench.tg.res[47] top.testbench.tg.res[46] top.testbench.tg.res[45] top.testbench.tg.res[44] top.testbench.tg.res[43] top.testbench.tg.res[42] top.testbench.tg.res[41] top.testbench.tg.res[40] top.testbench.tg.res[39] top.testbench.tg.res[38] top.testbench.tg.res[37] top.testbench.tg.res[36] top.testbench.tg.res[35] top.testbench.tg.res[34] top.testbench.tg.res[33] top.testbench.tg.res[32] top.testbench.tg.res[31] top.testbench.tg.res[30] top.testbench.tg.res[29] top.testbench.tg.res[28] top.testbench.tg.res[27] top.testbench.tg.res[26] top.testbench.tg.res[25] top.testbench.tg.res[24] top.testbench.tg.res[23] top.testbench.tg.res[22] top.testbench.tg.res[21] top.testbench.tg.res[20] top.testbench.tg.res[19] top.testbench.tg.res[18] top.testbench.tg.res[17] top.testbench.tg.res[16] top.testbench.tg.res[15] top.testbench.tg.res[14] top.testbench.tg.res[13] top.testbench.tg.res[12] top.testbench.tg.res[11] top.testbench.tg.res[10] top.testbench.tg.res[9] top.testbench.tg.res[8] top.testbench.tg.res[7] top.testbench.tg.res[6] top.testbench.tg.res[5] top.testbench.tg.res[4] top.testbench.tg.res[3] top.testbench.tg.res[2] top.testbench.tg.res[1] top.testbench.tg.res[0]
 @28
+top.testbench.tg.res[63]
+top.testbench.tg.res[62]
+top.testbench.tg.res[61]
+top.testbench.tg.res[60]
+top.testbench.tg.res[59]
+top.testbench.tg.res[58]
+top.testbench.tg.res[57]
+top.testbench.tg.res[56]
+top.testbench.tg.res[55]
+top.testbench.tg.res[54]
+top.testbench.tg.res[53]
+top.testbench.tg.res[52]
+top.testbench.tg.res[51]
+top.testbench.tg.res[50]
+top.testbench.tg.res[49]
+top.testbench.tg.res[48]
+top.testbench.tg.res[47]
+top.testbench.tg.res[46]
+top.testbench.tg.res[45]
+top.testbench.tg.res[44]
+top.testbench.tg.res[43]
+top.testbench.tg.res[42]
+top.testbench.tg.res[41]
+top.testbench.tg.res[40]
+top.testbench.tg.res[39]
+top.testbench.tg.res[38]
+top.testbench.tg.res[37]
+top.testbench.tg.res[36]
+top.testbench.tg.res[35]
+top.testbench.tg.res[34]
+top.testbench.tg.res[33]
+top.testbench.tg.res[32]
+top.testbench.tg.res[31]
+top.testbench.tg.res[30]
+top.testbench.tg.res[29]
+top.testbench.tg.res[28]
+top.testbench.tg.res[27]
+top.testbench.tg.res[26]
+top.testbench.tg.res[25]
+top.testbench.tg.res[24]
+top.testbench.tg.res[23]
+top.testbench.tg.res[22]
+top.testbench.tg.res[21]
+top.testbench.tg.res[20]
+top.testbench.tg.res[19]
+top.testbench.tg.res[18]
+top.testbench.tg.res[17]
+top.testbench.tg.res[16]
+top.testbench.tg.res[15]
+top.testbench.tg.res[14]
+top.testbench.tg.res[13]
+top.testbench.tg.res[12]
+top.testbench.tg.res[11]
+top.testbench.tg.res[10]
+top.testbench.tg.res[9]
+top.testbench.tg.res[8]
 top.testbench.tg.res[7]
 top.testbench.tg.res[6]
 top.testbench.tg.res[5]
@@ -46,9 +102,8 @@ top.testbench.tg.res[1]
 top.testbench.tg.res[0]
 @1401204
 -group_end
-@29
-top.testbench.dut.ready
 @28
+top.testbench.dut.ready
 top.testbench.tg.start
 @420
 top.testbench.dut.ctrl.state
