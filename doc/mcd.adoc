@@ -15,7 +15,7 @@ Si ricorda che:
 
 > il massimo comun divisore di due numeri interi, entrambi non nulli, corrisponde al numero naturale più grande per il quale entrambi possono essere divisi esattamente
 
-Dall'anilisi delle porte di _top-level_ del componente `mcd`, si ottiene il seguente prospetto:
+Dall'analisi delle porte di _top-level_ del componente `mcd`, si ottiene il seguente prospetto:
 
 
 [table_mcd_IOports,subs="attributes+"]
@@ -28,19 +28,19 @@ Dall'anilisi delle porte di _top-level_ del componente `mcd`, si ottiene il segu
 
 |abort
 |IN
-|
+|Interrompe l'operazione in corso.
 
 |operand1
 |IN
-|Primo operando per la ricerca del MCD
+|Primo operando per la ricerca del MCD.
 
 |operand2
 |IN
-|Secondo operando per la ricerca del MCD
+|Secondo operando per la ricerca del MCD.
 
 |res
 |OUT
-|Risultato dell'elaborazione, MCD di `operand1` e `operand2`
+|Risultato dell'elaborazione, MCD di `operand1` e `operand2`.
 
 |start
 |IN
@@ -112,7 +112,7 @@ La sequenza delle operazioni del dispositivo `mcd` é:
 ... Termina quando uno dei due registri diventa zero.
 ... Restituisce il valore non-nullo in `R_res`
 
-L'algoritmo di Euclide corrisponde a questo comportamento, come verificabile dal seguente spezzone di codice python che lo descrive:
+L'algoritmo di Euclide corrisponde a questo comportamento, come rappresentato dal seguente spezzone di codice python che lo descrive:
 
 [source, python]
 ----
@@ -125,7 +125,7 @@ def mcd(a, b):
     return a
 ----
 
-Si assume che il primo operatore sia maggiore o uguale al secondo, cosa che viene infatti verificata dal dispositivo.
+Si assume che il primo operatore sia maggiore o uguale al secondo, verifica che viene effettuata dal dispositivo sotto analisi.
 
 Un'ulteriore accortezza é implementata in `mcd` nel caso in cui uno od entrambi gli operandi in ingresso siano uguali a zero.
 In questo caso l'algoritmo non é valido, quindi il dispositivo ritorna semplicemente in `S_IDLE` con zero quale risultato in uscita.
