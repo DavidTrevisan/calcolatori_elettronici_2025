@@ -166,7 +166,62 @@ Il divisore appare come un dispositivo multi-ciclo, che inizia un'operazione al 
 Risulta presente un segnale di `abort` per terminare prematuramente una divisione in corso.
 Anche per il divisore é presente il `generic OPSIZE` corrispondente a quello del dispositivo `mcd` che controlla la larghezza in bit degli operandi e del risultato.
 
-== Tester and Testbench development
+== Tester e Testbench
+
+Per osservare e verificare il funzionamento del dispositivo sono stati sviluppati un testbench ed un tester.
+L'architettura di test segue l'impostazione vista in nella sezione <<Multiplier and Count Leading Zeroes>>, con dei minimi aggiustamenti per il funzionamento di `mcd`.
+
+// see https://ivanceras.github.io/svgbob-editor/
+
+[.custom-style,svgbob-mcd_tb_arch]
+[svgbob]
+----
+.------------------------------------------------------------------.
+|                                                                  |
+|                        +--------+                                |
+|                        | rstgen |                                |
+|                        +----+---+                                |
+|                             |                                    |
+|              +--------------+--------------+                     |
+|              |                             |                     |
+|              v                             v                     |
+|        +----------+                   +-----------+              |
+|        |          |                   |           |              |
+|        |          | abort ----------->|           |              |
+|        |          | start ----------->|           |              |
+|        |          |                   |           |              |
+|        |          | operand1 -------->|           |              |
+|        |  tester  | operand2 -------->|    mcd    |              |
+|        |          |                   |           |              |
+|        |    {tg}  | <------------ res |   {dut}   |              |
+|        |          | <---------- ready |           |              |
+|        |          |                   |           |              |
+|        |          | finished ---+     |           |              |
+|        +----------+             |     +-----------+              |
+|          ^                      |            ^                   |
+|          |                      v            |                   |
+|          |   +-------+       +----------+    |                   |
+|          |   |  clk  |       |  finish  |    |                   |
+|          |   |  gen  |<------+   proc   |    |                   |
+|          |   +---+---+       +----------+    |                   |
+|          |       |                           |                   |
+|          +-------+---------------------------+                   |
+|                                                      {tb}        |
+|                                                      testbench   |
+'------------------------------------------------------------------'
+
+# Legend:
+tb = {
+    fill: papayawhip;
+}
+tg = {
+    fill: lightblue;
+}
+dut = {
+    fill: lightyellow;
+}
+----
+
 == Simulations, Synthesis and Evaluations
 === RTL Simulations
 === Stdcells synthesis
