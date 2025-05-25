@@ -169,7 +169,7 @@ Anche per il divisore é presente il `generic OPSIZE` corrispondente a quello de
 == Tester e Testbench
 
 Per osservare e verificare il funzionamento del dispositivo sono stati sviluppati un testbench ed un tester.
-L'architettura di test segue l'impostazione vista in nella sezione <<Multiplier and Count Leading Zeroes>>, con dei minimi aggiustamenti per il funzionamento di `mcd`.
+L'architettura di test segue l'impostazione vista nella sezione <<Multiplier and Count Leading Zeroes>>, con dei minimi aggiustamenti per il funzionamento di `mcd`.
 
 // see https://ivanceras.github.io/svgbob-editor/
 
@@ -221,6 +221,10 @@ dut = {
     fill: lightyellow;
 }
 ----
+
+Il diagramma ASM relativo al `tester` ricalca quello usato per il dispositivo `multiplier_and_clz`, con le opportune modifiche per confrontare il risultato nel processo `check`.
+
+image::images/ASM-mcd_tester.drawio.svg[]
 
 == Simulations, Synthesis and Evaluations
 === RTL Simulations
