@@ -17,6 +17,46 @@ David Trevisan
 
 Questo documento contiene il resoconto finale dei progetti di esame del corso di Calcolatori Elettronici 2025, tenuto dal prof. Mirko Loghi, Universitá degli Studi di Udine.
 
+Dopo aver presentato alcune informazioni preliminari per la gestione della _code-base_ allegata, verranno descritti i passaggi effettuati ed i risultati ottenuti nell'analisi dei progetti oggetto di esame.
+
+Per primo si studierá il componente `onescounter` nelle sue diverse versioni, con una breve analisi sulle modifiche più rilevanti del codice sorgente.
+Si mostrerá l'utilizzo degli strumenti forniti per agevolare l'esecuzione delle simulazioni.
+Verranno inoltre presentati i diagrammi relativi al dispositivo, e delle forme d'onda d'esempio per illustrarne il funzionamento.
+
+Seguirá poi una simile analisi per il dispositivo `search_chr`.
+Anche in questo caso verrá descritto il percorso effettuato per ottenere le diverse versioni.
+Verrá spesa una piccola sezione per delle considerazioni sul modello di memoria utilizzato ed il suo ampliamento per funzionamento a latenza variabile.
+Si concluderá quindi il capitolo con i diagrammi relativi al _device_ ed i risultati di simulazione RTL.
+
+Dal terzo progetto, `multiplier_and_clz`, si inizierá invece a considerare anche il flusso di sintesi oltre al livello RT.
+##TODO##
+
+Per l'ultimo progetto verrá presentato il dispositivo `mcd`.
+Si analizzerá la struttura del codice sorgente per dedurne il funzionamento.
+Si presenteranno i relativi diagrammi ASM-Chart e del datapath estratti, per poi procedere alla descrizione dell'infrastruttura di test sviluppata.
+Si utilizzerá quindi la stessa per eseguire delle simulazioni RTL.
+##TODO##
+
+{nbsp}
+
+{nbsp}
+
+{nbsp}
+
+{nbsp}
+
+{nbsp}
+
+{nbsp}
+
+{nbsp}
+
+{nbsp}
+
+{nbsp}
+
+{nbsp}
+
 Documento generato dalla revisione Git: {git-sha}
 
 == Informazioni Preliminari
