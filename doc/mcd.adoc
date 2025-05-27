@@ -229,6 +229,8 @@ image::images/ASM-mcd_tester.drawio.svg[]
 Il parametro `NTESTS` puó essere trasmesso all'istanza attraverso il `generic override` a linea di comando, come per gli altri progetti.
 Il dispositivo `tester` inietta operandi casuali, ottenuti tramite il generatore di numeri pseudo-casuali, e confronta il risultato ottenuto con la seguente funzione, come da indicazioni di progetto:
 
+.Calcolo *MCD*, funzione ricorsiva per `tester`
+[%unbreakable]
 [source, vhdl]
 ----
     function mcd_r(op1: unsigned; op2: unsigned) return unsigned is
