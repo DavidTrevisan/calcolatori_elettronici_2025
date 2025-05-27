@@ -65,7 +65,43 @@ Il flusso é rappresentato nel seguente ASM-Chart:
 [#fig_device_ctrl,reftext='{figure-caption} {counter:refnum}']
 image::images/ASM-device_ctrl.drawio.svg[]
 
+Risulta disponibile un'infrastruttura di test composta da `testbench` che istanzia i generatori di reset e clock, ed il dispositivo `device` collegato ad un generatore di stimoli, `tester`.
+Il flusso di test implementato é riassunto come segue:
+
+. Testa diversi operandi.
+.. Testa entrambe le operazioni.
+. Verifica il risultato proposto confrontandolo con il risultato in software.
+. Al termine della sequenza stampa un messaggio relativo al successo o meno del test.
+
+Opzionalmente si puó definire il generic `VERBOSE` per stampare su `stdout` più informazioni sugli eventuali risultati errati.
+
+Il testbench espone alcuni `generics` a _top-level_.
+Quelli più rilevanti per le simulazioni sono:
+
+. `NBITS`: Definisce la dimensione degli operandi `A` e `B`.
+. `VERBOSE`: Abilita il comportamento del `tester` descritto sopra.
+. `NTESTS`: Definisce il numero di test da effettuare per ogni operazione.
+
 == RTL Simulations
+
+Sempre con l'aiuto dello script `runSim_ghdl` sono state effettuate simulazioni RTL con i seguenti parametri:
+
+. `NBITS`: {16, 32, 64}
+. `NTESTS`: 10000
+
+Per le relative esecuzioni sono presenti dei report nella cartella `simul.rtl`, contenenti anche i comandi generati dallo script.
+
+[source, bash]
+----
+projects/03_multiplier_and_clz/simul.rtl/report_rtl_NTESTS_10000_NBITS_16.txt
+projects/03_multiplier_and_clz/simul.rtl/report_rtl_NTESTS_10000_NBITS_32.txt
+projects/03_multiplier_and_clz/simul.rtl/report_rtl_NTESTS_10000_NBITS_64.txt
+----
+
+Non risultano presenti segnalazioni di errore, mentre il report del `tester` é positivo per i 10000 test in tutte e tre le dimensioni.
+
+Non si rilevano particolari valutazioni in questa fase, in quanto il dispositivo `device` appare funzionare come da requisiti in tutte le condizioni proposte.
+
 == Stdcells synthesis and evaluations
 == Gate-level simulations
 == Other evaluations
