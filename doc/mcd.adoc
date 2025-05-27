@@ -1,3 +1,4 @@
+[#project_mcd]
 = Other Device: Maximum Common Divisor (MCD)
 
 Questa sezione analizza il dispositivo `MCD` come quarto componente nello studio del _design flow_ dei dispositivi e calcolatori elettronici.
@@ -330,6 +331,7 @@ Dall'esempio sopra, si vede l'operazione in cui il risultato é `MCD = 15`:
 [#fig_mcd_interesting_result,reftext='{figure-caption} {counter:refnum}']
 image::images/mcd_interesting_15.png[]
 
+[#mcd_rtl_reports]
 I report ottenuti dalle simulazioni sono presenti nella cartella `simul.rtl`:
 
 . `report_rtl_NTESTS_15000_OPSIZE_16.txt`

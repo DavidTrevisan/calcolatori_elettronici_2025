@@ -83,7 +83,7 @@ Vengono presentati di seguito gli script che sono stati compilati come parte del
 Si riportano la descrizione del funzionamento e le eventuali dipendenze per gli script inclusi.
 
 [#script_ghdl]
-==== runSim_ghdl
+==== `runSim_ghdl`
 
 Questo script é un _helper_ che colleziona alcune utilities per eseguire automaticamente:
 
@@ -117,6 +117,31 @@ $ scripts/runSim_ghdl projects/<prj_name> [(Optional) GENERIC_OVERRIDE=Value]
 Dove il primo argomento é obbligatorio e corrisponde al percorso del progetto che si vuole simulare, mentre i seguenti argomenti saranno interpretati come 'generic overrides' e passati alla linea di comando con il prefisso `-g`, come accettato da GHDL.
 Lo script estrae i file da analizzare ed elaborare da una lista `sources.vc` nel root-path del progetto, con un file per linea indicato come percorso relativo.
 Si veda il paragrafo <<sources_file, sources.vc>> per altri dettagl.
+
+[#script_check_mcd]
+==== `parse_and_check_mcd.py`
+
+Durante lo sviluppo dell'infrastruttura di test per il progetto <<project_mcd, Maximum Common Divisor (MCD)>>, é stato preparato questo script per automatizzare il controllo dei report generati.
+
+Per funzionare il sistema deve rendere disponibile all'ambiente di esecuzione:
+
+* python3
+** libreria `re`
+** libreria `math`
+** libreria `sys`
+
+Una normale installazione di python dovrebbe includere automaticamente disponibili le dipendenze elencate, motivo per il quale non viene allegato un file `requirements.txt`.
+
+L'utilizzo dello script da linea di comando é il seguente:
+
+[#check_mcd_usage]
+[source,bash]
+----
+$ scripts/parse_and_check_mcd.py
+Usage: scripts/parse_and_check_mcd.py <input_file>
+----
+
+Dove `<input_file>` é uno dei report indicati nella <<mcd_rtl_reports,relativa sezione>>.
 
 == Progetti
 
