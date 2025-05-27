@@ -226,6 +226,27 @@ Il diagramma ASM relativo al `tester` ricalca quello usato per il dispositivo `m
 
 image::images/ASM-mcd_tester.drawio.svg[]
 
+Il parametro `NTESTS` puó essere trasmesso all'istanza attraverso il `generic override` a linea di comando, come per gli altri progetti.
+Il dispositivo `tester` inietta operandi casuali, ottenuti tramite il generatore di numeri pseudo-casuali, e confronta il risultato ottenuto con la seguente funzione, come da indicazioni di progetto:
+
+[source, vhdl]
+----
+    function mcd_r(op1: unsigned; op2: unsigned) return unsigned is
+    begin
+        if op2 > op1 then
+            return mcd_r(op2, op1);
+        else
+            if op2 = 0 then
+                return op1;
+            else
+                return mcd_r(op2, op1 rem op2);
+            end if;
+        end if;
+    end;
+----
+
+Questa versione di calcolo del *MCD* differisce da quella implementativa per la ricorsivitá, ma si assume che il risultato sia equivalente in assenza di errori nel dispositivo `mcd`.
+
 == Simulations, Synthesis and Evaluations
 === RTL Simulations
 === Stdcells synthesis
