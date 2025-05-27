@@ -101,6 +101,7 @@ architecture sim of tester is
     signal R_res, in_R_res			: std_logic_vector(res'range);
 
     constant all_ones			: unsigned(A'range) := (others => '1');
+    constant all_zero			: unsigned(A'range) := (others => '0');
 
     signal prev_ready			: std_logic;
 
@@ -125,7 +126,6 @@ begin
     A <= std_logic_vector(R_arg1);
     B <= std_logic_vector(R_arg2);
 
-    abort <= '0';
 
     nexts: process(state, ready, res, R_cnt, R_arg1, R_arg2, R_res)
         variable full_data	: unsigned(R_arg1'length + R_arg2'length - 1 downto 0);
@@ -138,6 +138,8 @@ begin
         in_R_arg2 <= R_arg2;
 
         in_R_res <= R_res;
+
+        abort <= '0';
 
         case state is
             when S_INIT =>
@@ -155,7 +157,14 @@ begin
                 end if;
 
             when S_COMPUTE =>
-                start <= '1';
+                if (
+                    (R_arg1 = all_zero) or
+                    (R_arg2 = all_zero)
+                ) then
+                    abort <= '1';
+                else
+                    start <= '1';
+                end if;
                 nextstate <= S_WAITRES;
 
             when S_WAITRES =>
@@ -203,59 +212,70 @@ begin
             if prev_ready = '0' and ready = '1' and not first_res then
                 nresults := nresults + 1;
 
-                res_ok := mcd_r(R_arg1, R_arg2);
-
-                -- "Context aware debug trace"
-                -- If `VERBOSE`, print "interesting" results
-                if VERBOSE then
-                    if res_ok > to_unsigned(MCD_THRESH, res_ok'length) or
-                        res_ok = R_arg1 or
-                        res_ok = R_arg2 then
-
-                        outputline := null;
-                        write(outputline, string'("Interesting result at "));
-                        write(outputline, nsimul_cycles);
-                        write(outputline, string'(" cycles:"));
-                        writeline(output, outputline);
-
-                        write(outputline, string'("  A   = "));
-                        write(outputline, to_bitvector(std_logic_vector(R_arg1)));
-                        writeline(output, outputline);
-
-                        write(outputline, string'("  B   = "));
-                        write(outputline, to_bitvector(std_logic_vector(R_arg2)));
-                        writeline(output, outputline);
-
-                        write(outputline, string'("  mcd = "));
-                        write(outputline, to_bitvector(std_logic_vector(res_ok)));
-                        writeline(output, outputline);
-                    end if;
-                end if;
-
-
-                if unsigned(res) = res_ok then
+                if (
+                    (R_arg1 = all_zero) or
+                    (R_arg2 = all_zero)
+                ) then
+                    outputline := null;
+                    write(outputline, string'("Operand == 0. Aborting check "));
+                    writeline(output, outputline);
                 else
-                    nerrors := nerrors + 1;
+                    res_ok := mcd_r(R_arg1, R_arg2);
+
+                    -- "Context aware debug trace"
+                    -- If `VERBOSE`, print "interesting" results
                     if VERBOSE then
-                        outputline := null;
-                        write(outputline, string'("Wrong result ("));
-                        write(outputline, now, unit => 1 ns);
-                        write(outputline, string'(")"));
-                        writeline(output, outputline);
-                        write(outputline, string'("  A = "));
-                        write(outputline, to_bitvector(std_logic_vector(R_arg1)));
-                        writeline(output, outputline);
-                        write(outputline, string'("  B = "));
-                        write(outputline, to_bitvector(std_logic_vector(R_arg2)));
-                        writeline(output, outputline);
-                        write(outputline, string'("  res = "));
-                        write(outputline, to_bitvector(res));
-                        writeline(output, outputline);
-                        write(outputline, string'("  Expected mcd = "));
-                        write(outputline, to_bitvector(std_logic_vector(res_ok)));
-                        writeline(output, outputline);
+                        if res_ok > to_unsigned(MCD_THRESH, res_ok'length) or
+                            res_ok = R_arg1 or
+                            res_ok = R_arg2 then
+
+                            outputline := null;
+                            write(outputline, string'("Interesting result at "));
+                            write(outputline, nsimul_cycles);
+                            write(outputline, string'(" cycles:"));
+                            writeline(output, outputline);
+
+                            write(outputline, string'("  A   = "));
+                            write(outputline, to_bitvector(std_logic_vector(R_arg1)));
+                            writeline(output, outputline);
+
+                            write(outputline, string'("  B   = "));
+                            write(outputline, to_bitvector(std_logic_vector(R_arg2)));
+                            writeline(output, outputline);
+
+                            write(outputline, string'("  mcd = "));
+                            write(outputline, to_bitvector(std_logic_vector(res_ok)));
+                            writeline(output, outputline);
+                        end if;
                     end if;
+
+
+                    if unsigned(res) = res_ok then
+                    else
+                        nerrors := nerrors + 1;
+                        if VERBOSE then
+                            outputline := null;
+                            write(outputline, string'("Wrong result ("));
+                            write(outputline, now, unit => 1 ns);
+                            write(outputline, string'(")"));
+                            writeline(output, outputline);
+                            write(outputline, string'("  A = "));
+                            write(outputline, to_bitvector(std_logic_vector(R_arg1)));
+                            writeline(output, outputline);
+                            write(outputline, string'("  B = "));
+                            write(outputline, to_bitvector(std_logic_vector(R_arg2)));
+                            writeline(output, outputline);
+                            write(outputline, string'("  res = "));
+                            write(outputline, to_bitvector(res));
+                            writeline(output, outputline);
+                            write(outputline, string'("  Expected mcd = "));
+                            write(outputline, to_bitvector(std_logic_vector(res_ok)));
+                            writeline(output, outputline);
+                        end if;
+                    end if;
+
                 end if;
+
             end if;
 
             if ready = '1' and first_res then

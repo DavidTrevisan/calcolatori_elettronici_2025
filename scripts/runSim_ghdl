@@ -124,7 +124,7 @@ SIM_ARGS="-r ${COMMON_ARGS} "
 SIM_ARGS+="--time-resolution=ns "
 SIM_ARGS+="${GENERIC_OVERRIDE} "
 SIM_ARGS+="${TB_ENTITY_NAME} "
-# SIM_ARGS+="--wave=${WAVE_FILE} "
+SIM_ARGS+="--wave=${WAVE_FILE} "
 ###########################################################
 # Move into target folder, pop back at the end
 pushd "${SIM_DIR}"
