@@ -250,7 +250,79 @@ Il dispositivo `tester` inietta operandi casuali, ottenuti tramite il generatore
 Questa versione di calcolo del *MCD* differisce da quella implementativa per la ricorsivitá, ma si assume che il risultato sia equivalente in assenza di errori nel dispositivo `mcd`.
 
 == Simulations, Synthesis and Evaluations
+
+In questa sezione verranno presentati i risultati e le valutazioni relative alle diverse simulazioni del dispositivo `mcd`.
+
+Sono state scelte larghezze di `16` , `32` e `64` bit per gli operandi ed il risultato, con `NTESTS >= 10000` per ogni simulazione.
+
 === RTL Simulations
+
+Per le simulazioni RTL, é stato utilizzato `GHDL`, attraverso il _workflow_ giá sperimentato con gli altri progetti, tramite l'<<script_ghdl, helper script ghdl>>.
+Considerato che lo script indica autonomamente al tool di salvare i segnali in un output `<prj_name>.ghw` per l'ispezione delle forme d'onda, e che questo richiede un certo tempo e puó raggiungere dimensioni notevoli (`1.3G` per `NTESTS=20000` e `OPSIZE=32`), si consiglia di eliminare la sezione di salvataggo dallo script (commentando per esempio la linea `SIM_ARGS+="--wave=${WAVE_FILE} "`).
+Alternativamente si puó modificare il formato di uscita in `.vcd` per ottenere un output leggermente più rapido.
+
+Poiché gli operandi vengono di volta in volta ottenuti casualmente, i risultati saranno per la maggior parte delle volte poco interessanti (ci si aspetta una grandissima presenza di *MCD* uguali a `1`), si é aggiunta una sezione al processo `check` del `tester` dove i risultati stimati interessanti vengono stampati su `stdout`.
+I risultati si considerano interessanti se:
+
+. *MCD* é superiore ad una certa soglia
+. *MCD* é uguale ad uno dei due operandi
+
+Per abilitare questo _report_, bisogna definire la variabile `VERBOSE` come nel caso di maggiore verbositá per gli eventuali errori.
+La soglia di interesse é altrettanto configurabile da linea di comando come generic override:
+
+[%unbreakable]
+[source,vhdl]
+----
+...
+    MCD_THRESH  : integer := 4;
+...
+----
+
+Con un comando di esecuzione come:
+
+[%unbreakable]
+[source,bash]
+----
+ghdl -e -v --std=93c -gOPSIZE=32 -gNTESTS=100 -gVERBOSE=true -gMCD_THRESH=10  testbench
+ghdl -r -v --std=93c  --time-resolution=ns -gOPSIZE=32 -gNTESTS=100 -gVERBOSE=true -gMCD_THRESH=10  testbench
+----
+
+Si otterranno dei report nella seguente forma:
+
+[%unbreakable]
+[source,bash]
+----
+...
+Interesting result at 43077 cycles:
+  A   = 10001111000111001000001111010000
+  B   = 10111011111111111000011011111001
+  mcd = 00000000000000000000000000001111
+Interesting result at 44035 cycles:
+  A   = 11100011110001110010000011110100
+  B   = 00101110111111111110000110110101
+  mcd = 00000000000000000000000000011101
+Interesting result at 50599 cycles:
+  A   = 10110010111110001111000111001000
+  B   = 00111101000010111011111111110111
+  mcd = 00000000000000000000000000110011
+Interesting result at 52618 cycles:
+  A   = 01011011001011111000111100011100
+  B   = 10000011110100001011101111111000
+  mcd = 00000000000000000000000000001100
+Interesting result at 57682 cycles:
+  A   = 11110100001011011001011111000111
+  B   = 10001110010000011110100001010100
+  mcd = 00000000000000000000000000001101
+TEST PASS: 100 tests
+----
+
+Questi risultati sono giá stati confrontati e verificati dalla funzione ricorsiva inclusa in `tester`, ma permettono di ritrovare più agevolmente il punto saliente nelle forme d'onda qual'ora si volesse praticare un'analisi più approfondita dei segnali.
+Dall'esempio sopra, si vede l'operazione in cui il risultato é `MCD = 15`:
+
+.`mcd` - Risultato esempio
+[#fig_mcd_interesting_result,reftext='{figure-caption} {counter:refnum}']
+image::images/mcd_interesting_15.png[]
+
 === Stdcells synthesis
 === Gate-level Simulations
 === Other evaluations
