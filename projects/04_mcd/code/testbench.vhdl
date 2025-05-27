@@ -10,6 +10,7 @@ entity testbench is
         CLK_SEMIPERIOD1 : time      := 0.5 ns;
         RESET_TIME      : time      := 500.1 ns;
         OPSIZE          : integer   := 8;
+        MCD_THRESH      : integer   := 4;
         VERBOSE         : boolean   := false;
         NTESTS          : integer   := 100
     );
@@ -99,6 +100,7 @@ begin
         generic map (
             OPSIZE      => OPSIZE,
             VERBOSE     => VERBOSE,
+            MCD_THRESH  => MCD_THRESH,
             NTESTS      => NTESTS
         )
         port map (
@@ -110,7 +112,9 @@ begin
             start       => start,
             res         => res,
             ready       => ready,
-            finished    => test_finished
+            finished    => test_finished,
+            ---------------------------------------------------------
+            nsimul_cycles => nsimul_cycles
         );
 
 end behav;

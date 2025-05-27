@@ -7,6 +7,7 @@ package tester_pkg is
         generic (
             OPSIZE      : integer := 8;
             VERBOSE     : boolean := false;
+            MCD_THRESH  : integer := 4;
             NTESTS      : integer := 10
         );
         port (
@@ -19,7 +20,9 @@ package tester_pkg is
             res         : in std_logic_vector(2 * OPSIZE - 1 downto 0);
             ready       : in std_logic;
             ---
-            finished    : out std_logic
+            finished    : out std_logic;
+            ---
+            nsimul_cycles   : in integer
         );
     end component;
 
@@ -38,6 +41,7 @@ entity tester is
     generic (
         OPSIZE		: integer := 8;
         VERBOSE		: boolean := false;
+        MCD_THRESH  : integer := 4;
         NTESTS		: integer := 10
     );
     port (
@@ -50,7 +54,9 @@ entity tester is
         res         : in std_logic_vector(OPSIZE - 1 downto 0);
         ready       : in std_logic;
         ---
-        finished    : out std_logic
+        finished    : out std_logic;
+        ---
+        nsimul_cycles   : in integer
     );
 end tester;
 
@@ -199,10 +205,39 @@ begin
 
                 res_ok := mcd_r(R_arg1, R_arg2);
 
+                -- "Context aware debug trace"
+                -- If `VERBOSE`, print "interesting" results
+                if VERBOSE then
+                    if res_ok > to_unsigned(MCD_THRESH, res_ok'length) or
+                        res_ok = R_arg1 or
+                        res_ok = R_arg2 then
+
+                        outputline := null;
+                        write(outputline, string'("Interesting result at "));
+                        write(outputline, nsimul_cycles);
+                        write(outputline, string'(" cycles:"));
+                        writeline(output, outputline);
+
+                        write(outputline, string'("  A   = "));
+                        write(outputline, to_bitvector(std_logic_vector(R_arg1)));
+                        writeline(output, outputline);
+
+                        write(outputline, string'("  B   = "));
+                        write(outputline, to_bitvector(std_logic_vector(R_arg2)));
+                        writeline(output, outputline);
+
+                        write(outputline, string'("  mcd = "));
+                        write(outputline, to_bitvector(std_logic_vector(res_ok)));
+                        writeline(output, outputline);
+                    end if;
+                end if;
+
+
                 if unsigned(res) = res_ok then
                 else
                     nerrors := nerrors + 1;
                     if VERBOSE then
+                        outputline := null;
                         write(outputline, string'("Wrong result ("));
                         write(outputline, now, unit => 1 ns);
                         write(outputline, string'(")"));
@@ -229,10 +264,12 @@ begin
 
             if state = S_FINISH and R_cnt = 0 then
                 if nerrors = 0 then
+                    outputline := null;
                     write(outputline, string'("TEST PASS: "));
                     write(outputline, nresults);
                     write(outputline, string'(" tests"));
                 else
+                    outputline := null;
                     write(outputline, string'("TEST FAILURE"));
                 end if;
                 writeline(output, outputline);
