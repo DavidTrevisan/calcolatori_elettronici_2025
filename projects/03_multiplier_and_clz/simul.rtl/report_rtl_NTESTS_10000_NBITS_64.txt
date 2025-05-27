@@ -1,0 +1,41 @@
+/code/calcolatori_elettronici_2025/projects/03_multiplier_and_clz/simul.rtl /code/calcolatori_elettronici_2025
+set +o allexport
+set -o braceexpand
+set +o emacs
+set +o errexit
+set +o errtrace
+set +o functrace
+set -o hashall
+set +o histexpand
+set +o history
+set +o ignoreeof
+set -o interactive-comments
+set +o keyword
+set +o monitor
+set +o noclobber
+set +o noexec
+set +o noglob
+set +o nolog
+set +o notify
+set +o nounset
+set +o onecmd
+set +o physical
+set -o pipefail
+set +o posix
+set +o privileged
+set +o verbose
+set +o vi
+set +o xtrace
+GHDL Analysis:
+ghdl -a -v --std=93c /code/calcolatori_elettronici_2025/projects/03_multiplier_and_clz/code/lfsr_pkg.vhdl /code/calcolatori_elettronici_2025/projects/03_multiplier_and_clz/code/device_pkg.vhdl /code/calcolatori_elettronici_2025/projects/03_multiplier_and_clz/code/device.vhdl /code/calcolatori_elettronici_2025/projects/03_multiplier_and_clz/code/tester_pkg.vhdl /code/calcolatori_elettronici_2025/projects/03_multiplier_and_clz/code/tester.vhdl /code/calcolatori_elettronici_2025/projects/03_multiplier_and_clz/code/testbench.vhdl
+Elaborate TB
+ghdl -e -v --std=93c -gNTESTS=10000 -gNBITS=64  testbench
+Run simulation
+ghdl -r -v --std=93c  --time-resolution=ns -gNTESTS=10000 -gNBITS=64  testbench --wave=03_multiplier_and_clz.ghw
+Linking in memory
+OK: 10000 tests
+Open waves
+gtkwave 03_multiplier_and_clz.ghw
+GTKWAVE | Touch screen detected, enabling gestures.
+WM Destroy
+/code/calcolatori_elettronici_2025
