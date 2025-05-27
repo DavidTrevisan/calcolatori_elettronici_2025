@@ -1,5 +1,70 @@
 = Multiplier and Count Leading Zeroes
 
+Questa sezione analizza il dispositivo d'esempio chiamato semplicemente `device`.
+Il componente é rappresentato dalle seguenti porte di input/output.
+
+[table_device_IOports,subs="attributes+"]
+[cols="^2m,^2,6",options="header"]
+|===
+
+|Signal
+|Direction
+|Description
+
+|start
+|IN
+|Inizia una nuova operazione con gli operandi presentati.
+
+|op
+|IN
+|Seleziona quale operazione effettuare sugli ingressi.
+
+`@0`: Moltiplicazione di `A` per `B`.
+
+`@1`: _Count leading zeros_ (*CLZ*) di `A`.
+
+|A
+|IN
+|Primo operando per la moltiplicazione.
+
+Operando dove eseguire *CLZ*.
+
+|B
+|IN
+|Secondo operando per la moltiplicazione.
+
+|done
+|OUT
+|Segnale di `valid` di `RES`.
+Indica che il risultato in uscita al dispositivo puó essere valutato.
+
+|RES
+|OUT
+|Risultato dell'elaborazione dipendente da `op`.
+
+|===
+
+[.center,svgbob-device_ports]
+[svgbob]
+----
+                +----------------+
+    A[n] ------>|                |
+    B[n] ------>|                |----> RES [2n]
+                |                |
+                |     device     |
+   start ------>|                |----> done
+      op ------>|                |
+                |                |
+                +----------------+
+----
+
+Il comportamento della CTRL-Unit del dispositivo viene descritto insieme al datapath nello stesso file `device.vhdl`.
+Il flusso é rappresentato nel seguente ASM-Chart:
+
+.`device` ASM-Chart CTRL-Unit
+[#fig_device_ctrl,reftext='{figure-caption} {counter:refnum}']
+image::images/ASM-device_ctrl.drawio.svg[]
+
 == RTL Simulations
 == Stdcells synthesis and evaluations
 == Gate-level simulations
