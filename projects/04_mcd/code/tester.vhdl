@@ -5,10 +5,10 @@ package tester_pkg is
 
     component tester is
         generic (
-            OPSIZE      : integer := 8;
-            VERBOSE     : boolean := false;
-            MCD_THRESH  : integer := 4;
-            NTESTS      : integer := 10
+            OPSIZE      : integer   := 8;
+            VERBOSE     : boolean   := false;
+            MCD_THRESH  : integer   := 4;
+            NTESTS      : positive  := 10
         );
         port (
             CLK         : in std_logic;
@@ -39,10 +39,10 @@ use STD.textio.all;
 
 entity tester is
     generic (
-        OPSIZE		: integer := 8;
-        VERBOSE		: boolean := false;
-        MCD_THRESH  : integer := 4;
-        NTESTS		: integer := 10
+        OPSIZE		: integer   := 8;
+        VERBOSE		: boolean   := false;
+        MCD_THRESH  : integer   := 4;
+        NTESTS		: positive  := 10
     );
     port (
         CLK         : in std_logic;

@@ -12,7 +12,7 @@ entity testbench is
         OPSIZE          : integer   := 8;
         MCD_THRESH      : integer   := 4;
         VERBOSE         : boolean   := false;
-        NTESTS          : integer   := 100
+        NTESTS          : positive  := 100
     );
 end testbench;
 
