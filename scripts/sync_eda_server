@@ -27,6 +27,7 @@ source ~/.ce_secrets
 ###########################################################
 
 prjs_to_sync=(
+    "../scripts"
     "03_multiplier_and_clz"
     "04_mcd"
 )
