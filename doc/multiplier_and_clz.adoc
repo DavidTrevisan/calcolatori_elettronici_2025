@@ -98,10 +98,41 @@ projects/03_multiplier_and_clz/simul.rtl/report_rtl_NTESTS_10000_NBITS_32.txt
 projects/03_multiplier_and_clz/simul.rtl/report_rtl_NTESTS_10000_NBITS_64.txt
 ----
 
-Non risultano presenti segnalazioni di errore, mentre il report del `tester` é positivo per i 10000 test in tutte e tre le dimensioni.
+[#device_xcelium_rtl_scripts]
+Per questo progetto é stato anche utilizzato il simulatore _Xcelium_, e sono stati predisposti alcuni semplici script per automatizzarne il flusso.
 
-Non si rilevano particolari valutazioni in questa fase, in quanto il dispositivo `device` appare funzionare come da requisiti in tutte le condizioni proposte.
+Il primo script, `scripts/ae_xcelium` effettua le seguenti operazioni:
+
+. Porta la directory di lavoro in `simul.rtl`.
+. Analizza i file VHDL (standard VHDL-1993) indicati nel file `sources.vc`.
+. Elabora la top level entity `testbench`
+.. In questo punto sono utilizzati i generics `NBITS => 32` e `NTESTS => 10000`.
+.. Sono anche aggiunte le opzioni per la coverage del DUT.
+. Esegue la simulazione del top level `testbench`.
+
+Per l'esecuzione della simulazione viene utilizzato il secondo script, `scripts/xsim.tcl`, che raccoglie i semplici comandi TCL per lo strumento:
+
+. Crea i database per le tracce dei segnali:
+.. VCD (waveform standard)
+.. TRN (xcelium specific)
+. Crea il file SAIF contentente la _switching activity_ del DUT.
+. Lancia la simulazione con il comando `run`.
+. Chiude i database per il salvataggio.
+. Esce dal tool.
+
+I file VCD cosí generati sono visualizzabili con qualsiasi analizzatore di forme d'onda (come _GTKWave_), mentre i file TRN sono da utilizzarsi con la versione specifica per Xcelium, _Simvision_.
+
+Un'analisi dei log e dei segnali generati dai due simulatori (GHDL e Xcelium) non evidenzia difformitá, e si suppone che la descrizione in VHDL del dispositivo sia funzionalmente robusta per passare alla fase di sintesi.
 
 == Stdcells synthesis and evaluations
+
+Per la sintesi di `device`, si é utilizzato il tool `Genus`, con un flusso raccolto nuovamente in alcuni script, utilizzando la libreria _stdcells_ di `nangate`.
+
+Per utilizzare gli script forniti, si assume che la libreria in questione sia disponibile in un percorso chiamato `libs`.
+Per ottenerlo é possibile creare nella root dei progetti un _symlink_ verso la libreria reale.
+Alternativamente sará necessario aggiustare il percorso indicato nello script.
+
+
+
 == Gate-level simulations
 == Other evaluations

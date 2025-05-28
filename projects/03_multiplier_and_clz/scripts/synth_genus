@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Script Name:    synth_genus
+# Description:    Helper script: synthesis flow with Genus
+# Author:         David Trevisan
+# Copyright:      (c) 2025 DT
+# License:        MIT
+# ==============================================================================
+# Usage:          --
+# Dependencies:   genus
+# ==============================================================================
+
+set -euo pipefail
+
+scriptFull=$(readlink -f "$0")
+scriptPath=$(dirname "${scriptFull}")
+scriptName=$(basename "${scriptFull}")
+rootPath=$(realpath $(dirname "${scriptPath}"))
+
+###########################################################
+
+# Create, if not existing, target/synth directory, with subfolders
+SYNTH_DIR="${rootPath}/synth"
+mkdir -p "${SYNTH_DIR}/output" "${SYNTH_DIR}/libs"
