@@ -1,11 +1,8 @@
-xmvhdl -v93 ../code/device_pkg.vhdl 
-xmvhdl -v93 ../code/device.vhdl 
-xmvhdl -v93 ../code/tester_pkg.vhdl 
-xmvhdl -v93 ../code/tester.vhdl 
-xmvhdl -v93 ../code/lfsr_pkg.vhdl 
-xmvhdl -v93 ../code/tester_pkg.vhdl 
-xmvhdl -v93 ../code/tester.vhdl 
-xmvhdl -v93 ../code/testbench.vhdl 
-xmelab -generic "NBITS => 32" -generic "NTESTS => 10000" -access +rwc -coverage all -covdut DUT testbench
-xmsim -tcl testbench
+pushd simul.rtl
+pwd
 
+xmvhdl -v93 -f ../sources.vc
+xmelab -generic "NBITS => 32" -generic "NTESTS => 10000" -access +rwc -coverage all -covdut DUT testbench
+xmsim -covoverwrite -input ../scripts/xsim.tcl testbench
+
+popd
