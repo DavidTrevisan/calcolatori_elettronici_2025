@@ -66,6 +66,7 @@ Documento generato dalla revisione Git: {git-sha}
 
 Ogni progetto assume la seguente struttura di cartelle:
 
+[%unbreakable]
 [source,ruby]
 ----
 <prj_path>
@@ -116,6 +117,18 @@ Il formato atteso per questo funzionamento é:
 * l'ultimo file in lista contiene la top-entity da simulare (solitamente il `testbench`).
 * new-line finale (riga vuota) in stile sorgente C.
 
+=== Versione degli strumenti
+
+Le considerazioni effettuate in questo documento derivano dall'utilizzo dei relativi strumenti nelle seguenti versioni:
+
+* `GHDL 6.0.0-dev (b6.0.0.r58.g87396157e) - GNAT version 14.2.1`
+* `GTKWave Analyzer v3.3.121`
+* `Xcelium 20.09-s001`
+* `Genus Synthesis Solution 19.14-s108_1`
+* `Python 3.13.3`
+
+Versioni anteriori potrebbero non essere correttamente supportate.
+
 === Scripts
 
 Vengono presentati di seguito gli script che sono stati compilati come parte del _framework_ per l'esecuzione sistematica dei progetti inclusi.
@@ -156,7 +169,7 @@ $ scripts/runSim_ghdl projects/<prj_name> [(Optional) GENERIC_OVERRIDE=Value]
 
 Dove il primo argomento é obbligatorio e corrisponde al percorso del progetto che si vuole simulare, mentre i seguenti argomenti saranno interpretati come 'generic overrides' e passati alla linea di comando con il prefisso `-g`, come accettato da GHDL.
 Lo script estrae i file da analizzare ed elaborare da una lista `sources.vc` nel root-path del progetto, con un file per linea indicato come percorso relativo.
-Si veda il paragrafo <<sources_file, sources.vc>> per altri dettagl.
+Si veda il paragrafo <<sources_file, sources.vc>> per altri dettagli.
 
 [#script_check_mcd]
 ==== `parse_and_check_mcd.py`
