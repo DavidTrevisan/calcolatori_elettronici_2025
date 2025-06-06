@@ -18,7 +18,44 @@ scriptName=$(basename "${scriptFull}")
 rootPath=$(realpath $(dirname "${scriptPath}"))
 
 ###########################################################
+function echoUsage() {
+    echo "Usage: ./${scriptName} <stdcell lib directory> "
+}
+
+# Save first argument as lib directory
+if [ "${1:-}" != "" ]; then
+    LIB_DIR="$(realpath ${1})"
+    shift
+    if [[ ! -d "${LIB_DIR}" ]]; then
+        echo "ERROR: ${LIB_DIR} not found!"
+        echoUsage
+        exit 1
+    fi
+fi
+###########################################################
 
 # Create, if not existing, target/synth directory, with subfolders
 SYNTH_DIR="${rootPath}/synth"
 mkdir -p "${SYNTH_DIR}/output" "${SYNTH_DIR}/libs"
+
+# Device Setup script
+# - design name
+# - clk, rst signals
+# - clk frequency
+# - DFT names
+# - source SDC file
+# - search paths
+# - lib binding
+
+# HDL files
+# - load
+# - elaboration
+
+# RTL Synthesis
+# - process definition
+# - constraints CLK, IO, drive, load
+# - (Optional setup DFT)
+# - generic gates synthesis
+# - stdcell lib mapping
+
+# Optional DFT
