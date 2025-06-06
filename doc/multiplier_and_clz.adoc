@@ -1,4 +1,4 @@
-= Multiplier and Count Leading Zeroes
+= Progetto 3: Multiplier and Count Leading Zeroes
 
 Questa sezione analizza il dispositivo d'esempio chiamato semplicemente `device`.
 Il componente é rappresentato dalle seguenti porte di input/output.
@@ -21,7 +21,7 @@ Il componente é rappresentato dalle seguenti porte di input/output.
 
 `@0`: Moltiplicazione di `A` per `B`.
 
-`@1`: _Count leading zeros_ (*CLZ*) di `A`.
+`@1`: _Count leading zeroes_ (*CLZ*) di `A`.
 
 |A
 |IN

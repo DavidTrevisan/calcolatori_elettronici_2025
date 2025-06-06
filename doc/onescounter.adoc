@@ -1,8 +1,8 @@
-= Ones Counter
+= Progetto 1: Ones Counter
 
 Il dispositivo effettua il conteggio dei bit impostati ad `1` per una sequenza di vettori di bit iniettati al suo ingresso.
 
-Per implementare questa funzionalitá il dispositivo é descritto dalle seguenti porte di input ed output:
+Il dispositivo utilizza le seguenti porte di input ed output:
 
 [table_onescounter_IOports,subs="attributes+"]
 [cols="^2m,^2,6",options="header"]
@@ -60,7 +60,7 @@ Il dispositivo `onescounter` viene presentato con le seguenti modifiche:
 [NOTE]
 ====
 * L'operazione é realizzabile e valida solo quando `READY = 1`.
-* La modifica con il segnale `DEBUG` é stata effettuata in solo stile 'mealy'.
+* La modifica con il segnale `DEBUG` é stata effettuata anteriormente alla divisione nelle due versioni, ed é quindi presentata in solo stile 'mealy'.
 ====
 
 Il dispositivo viene consegnato con un testbench contenente le seguenti modifiche:
@@ -87,6 +87,7 @@ Lo script richiede almeno un argomento, il path del progetto da simulare, che as
 
 Le operazioni eseguite dallo script sono le seguenti:
 
+[%unbreakable]
 [source,bash]
 ----
 # Sposta la $PWD nel percorso indicato del progetto, sottocartella `simul.rtl`
@@ -162,11 +163,12 @@ Contiene due architetture corrispondenti agli ASM chart versione `moore` e versi
 |===
 
 
-Vengono presentati di seguito alcuni snippets rilevanti per il funzionamento dei sorgenti.
+Vengono presentati di seguito sezioni di codice rilevanti per il funzionamento dei sorgenti.
 
 === onescounter.vhdl
 Al dispositivo é stato aggiunto un _generic_ di tipo testuale (_string_) per indicare quale architettura istanziare.
 
+[%unbreakable]
 [source, vhdl]
 ----
     entity onescounter is
@@ -177,7 +179,7 @@ Al dispositivo é stato aggiunto un _generic_ di tipo testuale (_string_) per in
         ...
 ----
 
-Per mantenere la compatibilitá con VHDL-1993, sono stati utilizzati due costrutti `if ... generate ... end generate` per istanziare l'architettura desiderata.
+Per mantenere la compatibilitá con lo standard VHDL-1993, sono stati utilizzati due costrutti `if ... generate ... end generate` per istanziare l'architettura desiderata.
 
 [source, vhdl]
 ----
@@ -188,14 +190,7 @@ Per mantenere la compatibilitá con VHDL-1993, sono stati utilizzati due costrut
             CLK         => CLK,
             rst_n       => rst_n,
             DATAIN      => DATAIN,
-            CALC        => CALC,
-            DEBUG       => DEBUG,
-            READY       => READY,
-            OK          => OK,
-            loadA       => loadA,
-            selA        => selA,
-            loadONES    => loadONES,
-            selONES     => selONES,
+            ...
             LSB_A       => LSB_A,
             zA          => zA
         );
@@ -208,14 +203,7 @@ Per mantenere la compatibilitá con VHDL-1993, sono stati utilizzati due costrut
             CLK         => CLK,
             rst_n       => rst_n,
             DATAIN      => DATAIN,
-            CALC        => CALC,
-            DEBUG       => DEBUG,
-            READY       => READY,
-            OK          => OK,
-            loadA       => loadA,
-            selA        => selA,
-            loadONES    => loadONES,
-            selONES     => selONES,
+           ...
             LSB_A       => LSB_A,
             zA          => zA
         );
@@ -227,6 +215,7 @@ Per mantenere la compatibilitá con VHDL-1993, sono stati utilizzati due costrut
 
 Per il registro `ONES` sono stati aggiunti diversi ingressi selezionabili rispetto alla versione originale, che sono riassunti nello spezzone:
 
+[%unbreakable]
 [source, vhdl]
 ----
     -- MUX for ONES
@@ -251,7 +240,7 @@ Considerando che ad ogni fronte di salita di `CLK` il segnale `ONES_in` viene re
 | Seleziona il segnale in uscita dal sommatore `ONES + 1`.
 
 | `"10"`
-| Seleziona il valore `X`.
+| Seleziona il valore `X` (<<sim_debug_input, funzione con input `DEBUG`>>).
 
 | `"11"`
 | Seleziona il valore `'0000_0001'`.
@@ -262,6 +251,7 @@ Considerando che ad ogni fronte di salita di `CLK` il segnale `ONES_in` viene re
 
 Il testbench istanzia entrambe le architetture del dispositivo `onescounter` simultaneamente, raddoppiando solo i segnali di uscita e mantenendone invece i segnali di input unici.
 
+[%unbreakable]
 [source, vhdl]
 ----
     DUT_moore : onescounter
@@ -379,7 +369,7 @@ Mentre il datapath é rimasto inalterato, l'utilizzo delle _conditional output b
 La funzionalitá del segnale `DEBUG` corrisponde a quella della versione precedente.
 
 Si nota come nella versione Mealy l'ottimizzazione risultante dalla rimozione dello stato `INC` a favore dell'utilizzo delle conditional output boxes, stimoli un incremento immediato del registro `ONES` rispetto alla versione Moore.
-Questo verrá infatti osservata in fase di simulazione e verifica.
+Questo verrá infatti osservato in fase di simulazione e verifica.
 
 La decisione di fornire un testbench unico per stimolare simultaneamente le diverse architetture, viene argomentata dai seguenti motivi:
 
@@ -387,7 +377,7 @@ La decisione di fornire un testbench unico per stimolare simultaneamente le dive
 * Le specifiche sugli input/output restano identiche.
 * La funzionalitá e le tempestiche del device rispetto ai suoi ingressi ed uscite non cambiano.
 
-Si deduce quindi che, pur assumendo delle possibili variazioni di tempistiche interne alla macchina a stati, le due architetture si debbano comportare in maniera equivalente quando osservate sulle loro porte.
+Si deduce quindi che, pur assumendo delle possibili variazioni di tempistiche interne alla macchina a stati, le due architetture si debbano comportare in maniera equivalente quando osservate alle loro porte.
 
 == Risultati
 
@@ -423,10 +413,10 @@ I secondi warning si riferiscono allo stesso problema, ma al primo istante utile
 image::images/onescounter_Xprop.png[]
 
 In questo caso, essendo iniziato il funzionamento del dispositivo, il segnale `X` non ancora inizializzato viene ora acquisito nel registro `A` ed il suo bit meno significativo salvato in `LSB_A`.
-Registrando valori non inizializzati si attiva quindi il warning.
+Registrando valori non propriamente inizializzati si attiva quindi il warning.
 
 Poiché gli stessi input vengono assegnati dal test sulla base di quanto letto nel file di `assets/data.txt`, che avviene solo all'uscita dal reset e con device pronto (`READY`), si assume che entrambi i gruppi di warnings siano "innoqui".
-Inoltre il dispositivo si riconfigura correttamente anche nel caso della propagazione delle `'U'` ai registri.
+Inoltre il dispositivo si riconfigura correttamente anche nel caso della propagazione di `'U'` ai registri.
 
 Per eliminare questi warnings occorrerebbe modificare il file di stimolo e la lettura relativa al fine di forzare l'inizializzazione dei segnali relativi all'istante 0, ma per le considerazioni precedenti si é scelto di non alterarne il comportamento rispetto all'originale.
 
@@ -435,6 +425,7 @@ Il dispositivo é stato quindi simulato e verificato nel suo funzionamento attra
 
 Si presentano alcune sezioni rilevanti del test.
 
+[#sim_debug_input]
 ==== Funzione DEBUG input
 
 Il funzionamento del segnale `DEBUG` é stato stimolato con le sequenze presenti in `assets/data.txt`:
@@ -510,9 +501,9 @@ image::images/onescounter_DATAIN.png[]
 Il segnale `a_out` in uscita dallo shift register, mostra come i bit vengano traslati per portarli al conteggio.
 Si vede come il dispositivo si disponga immediatamente in attesa di un nuovo dato quando identifica il vettore `A` composto da soli zeri.
 
-Si puó giá notare come le due architetture della Control Unit differenzino nell'istante di inizio del conteggio dei bit ad uno, con la versione in stile `mealy` anticipataria, come si era anticipato al livello ASM chart.
+Si puó giá notare come le due architetture della Control Unit differenzino nell'istante di inizio del conteggio dei bit ad uno, con la versione in stile `mealy` in anticipo, come si era previsto a livello ASM chart.
 
-La prossima sequenza mostra il comportamento al set del segnali `CALC` e l'impostazione del risultato corretto insieme all'output `OK`.
+La prossima sequenza mostra il comportamento al set del segnale `CALC` e l'impostazione del risultato corretto insieme all'output `OK`.
 
 [source]
 ----

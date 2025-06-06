@@ -21,7 +21,7 @@ Dopo aver presentato alcune informazioni preliminari per la gestione della _code
 
 Per primo si studierá il componente `onescounter` nelle sue diverse versioni, con una breve analisi sulle modifiche più rilevanti del codice sorgente.
 Si mostrerá l'utilizzo degli strumenti forniti per agevolare l'esecuzione delle simulazioni.
-Verranno inoltre presentati i diagrammi relativi al dispositivo, e delle forme d'onda d'esempio per illustrarne il funzionamento.
+Verranno inoltre presentati i diagrammi relativi al dispositivo, ed alcune forme d'onda d'esempio per illustrarne il funzionamento.
 
 Seguirá poi una simile analisi per il dispositivo `search_chr`.
 Anche in questo caso verrá descritto il percorso effettuato per ottenere le diverse versioni.
@@ -95,6 +95,10 @@ Ogni progetto assume la seguente struttura di cartelle:
 ├── *simul.gate
 │ └── ...
 │
+├── *synth
+│ ├── libs
+│ └── output
+│
 └── sources.vc
 ----
 
@@ -104,6 +108,10 @@ La cartella `code` contiene tutti i sorgenti necessari al funzionamento del disp
 
 La cartella `assets` contiene eventuali file di utilizzo del dispositivo o del testbench;
 Ad esempio i file di input agli stimoli del TB potranno trovarsi in `<prj_path>/assets/data.txt`, se lo stesso viene chiamato dal codice in simulazione.
+
+La cartella `synth` contiene i dati relativi alla sintesi del dispositivo.
+Questa cartella viene creata dagli script forniti.
+Alternativamente bisogna crearla secondo i requisiti ##TODO##.
 
 [#sources_file]
 Il file `sources.vc` é una lista dei file sorgente che devono essere passati al tool di analisi.
@@ -183,7 +191,7 @@ Per funzionare il sistema deve rendere disponibile all'ambiente di esecuzione:
 ** libreria `math`
 ** libreria `sys`
 
-Una normale installazione di python dovrebbe includere automaticamente disponibili le dipendenze elencate, motivo per il quale non viene allegato un file `requirements.txt`.
+Una normale installazione di python dovrebbe includere automaticamente le dipendenze elencate.
 
 L'utilizzo dello script da linea di comando é il seguente:
 

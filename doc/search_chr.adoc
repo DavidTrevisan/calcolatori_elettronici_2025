@@ -1,9 +1,9 @@
-= Search Character
+= Progetto 2: Search Character
 
 Il dispositivo `search_chr` cerca un carattere (byte) in una memoria esterna.
 La ricerca viene effettuata a partire da un indirizzo e per una certa lunghezza, entrambi valori forniti quali input del dispositivo.
 
-Per implementare questa funzionalitá il dispositivo é descritto dalle seguenti porte di input ed output:
+Il dispositivo é descritto dalle seguenti porte di input ed output:
 
 [%unbreakable]
 [table_search_chr_IOports,subs="attributes+"]
@@ -73,7 +73,7 @@ Nella seguente tabella si identificano i segnali utilizzati per interfacciarsi c
 |MEM_ADDRESS
 |OUT
 |32
-|Indirizzo della transazione.
+|Indirizzo dell'accesso.
 
 |MEM_DATAIN
 |IN
@@ -123,7 +123,7 @@ Le quattro versioni sono da considerarsi incrementali, per cui ogni modifica pre
 
 == Analisi dei File Sorgente
 
-Il file `sources.vc`, presente nella root-path di ogni versione di progetto, contiene la lista dei sorgenti utilizzati.
+<<sources_file, Il file `sources.vc`>>, presente nella root-path di ogni versione di progetto, contiene la lista dei sorgenti utilizzati.
 Di seguito un riassunto degli stessi:
 
 [table_onescounter_sources,subs="attributes+"]
@@ -158,14 +158,7 @@ Per esempio, considerando il segnale `loadCOUNT`:
                    else '0';
 ----
 
-Il datapath é composto da costrutti sequenziali _in-line_ per descrivere i registri nella forma:
-
-[source, vhdl]
-----
-    COUNT   <= in_COUNT when rising_edge(CLK) and loadCOUNT = '1';
-----
-
-Dove i segnali combinatori sono descritti da statement concorrenti.
+Il datapath é composto da costrutti sequenziali _in-line_ per descrivere i registri, dove i relativi segnali combinatori sono descritti da statement concorrenti.
 
 Anche per le modifiche operate sulle componenti del dispositivo si é deciso di mantenere lo stile più aderente possibile all'originale.
 
@@ -184,8 +177,8 @@ La memoria esterna é completamente descritta nel file `memory.vhdl`.
 
 La stessa non si suppone sintetizzabile, ma é rappresentata in maniera funzionale per corrispondere al comportamento ed interfaccia di una generica implementazione tecnologica di memoria SRAM.
 
-Il modello non specifica la _writing policy_, lasciando quindi l'uscita della stessa (`dataout`) non definito (`(others => '0')`) in fase di scrittura.
-Questo fattore non é comunque impattante per il dispositivo sotto test il quale si interfaccia solamente in lettura con il presente modello di memoria.
+Il modello non specifica la _writing policy_, lasciando quindi l'uscita della stessa (`dataout`) non definita (`(others => '-')`) in fase di scrittura.
+Questo fattore non é comunque impattante per il dispositivo sotto test il quale si interfaccia solamente in lettura con il presente modello.
 
 Si nota in particolare il metodo di costruzione della memoria:
 
@@ -217,7 +210,7 @@ Il formato atteso per il file é:
 Per questa versione é stato aggiunto un parametro `MEM_LAT` per gestire la latenza.
 Il parametro si aspetta un valore intero, positivo non nullo (VHDL: `positive`) che rappresenti il numero del ciclo di clock sul quale il dato letto sará disponibile.
 
-In pratica, una latenza `MEM_LAT => 1` corrisponderá al comportamento precedente (`ready <= '1';`), in cui il dato é immediatamente disponibile al primo ciclo di clock in cui la lettura viene richiesta.
+In pratica, una latenza `MEM_LAT => 1` corrisponderá al comportamento originale (`ready <= '1';`), in cui il dato é immediatamente disponibile al ciclo di clock successivo alla richiesta.
 
 Una latenza superiore, per esempio `MEM_LAT => 3`, renderá il dato disponibile al _terzo_ ciclo di clock, e cosí discorrendo.
 Il seguente diagramma esemplifica le due transazioni descritte.
@@ -246,7 +239,7 @@ Il seguente diagramma esemplifica le due transazioni descritte.
 
 Dopo aver sperimentato una soluzione in cui gli ingressi venivano registrati e "trasportati" all'istante di lettura desiderato dalla latenza, si é scelto di seguire un'implementazione differente creando invece una catena di registri sui segnali di uscita.
 
-Si veda nella sezione <<bug_b_mem_lat, Risultati>>, per le considerazioni sulle differenze di approccio.
+Si veda la sezione <<bug_b_mem_lat, Risultati>>, per le considerazioni sulle differenze di approccio.
 
 [%unbreakable]
 [source, vhdl]
@@ -486,7 +479,10 @@ $ scripts/runSim_ghdl projects/02_search_chr/c_improved
 $ scripts/runSim_ghdl projects/02_search_chr/d_tb_file
 ----
 
-NOTE : Si verifichi che le dipendenze necessarie per eseguire lo script siano soddisfatte, come da sezione <<#script_ghdl>>.
+[NOTE]
+====
+Si verifichi che le dipendenze necessarie per eseguire lo script siano soddisfatte, come da sezione <<#script_ghdl>>.
+====
 
 I comandi estrapolati dallo script sono come da esempio, assumendo di testare la versione `a_orig`:
 
