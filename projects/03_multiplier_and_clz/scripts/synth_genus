@@ -7,7 +7,7 @@
 # License:        MIT
 # ==============================================================================
 # Usage:          --
-# Dependencies:   genus
+# Dependencies:   cadence genus synthesis
 # ==============================================================================
 
 set -euo pipefail
@@ -22,6 +22,7 @@ function echoUsage() {
     echo "Usage: ./${scriptName} <stdcell lib directory> "
 }
 
+LIB_DIR="/home/user/libs/nangate"
 # Save first argument as lib directory
 if [ "${1:-}" != "" ]; then
     LIB_DIR="$(realpath ${1})"
@@ -33,29 +34,24 @@ if [ "${1:-}" != "" ]; then
     fi
 fi
 ###########################################################
-
 # Create, if not existing, target/synth directory, with subfolders
 SYNTH_DIR="${rootPath}/synth"
-mkdir -p "${SYNTH_DIR}/output" "${SYNTH_DIR}/libs"
+mkdir -p "${SYNTH_DIR}/output"
 
-# Device Setup script
-# - design name
-# - clk, rst signals
-# - clk frequency
-# - DFT names
-# - source SDC file
-# - search paths
-# - lib binding
+pushd "${SYNTH_DIR}"
+if [[ -d "${SYNTH_DIR}/libs" ]]; then
+    rm -rf "${SYNTH_DIR}/libs"
+fi
+ln -s "${LIB_DIR%/}" "${SYNTH_DIR}/libs"
+# ls -hal "${SYNTH_DIR}/libs/"
 
-# HDL files
-# - load
-# - elaboration
+set +x
 
-# RTL Synthesis
-# - process definition
-# - constraints CLK, IO, drive, load
-# - (Optional setup DFT)
-# - generic gates synthesis
-# - stdcell lib mapping
+logname="genus_$(date --iso-8601=minutes | tr ':' '.' | tr '+' 'M')".log
+echo "+++ Writing full run log in ${logname}"
 
-# Optional DFT
+genus -batch -files "${scriptPath}/genus_synth.tcl" 2>&1 | tee "output/${logname}"
+
+echo "+++ Full log written in ${logname}"
+
+popd
