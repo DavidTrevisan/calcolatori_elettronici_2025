@@ -43,15 +43,7 @@ if [[ -d "${SYNTH_DIR}/libs" ]]; then
     rm -rf "${SYNTH_DIR}/libs"
 fi
 ln -s "${LIB_DIR%/}" "${SYNTH_DIR}/libs"
-# ls -hal "${SYNTH_DIR}/libs/"
 
-set +x
-
-logname="genus_$(date --iso-8601=minutes | tr ':' '.' | tr '+' 'M')".log
-echo "+++ Writing full run log in ${logname}"
-
-genus -batch -files "${scriptPath}/genus_synth.tcl" 2>&1 | tee "output/${logname}"
-
-echo "+++ Full log written in ${logname}"
+genus -batch -files "${scriptPath}/genus_synth.tcl"
 
 popd
