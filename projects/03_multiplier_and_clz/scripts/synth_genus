@@ -44,6 +44,6 @@ if [[ -d "${SYNTH_DIR}/libs" ]]; then
 fi
 ln -s "${LIB_DIR%/}" "${SYNTH_DIR}/libs"
 
-genus -batch -files "${scriptPath}/genus_synth.tcl"
+genus -batch -files "${scriptPath}/genus.tcl"
 
 popd
