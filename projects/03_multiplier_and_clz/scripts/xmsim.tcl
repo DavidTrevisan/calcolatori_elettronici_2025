@@ -16,7 +16,7 @@ dumpsaif -depth all -output device.saif -scope DUT -internal
 run
 
 # Close db files
-database -close tstbenchvcd
+database -close testbenchvcd
 database -close devicevcd
 database -close testbenchtrn
 database -close devicetrn

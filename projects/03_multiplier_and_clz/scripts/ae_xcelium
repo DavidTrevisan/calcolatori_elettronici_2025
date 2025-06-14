@@ -1,8 +1,13 @@
 pushd simul.rtl
 pwd
 
+
+# Prefix "../"  to sources.vc for relative path
+sed -i 's/^/\.\.\//g' ../sources.vc
 xmvhdl -v93 -f ../sources.vc
+sed -i 's/\.\.\///g' ../sources.vc
+
 xmelab -generic "NBITS => 32" -generic "NTESTS => 10000" -access +rwc -coverage all -covdut DUT testbench
-xmsim -covoverwrite -input ../scripts/xsim.tcl testbench
+xmsim -covoverwrite -input ../scripts/xmsim.tcl testbench
 
 popd
