@@ -5,7 +5,7 @@ database -open devicetrn -into device.trn
 probe -all -database devicetrn -depth all DUT
 
 # Prepare SAIF file for switching activity
-dumpsaif -depth all -output device.syn.saif -scope DUT -internal
+dumpsaif -depth all -output device.gl.saif -scope DUT -internal
 
 # Run simulation
 run

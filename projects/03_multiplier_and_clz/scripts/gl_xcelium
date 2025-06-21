@@ -1,6 +1,23 @@
 #!/usr/bin/env bash
+# ==============================================================================
+# Script Name:    gl_xcelium
+# Description:    Helper script: gate-level simulation with xcelium
+# Author:         David Trevisan
+# Copyright:      (c) 2025 DT
+# License:        MIT
+# ==============================================================================
+# Usage:          --
+# Dependencies:   xcelium, synthesis files
+# ==============================================================================
 
-pushd simul.gate
+set -euo pipefail
+
+scriptFull=$(readlink -f "$0")
+scriptPath=$(dirname "${scriptFull}")
+rootPath=$(realpath $(dirname "${scriptPath}"))
+
+mkdir -p "${rootPath}/simul.gate"
+pushd "${rootPath}/simul.gate"
 pwd
 
 # work + vital libraries and lib/var files
@@ -19,11 +36,11 @@ EOF
 
 # Manually include all files for gate-level
 xmvlog -work VITAL ../synth/libs/stdcells.v
-xmvlog -work WORK ../synth/output/device.syn_map.v
-xmvhdl -v93 -work WORK device_pkg.vhdl # GL Modified to match synthesis
-xmvhdl -v93 -work WORK ../code/lfsr_pkg.vhd
-xmvhdl -v93 -work WORK ../code/tester_pkg.vhd
-xmvhdl -v93 -work WORK ../code/tester.vhd
+xmvlog -work WORK ../synth/output/device.syn_generic.v
+xmvhdl -v93 -work WORK device_pkg_NBITS32.vhdl # GL Modified to match synthesis
+xmvhdl -v93 -work WORK ../code/lfsr_pkg.vhdl
+xmvhdl -v93 -work WORK ../code/tester_pkg.vhdl
+xmvhdl -v93 -work WORK ../code/tester.vhdl
 xmvhdl -v93 -work WORK testbench.vhdl # GL Modified to match synthesis
 
 xmelab -generic "NBITS => 32" -generic "NTESTS => 10000" -access +r testbench
