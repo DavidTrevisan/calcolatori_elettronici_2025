@@ -42,6 +42,6 @@ done
 command -v rsync >/dev/null 2>&1 || { echo "Error: rsync not found in PATH." >&2; exit 1; }
 
 for i in "${prjs_to_sync[@]}"; do
-    echo "Copy ${i} to ${USER}@{IPADDR}:${TARGET_PATH}"
+    echo "Copy ${i} to ${USER}@${IPADDR}:${TARGET_PATH}"
     rsync -avP -e "ssh -p ${SSH_PORT}" "${i}" "${USER}@${IPADDR}:${TARGET_PATH}"
 done
