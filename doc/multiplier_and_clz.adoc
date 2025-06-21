@@ -102,7 +102,7 @@ projects/03_multiplier_and_clz/simul.rtl/report_rtl_NTESTS_10000_NBITS_64.txt
 [#device_xcelium_rtl_scripts]
 Per questo progetto é stato anche utilizzato il simulatore _Xcelium_, e sono stati predisposti alcuni semplici script per automatizzarne il flusso.
 
-Il primo script, `scripts/ae_xcelium` effettua le seguenti operazioni:
+Il primo script, `scripts/rtl_xcelium` effettua le seguenti operazioni:
 
 . Porta la directory di lavoro in `simul.rtl`.
 . Analizza i file VHDL (standard VHDL-1993) indicati nel file `sources.vc`.
