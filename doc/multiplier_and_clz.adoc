@@ -80,8 +80,9 @@ Quelli più rilevanti per le simulazioni sono:
 
 . `NBITS`: Definisce la dimensione degli operandi `A` e `B`.
 . `VERBOSE`: Abilita il comportamento del `tester` descritto sopra.
-. `NTESTS`: Definisce il numero di test da effettuare per ogni operazione.
+. `NTESTS`: Definisce il numero di test and diagrams da effettuare per ogni operazione.
 
+##TODO: Add some expectations and diagrams on the critical paths##
 == RTL Simulations
 
 Sempre con l'aiuto dello script `runSim_ghdl` sono state effettuate simulazioni RTL con i seguenti parametri:
@@ -126,13 +127,143 @@ Un'analisi dei log e dei segnali generati dai due simulatori (GHDL e Xcelium) no
 
 == Stdcells synthesis and evaluations
 
-Per la sintesi di `device`, si é utilizzato il tool `Genus`, con un flusso raccolto nuovamente in alcuni script, utilizzando la libreria _stdcells_ di `nangate`.
+Per la sintesi di `device`, é stato utilizzato il tool `Genus Synthesis`, con la libreria _stdcells_ di `nangate`.
+Il flusso é raccolto negli script `synth_genus` e `genus.tcl`.
 
 Per utilizzare gli script forniti, si assume che la libreria in questione sia disponibile in un percorso chiamato `libs`.
 Per ottenerlo é possibile creare nella root dei progetti un _symlink_ verso la libreria reale.
-Alternativamente sará necessario aggiustare il percorso indicato nello script.
+Alternativamente risulta necessario aggiustare il percorso indicato nello script.
 
+=== Synthesis Setup
 
+The synthesis flow target the following:
+
+*Tool*::
+- Cadence Genus(TM) Synthesis Solution, Version: 19.14-s108_1
+*Stdcell*::
+- Nangate stdcells v2011.01-HR04-2011-01-19
+- Nominal voltage: 1.10V
+- (Likely) Technology Node: 45nm
+*Constraints*::
+- Clock: 1GHz (1ns period) - 5% Jitter
+- Output capacitance: 0.484 pF
+- Input delay/Setup Time: 0.4ns (40% clock period)
+- Output delay/C2O Time: 0.4ns (40% clock period)
+*Device configuration*::
+- `NBITS`: 32
+
+The chosen driving cell has been selected as an average candidate between the buffers available in `stdcells.lib`.
+The module is called `BUF_X8`, intermediate between `BUF_X1` and `BUF_X32`, and the script sets it with the command:
+
+[source, tcl]
+----
+set_driving_cell -cell BUF_X8 $allin
+----
+
+followed immediately after with the average output capacitance set to the scaled value (Genus uses `fF` while the library uses `pF`) taken from the field `BUF_X8.pin (Z).max_capacitance`:
+
+[source, tcl]
+----
+set_load 0.484009 $allout
+----
+
+The resulting metrics are collected in the reports saved under `synth/output`, or can be generated again via the synthesis scripts, and the key figures are collected in the following table:
+
+[table_device_synth,subs="attributes+"]
+[cols="^1m,^2,^2,^2",options="header"]
+|===
+|
+| Area (µm²)
+| Worst Slack (ns)
+| Cell count
+
+| Std
+| 2112.572
+| 1
+| 1336
+
+| Opt
+| 2103.794
+| 1
+| 1323
+
+|===
+
+[NOTE]
+====
+The script does not generate the optimized results by default.
+
+In order to add them, the lines delimited by `## ENABLE SYN_OPT` must be uncommented and the `genus.tcl` script rerun.
+====
+
+The `report_timing` returns a warning (`Warning : Timing problems have been detected in this design. [TIM-11]`) due to unconstrained nets.
+Through the command `check_timing_intent` it is visible that the mentioned net is the `rst_n` signal, which doesn't have a driver.
+
+[source,tcl]
+----
+-------------------------------------------------------------------------------
+Inputs without external driver/transition
+
+The following primary inputs have no external driver or input transition set.
+As a result the transition on the ports will be assumed as zero. The
+'external_driver' attribute is used to add and external driver or the
+'fixed_slew' attribute to add an external transition.
+
+port:device/rst_n
+-------------------------------------------------------------------------------
+----
+
+The warning is expected and can be waived as it is assumed that the `rst_n` signal is driven by an external _ideal_ synchronizer, as directed by the following tool's `tcl` commands:
+
+[%unbreakable]
+[source, tcl]
+----
+# rst_n constraints
+# rst_n not ideal net
+remove_ideal_network $reset_name
+# rst_n can use 90% clk cycle to reach all FFs
+path_delay -delay [expr 0.9 * $clock_time * 1000] -name reset_delay -from $reset_name
+# assume rst_n as driven by a synchronizer
+set_input_delay 0 $reset_name -clock mainclk
+# assume rst_n with ideal drive
+set_drive 0 $reset_name
+----
+
+Given that the resulting slack is minimal (1ns in both standard and optimized synthesis), the tool doesn't accept adding clock gating, as all present flops are timing critical.
+With the RTL Simulation generated `.saif` file power estimations, it seems acceptable to keep the design without clock gating circuitry.
+
+.device power estimation on RTL switching activity
+[%unbreakable]
+[source,ascii]
+----
+Info    : Joules engine is used. [RPT-16]
+        : Joules engine is being used for the command report_power.
+Instance: /device
+Power Unit: W
+PDB Frames: /stim#0/frame#0
+  -------------------------------------------------------------------------
+    Category         Leakage     Internal    Switching        Total    Row%
+  -------------------------------------------------------------------------
+      memory     0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00   0.00%
+    register     1.42434e-05  1.11006e-03  1.86579e-04  1.31088e-03  48.27%
+       latch     0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00   0.00%
+       logic     3.01213e-05  5.94002e-04  5.94608e-04  1.21873e-03  44.88%
+        bbox     0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00   0.00%
+       clock     0.00000e+00  0.00000e+00  1.86219e-04  1.86219e-04   6.86%
+         pad     0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00   0.00%
+          pm     0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00   0.00%
+  -------------------------------------------------------------------------
+    Subtotal     4.43647e-05  1.70406e-03  9.67406e-04  2.71583e-03 100.01%
+  Percentage           1.63%       62.75%       35.62%      100.00% 100.00%
+  -------------------------------------------------------------------------
+----
+
+It is possible to see how the library in use seems to be well optimized against leakage currents, which represent less than 2% of the total power.
+More power considerations will be given after the gate-level simulation and the updated switching activity.
 
 == Gate-level simulations
+
+##TODO: Some and trials changing the clk period?###
+##TODO: Break functionality over slack time?###
+
 == Other evaluations
