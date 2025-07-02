@@ -38,8 +38,8 @@ lappend out_file_list output/$output_design_name.elab.v
 
 # RTL Synthesis
 # - process definition
-set_design_mode -process 45
-set_flow_config design_process_node 45
+set_design_mode -process 40
+set_flow_config design_process_node 40
 
 report_units
 
@@ -72,9 +72,10 @@ set_input_delay 0 $reset_name -clock mainclk
 set_drive 0 $reset_name
 
 # Preserve signals
-# set_db net:device/load_R_res .preserve true
-# set_db net:device/load_R_A .preserve true
-# set_db net:device/load_R_B .preserve true
+# set_db net:device/$reset_name .preserve true
+set_db net:device/load_R_res .preserve true
+set_db net:device/load_R_A .preserve true
+set_db net:device/load_R_B .preserve true
 
 # - generic gates synthesis and save it
 syn_generic
@@ -97,9 +98,9 @@ write_hdl > output/$output_design_name.syn_map.v
 lappend out_file_list output/$output_design_name.syn_map.v
 # - optimize
 ## ENABLE SYN_OPT
-# syn_opt
-# write_hdl > output/$output_design_name.syn_opt.v
-# lappend out_file_list output/$output_design_name.syn_opt.v
+syn_opt
+write_hdl > output/$output_design_name.syn_opt.v
+lappend out_file_list output/$output_design_name.syn_opt.v
 ## ENABLE SYN_OPT
 
 # Save reports

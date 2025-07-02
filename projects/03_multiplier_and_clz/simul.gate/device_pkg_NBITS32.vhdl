@@ -2,8 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 package device_pkg is
-
-    component device is
+    component device_wrapper is
         port (
             CLK     : in std_logic;
             rst_n   : in std_logic;

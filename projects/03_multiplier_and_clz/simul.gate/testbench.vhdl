@@ -35,7 +35,7 @@ architecture behav of testbench is
     constant CLK_PERIOD		: time := CLK_SEMIPERIOD0 + CLK_SEMIPERIOD1;
 
 begin
-    DUT : device
+    DUT : device_wrapper
         port map (
             CLK		=> CLK,
             rst_n		=> rst_n,
