@@ -9,60 +9,67 @@ use work.tester_pkg.all;
 
 entity testbench is
     generic (
-        CLK_SEMIPERIOD0		: time := 0.5 ns;
-        CLK_SEMIPERIOD1		: time := 0.5 ns;
-        RESET_TIME		: time := 500.1 ns;
-        NBITS			: integer := 32;
-        VERBOSE			: boolean := false;
-        NTESTS			: integer := 100
+        CLK_SEMIPERIOD0     : time := 0.5 ns;
+        CLK_SEMIPERIOD1     : time := 0.5 ns;
+        RESET_TIME      : time := 500.1 ns;
+        NBITS           : integer := 32;
+        VERBOSE         : boolean := false;
+        NTESTS          : integer := 100
     );
 end testbench;
 
 architecture behav of testbench is
-    signal CLK, rst_n		: std_logic;
+    signal CLK, rst_n       : std_logic;
 
-    signal start			: std_logic;
-    signal op			: std_logic;
-    signal A			: std_logic_vector(NBITS - 1 downto 0);
-    signal B			: std_logic_vector(NBITS - 1 downto 0);
-    signal done			: std_logic;
-    signal RES			: std_logic_vector(2 * NBITS - 1 downto 0);
+    signal start            : std_logic;
+    signal op           : std_logic;
+    signal A            : std_logic_vector(NBITS - 1 downto 0);
+    signal B            : std_logic_vector(NBITS - 1 downto 0);
+    signal done         : std_logic;
+    signal RES          : std_logic_vector(2 * NBITS - 1 downto 0);
 
-    signal end_simul		: boolean := false;
+    signal end_simul        : boolean := false;
 
-    signal test_finished		: std_logic := '0';
+    signal test_finished        : std_logic := '0';
 
-    constant CLK_PERIOD		: time := CLK_SEMIPERIOD0 + CLK_SEMIPERIOD1;
+    constant CLK_PERIOD     : time := CLK_SEMIPERIOD0 + CLK_SEMIPERIOD1;
 
 begin
-    DUT : device_wrapper
+    -- DUT : device_wrapper
+    DUT : device
         port map (
-            CLK		=> CLK,
-            rst_n		=> rst_n,
-            start		=> start,
-            op		=> op,
-            A		=> A,
-            B		=> B,
-            done		=> done,
-            RES		=> RES
+            CLK     => CLK,
+            rst_n   => rst_n,
+            start   => start,
+            op      => op,
+            A       => A,
+            B       => B,
+            done    => done,
+            -----------------------------------------------
+            TST             => '0',
+            TST_SH_EN       => '0',
+            TST_SCAN_IN     => '0',
+            TST_SCAN_OUT    => open,
+            -----------------------------------------------
+            RES     => RES
         );
 
     TG : tester
         generic map (
-            NBITS		=> NBITS,
-            VERBOSE		=> VERBOSE,
-            NTESTS		=> NTESTS
+            NBITS   => NBITS,
+            VERBOSE => VERBOSE,
+            NTESTS  => NTESTS
         )
         port map (
-            CLK		=> CLK,
-            rst_n		=> rst_n,
-            start		=> start,
-            op		=> op,
-            A		=> A,
-            B		=> B,
-            done		=> done,
-            RES		=> RES,
-            finished	=> test_finished
+            CLK     => CLK,
+            rst_n   => rst_n,
+            start   => start,
+            op      => op,
+            A       => A,
+            B       => B,
+            done    => done,
+            RES     => RES,
+            finished    => test_finished
         );
 
     start_process: process

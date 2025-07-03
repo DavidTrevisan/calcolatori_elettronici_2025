@@ -21,14 +21,20 @@ begin
 
     DUT_inst: entity work.device
         port map (
-            CLK		=> CLK,
-            rst_n		=> rst_n_internal,
-            start		=> start,
-            op		=> op,
-            A		=> A,
-            B		=> B,
-            done		=> done,
-            RES		=> RES
+            CLK     => CLK,
+            rst_n   => rst_n_internal,
+            start   => start,
+            op      => op,
+            A       => A,
+            B       => B,
+            done    => done,
+            -----------------------------------------------
+            TST             => '0',
+            TST_SH_EN       => '0',
+            TST_SCAN_IN     => '0',
+            TST_SCAN_OUT    => open,
+            -----------------------------------------------
+            RES     => RES
         );
 
 end rtl;

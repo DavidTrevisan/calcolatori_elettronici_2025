@@ -9,13 +9,7 @@ set reset_name rst_n
 set clock_time 1
 
 set out_file_list {}
-
-# - source SDC file
-# - (Optional DFT names)
-# set tst_name TST
-# set tst_sh_en_name TST_SH_EN
-# set tst_datain_name TST_SCAN_IN
-# set tst_dataout_name TST_SCAN_OUT
+###################
 
 # - search paths
 set_db init_lib_search_path libs
@@ -77,25 +71,59 @@ set_db net:device/load_R_res .preserve true
 set_db net:device/load_R_A .preserve true
 set_db net:device/load_R_B .preserve true
 
+###################
+# DFT 1 - Setup
+###################
+set tst_name TST
+set tst_sh_en_name TST_SH_EN
+set tst_datain_name TST_SCAN_IN
+set tst_dataout_name TST_SCAN_OUT
+###################
+# DFT 2
+###################
+# - (setup DFT)
+set_db dft_scan_style muxed_scan
+create_port_bus -input -name $tst_sh_en_name [current_design]
+create_port_bus -input -name $tst_name [current_design]
+define_shift_enable -name test_sh_en -active high -no_ideal $tst_sh_en_name
+define_dft test_mode -name test_tst -active high -no_ideal -test_only $tst_name
+define_test_clock -name testclock -domain domain_1 -period [expr 50 * $clock_time] CLK
+check_dft_rules
+report_scan_registers
+
+create_port_bus -input -name $tst_datain_name [current_design]
+create_port_bus -output -name $tst_dataout_name [current_design]
+define_dft scan_chain -name tst_scan_chain -sdi $tst_datain_name -sdo $tst_dataout_name
+
+report dft_setup
+# connect_scan_chains -chains tst_scan_chain -preview [current_design]
+connect_scan_chains -chains tst_scan_chain [current_design]
+
+report dft_chains
+write_hdl > output/$output_design_name.dft.v
+lappend out_file_list output/$output_design_name.dft.v
+
+set_input_delay 0 $tst_name -clock mainclk
+set_input_delay 0 $tst_sh_en_name -clock mainclk
+set_input_delay 0 $tst_datain_name -clock mainclk
+set_output_delay 0 $tst_dataout_name -clock mainclk
+set_driving_cell -cell BUF_X8 $tst_name $tst_sh_en_name $tst_datain_name
+set_load 0.484009 $tst_dataout_name
+###################
+
+###################
+# Generic Synthesis
+###################
 # - generic gates synthesis and save it
 syn_generic
 write_hdl > output/$output_design_name.syn_generic.v
 lappend out_file_list output/$output_design_name.syn_generic.v
 
-# - (Optional setup DFT)
-# set_db dft_scan_style muxed_scan
-# create_port_bus -input -name $tst_sh_en_name [current_design]
-# create_port_bus -input -name $tst_name [current_design]
-# define_shift_enable -name test_sh_en -active high -no_ideal $tst_sh_en_name
-# define_dft test_mode -name test_tst -active high -no_ideal -test_only $tst_name
-# define_test_clock -name testclock -domain domain_1 -period [expr 50 * $clock_time] CLK
-# check_dft_rules
-# report_scan_registers
-
 # - stdcell lib mapping
 syn_map
 write_hdl > output/$output_design_name.syn_map.v
 lappend out_file_list output/$output_design_name.syn_map.v
+
 # - optimize
 ## ENABLE SYN_OPT
 syn_opt
