@@ -156,15 +156,6 @@ Il flusso di sintesi é configurato come segue:
 - `NBITS`: 32
 
 La cella di pilotaggio scelta è stata selezionata come componente medio tra i buffer disponibili in `stdcells.lib`.
-Non viene integrata la libreria `stcells.lef` per via del seguente errore:
-
-[sourcce, tcl]
-----
-Error   : LEF File Interface. [PHYS-100] [set_db]
-        : File '/home/david.trevisan/03_multiplier_and_clz/synth/libs/stdcells.lef' contains an error on or near line '9669'.
-        : Check the LEF file and rerun the command.
-----
-
 Il modulo è chiamato `BUF_X4`, intermedio tra `BUF_X1` e `BUF_X32`, che lo script imposta con i comandi:
 
 [source, tcl]
@@ -183,7 +174,16 @@ set out_load_val  0.242310
 set_load $out_load_val $allout
 ----
 
-Le metriche risultanti sono raccolte nei rapporti salvati sotto `synth/output`, o possono essere generate nuovamente tramite gli script di sintesi.
+// Non viene integrata la libreria `stcells.lef` per via del seguente errore:
+
+// [sourcce, tcl]
+// ----
+// Error   : LEF File Interface. [PHYS-100] [set_db]
+//         : File '~/03_multiplier_and_clz/synth/libs/stdcells.lef' contains an error on or near line '9669'.
+//         : Check the LEF file and rerun the command.
+// ----
+
+Le metriche risultanti sono raccolte nei rapporti salvati al percorso `synth/output`, o possono essere generate nuovamente tramite gli script di sintesi.
 I risultati sono raccolti nella seguente tabella:
 
 [table_device_synth,subs="attributes+"]
@@ -344,7 +344,7 @@ Info    : Skipping XOR clock-gating for flop(s). [POPT-103]
         : Skipping XOR clock-gating for the flop 'inst:device/R_A_reg[19]' as the flop is timing critical.
 ----
 
-Analizzando il file HDL con questa modifica, appare correttamente l'aggiunta del circuito di clock gating, con il segnale controllato `rc_gclk` assegnato ai bit dei registri indicati prima:
+Analizzando il file HDL con questa modifica, appare correttamente l'aggiunta del componente di clock gating, con il segnale controllato `rc_gclk` assegnato ai bit dei registri indicati prima:
 
 [source, verilog]
 ----
@@ -371,7 +371,7 @@ module device(CLK, rst_n, start, op, A, B, done, RES, TST_SH_EN, TST,
 ...
 ----
 
-Se si desiderasse mantenere questa configurazione, occorrerebbe aggiustare il circuito di gating permettendo il controllo del pin di clock dei registri quando in modalitá `TEST`.
+Se si desiderasse mantenere questa configurazione, risulterebbe necessario aggiustare il circuito di gating permettendo il controllo del pin di clock dei registri quando in modalitá `TEST`.
 Attraverso il seguente comando `genus`, é possibile regolare la violazione introdotta nel DFT a causa del clock gating:
 
 [source, tcl]
@@ -435,9 +435,232 @@ PDB Frames: /stim#0/frame#0
 
 È possibile osservare come la libreria in uso sembri essere ben ottimizzata contro le correnti di dispersione, che rappresentano meno del 2% della potenza dissipata totale.
 
+<<<
+
 == Gate-level simulations
 
-##TODO: Some and trials changing the clk period?###
-##TODO: Break functionality over slack time?###
+Per effettuare i test a livello gate del dispositivo, sono disponibili gli script `scripts/gl_xcelium` e `scripts/gl_xmsim.tcl`.
+Il flusso implementato é rappresentato nel seguente diagramma:
+
+
+[.center,svgbob-device_ports]
+[svgbob]
+----
+    .----------------------------------------------------.
+    |   gl_xcelium                                       |
+    |                                                    |
+    |              .------------------------.            |
+    |              |   Create `simul.gate`  |            |
+    |              |    if not existing     |            |
+    |              '------------------------'            |
+    |                          |                         |
+    |                          v                         |
+    |              .------------------------.            |
+    |              | `work`, `vital`,dirs   |            |
+    |              |   cds.lib & hdl.var    |            |
+    |              '------------------------'            |
+    |                          |                         |
+    |                          v                         | .------------------.
+    |     .-------------------------------------------.  | |                  |
+    |     |  Xcelium analysis                         |  | |                  v
+    |     |                                           |  | |   .---------------------------------.
+    |     | .----------------.   .------------------. |  | |   |    .-------------------.        |
+    |     | |VITAL Libraries |   | device.syn_opt.v | |  | |   |    | open db for waves |        |
+    |     | '----------------'   '------------------' |  | |   |    '-------------------'        |
+    |     |                                           |  | |   |              |                  |
+    |     | .---------------------------------------. |  | |   |              v                  |
+    |     | |Gate Level adjusted verification files | |  | |   |    .-------------------.        |
+    |     | '---------------------------------------' |  | |   |    | dump saif file    |        |
+    |     '-------------------------------------------'  | |   |    '-------------------'        |
+    |                           |                        | |   |              |                  |
+    |                           v                        | |   |              v                  |
+    |                 .---------------------.            | |   |    .-------------------.        |
+    |                 | Xcelium elaboration |            | |   |    |  run              |        |
+    |                 '---------------------'            | |   |    '-------------------'        |
+    |                           |                        | |   |              |                  |
+    |                           v                        | |   |              |                  |
+    |              .----------------------------.        | |   |              v                  |
+    |              |   xmsim using tcl script   |        | |   |    .-------------------.        |
+    |              '----------------------------'        | |   |    |  close db         |        |
+    '----------------------------------------------------' |   |    '-------------------'        |
+                                |                          |   |                    gl_xmsim.tcl |
+                                '--------------------------'   '---------------------------------'
+----
+
+
+Per eseguire il flusso é sufficiente invocare lo script `scripts/gl_xcelium` ed attendere l'esito della simulazione.
+
+[source,shell]
+----
+xmvhdl(64): 20.09-s001: (c) Copyright 1995-2020 Cadence Design Systems, Inc.
+...
+xcelium> source /opt/cadence/installs/XCELIUM2009/tools.lnx86/inca/files/xmsimrc
+xcelium> # Prepare TRN file for simvision
+xcelium> database -open testbenchtrn -into testbench.trn -default
+Created default SHM database testbenchtrn
+xcelium> probe -all -database testbenchtrn -depth all
+Created probe 1
+xcelium> database -open devicetrn -into device.trn
+Created SHM database devicetrn
+xcelium> probe -all -database devicetrn -depth all DUT
+Created probe 2
+xcelium>
+xcelium> # Prepare SAIF file for switching activity
+xcelium> dumpsaif -overwrite -depth all -output device.gl.saif -scope DUT -internal
+xcelium>
+xcelium> # Run simulation
+xcelium> run
+OK: 1000 tests
+xmsim: *W,RNQUIE: Simulation is complete.
+xcelium>
+xcelium> # Close db files
+xcelium> database -close testbenchtrn
+xcelium> database -close devicetrn
+xcelium>
+xcelium> # Exit
+xcelium> exit
+~/03_multiplier_and_clz
+----
+
+Tutti i 1000 test vengono correttamente eseguiti nelle condizioni normali.
+Sovrascrivendo l'elaborazione del testbench con un periodo di clock più veloce di quanto ammissibile (per esempio un periodo di `300 ps`), si osserva il dispositivo fallire nello stesso environment di test quando si utilizzano i dati di ritardo specificati nel file `device.sdf` ottenuto durante la sintesi.
+
+Per generare i file necessari ad Xcelium per utilizzare i dati da SDF, lo script fornito accetta un parametro `-sdf` che converte il file in formato accettato dal simulatore e lo utilizza nell'elaborazione.
+
+[source, shell]
+----
+~/03_multiplier_and_clz$ scripts/gl_xcelium -sdf
+...
+xmsdfc(64): 20.09-s001: (c) Copyright 1995-2020 Cadence Design Systems, Inc.
+        Reading SDF file from location "../synth/output/device.sdf"
+...
+xmsim(64): 20.09-s001: (c) Copyright 1995-2020 Cadence Design Systems, Inc.
+xcelium> source /opt/cadence/installs/XCELIUM2009/tools.lnx86/inca/files/xmsimrc
+xcelium> # Prepare TRN file for simvision
+xcelium> database -open testbenchtrn -into testbench.trn -default
+Created default SHM database testbenchtrn
+xcelium> probe -all -database testbenchtrn -depth all
+Created probe 1
+xcelium> database -open devicetrn -into device.trn
+Created SHM database devicetrn
+xcelium> probe -all -database devicetrn -depth all DUT
+Created probe 2
+xcelium>
+xcelium> # Prepare SAIF file for switching activity
+xcelium> dumpsaif -overwrite -depth all -output device.gl.saif -scope DUT -internal
+xcelium>
+xcelium> # Run simulation
+xcelium> run
+OK: 1000 tests
+xmsim: *W,RNQUIE: Simulation is complete.
+xcelium>
+xcelium> # Close db files
+xcelium> database -close testbenchtrn
+xcelium> database -close devicetrn
+xcelium>
+xcelium> # Exit
+xcelium> exit
+~/03_multiplier_and_clz$ pushd simul.gate && xmelab -generic "NBITS => 32" -generic "NTESTS => 100" -generic "CLK_SEMIPERIOD0 => 150 ps" -generic "CLK_SEMIPERIOD1 => 150 ps" -sdf_cmd_file device.sdf_cmd -access +rwc testbench && xmsim testbench
+...
+xmsim(64): 20.09-s001: (c) Copyright 1995-2020 Cadence Design Systems, Inc.
+...
+xcelium> source /opt/cadence/installs/XCELIUM2009/tools.lnx86/inca/files/xmsimrc
+xcelium> run
+WRONG
+xmsim: *W,RNQUIE: Simulation is complete.
+xcelium> exit
+----
+
+Mentre il tester restituisce la stringa `WRONG`, si verifica che le forme d'onda seguono i ritardi indicati, ed il componente `device` non puó garantire la correttezza funzionale nelle condizioni di periodo di clock più rapido.
+Nell'immagine seguente, si nota come i segnali di output `RES` e `done` si muovano in momenti chiaramente successivi al fronte di salita del `CLK`, cosí come alcuni segnali interni a `device`:
+
+.`device` gate level simulation with delay
+[#fig_device_gl_sdf_waves,reftext='{figure-caption} {counter:refnum}']
+image::images/device_gl_sdf_waves.png[]
 
 == Other evaluations
+
+Al termine del flusso di sintesi e di simulazione gate-level, si presentano alcune considerazioni residue sulle stime di potenza del componente `device`.
+
+Nella tabella <<table_device_pwr_eval>> si osserva il riassunto dei risultati totali ottenuti dal tool `genus` sul rapporto di potenza stimata sulla base di tre diversi file `saif` contenenti la switching activity ai momenti:
+
+. RTL-sim/Pre-sintesi (copertura switching RTL driver ~53%)
+. Post-sintesi (copertura switching 100%, no SDF)
+. Post-gate-level (copertura switching 100%, SDF)
+
+[table_device_pwr_eval,subs="attributes+"]
+[cols="^2,^8",frame="none",grid="rows",options="header"]
+|===
+
+|Condition
+|
+
+// Nested table
+|RTL
+1+a|
+[cols="^2m,^2m,^2m,^2m,^2m",grid="none", frame="none"]
+!===
+!Category !Leakage !Internal !Switching !Total
+
+!Subtotal
+!5.66259e-05
+!2.07992e-03
+!1.30459e-03
+!3.44113e-03
+
+!Percentage
+!1.65%
+!60.44%
+!37.91%
+!100%
+
+!===
+// ==============================================
+
+
+// Nested table
+|Syn, no SDF
+1+a|
+[cols="^2m,^2m,^2m,^2m,^2m",grid="none", frame="none"]
+!===
+!Category !Leakage !Internal !Switching !Total
+
+!Subtotal
+!5.68113e-05
+!1.80507e-03
+!1.10730e-03
+!2.96918e-03
+
+!Percentage
+!1.91%
+!60.79%
+!37.29%
+!100.00%
+
+!===
+// ==============================================
+
+
+// Nested table
+|Syn, SDF
+1+a|
+[cols="^2m,^2m,^2m,^2m,^2m",grid="none", frame="none"]
+!===
+!Category !Leakage !Internal !Switching !Total
+
+!Subtotal
+!5.67611e-05
+!1.79753e-03
+!1.11086e-03
+!2.96515e-03
+
+!Percentage
+!1.91%
+!60.62%
+!37.46%
+!100.00%
+
+!===
+// ==============================================
+
+|===

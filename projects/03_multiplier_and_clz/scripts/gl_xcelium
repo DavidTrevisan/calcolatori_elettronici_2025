@@ -49,7 +49,23 @@ xmvhdl -v200x -work WORK ../code/tester.vhdl
 xmvhdl -v200x -work WORK testbench.vhdl # GL Modified to match synthesis
 # xmvlog -work WORK testbench.v
 
-xmelab -generic "NBITS => 32" -generic "NTESTS => 100" -access +rwc testbench
+# If option -sdf, simulate with synth delays
+SIM_DLY=""
+if [ -n "${1+x}" ] && [ "$1" = "-sdf" ]; then
+    xmsdfc -output device.sdf.X ../synth/output/device.sdf
+    cat <<EOF > device.sdf_cmd
+COMPILED_SDF_FILE = "device.sdf.X",
+SCOPE = ":DUT",
+LOG_FILE = "device.sdf.log",
+MTM_CONTROL = "TOOL_CONTROL",
+SCALE_FACTORS = "1.0:1.0:1.0",
+SCALE_TYPE = "FROM_MTM";
+EOF
+    SIM_DLY="-sdf_cmd_file device.sdf_cmd -maxdelays"
+    echo "NOTE: elaborating design using SDF file delays"
+fi
+
+xmelab -generic "NBITS => 32" -generic "NTESTS => 1000" ${SIM_DLY} -access +rwc testbench
 xmsim -input ../scripts/gl_xmsim.tcl testbench
 
 popd
