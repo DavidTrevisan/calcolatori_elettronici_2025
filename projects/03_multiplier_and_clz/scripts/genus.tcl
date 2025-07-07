@@ -1,7 +1,9 @@
+###################
 # Device Setup script
 # - design name
 # - clk, rst signals
 # - clk frequency
+###################
 set output_design_name device
 
 set clock_name CLK
@@ -11,7 +13,27 @@ set clock_time 1
 set out_file_list {}
 ###################
 
-# - search paths
+###################
+# Set driving cell
+# and out load for
+# the entire prj
+###################
+# set drv_cell_name BUF_X32
+# set out_load_val  1.904300
+# set drv_cell_name BUF_X16
+# set out_load_val  0.965576
+# set drv_cell_name BUF_X8
+# set out_load_val  0.484009
+set drv_cell_name BUF_X4
+set out_load_val  0.242310
+# set drv_cell_name BUF_X2
+# set out_load_val  0.121155
+###################
+
+###################
+# Set library
+# search paths and files
+###################
 set_db init_lib_search_path libs
 set_db script_search_path libs
 set_db init_hdl_search_path ../code/
@@ -19,25 +41,35 @@ set_db init_hdl_search_path ../code/
 # - lib binding
 set_db library {stdcells.lib}
 # set_db lef_library {stdcells.lef}
+###################
 
+###################
 # HDL files
 # - load
 # - elaboration
+###################
 read_hdl -language vhdl device.vhdl
 elaborate -parameters {{NBITS 32}}
 # - output elaborated design
 rename_obj design:device_NBITS32 $output_design_name
 write_hdl > output/$output_design_name.elab.v
 lappend out_file_list output/$output_design_name.elab.v
+###################
 
+###################
 # RTL Synthesis
-# - process definition
+# process definition
+###################
 set_design_mode -process 40
 set_flow_config design_process_node 40
 
 report_units
+###################
 
-# - constraints CLK, IO, drive, load
+###################
+# Setup Constraints
+# - CLK, IO, drive, load
+###################
 create_clock -domain clock_domain1 -name mainclk -period $clock_time [get_db ports $clock_name]
 set_clock_uncertainty [expr 0.05 * $clock_time] [get_clocks mainclk]
 
@@ -51,12 +83,15 @@ set_output_delay [expr 0.4 * $clock_time] $allout -clock mainclk
 set_drive 0 CLK
 
 # Set avg driving cell and load
-set_driving_cell -cell BUF_X8 $allin
+set_driving_cell -cell $drv_cell_name $allin
 # Genus uses pF units and stdcells.lib uses fF
-set_load 0.484009 $allout
+set_load $out_load_val $allout
+###################
 
+###################
 # rst_n constraints
 # rst_n not ideal net
+###################
 remove_ideal_network $reset_name
 # rst_n can use 90% clk cycle to reach all FFs
 path_delay -delay [expr 0.9 * $clock_time * 1000] -name reset_delay -from $reset_name
@@ -64,12 +99,16 @@ path_delay -delay [expr 0.9 * $clock_time * 1000] -name reset_delay -from $reset
 set_input_delay 0 $reset_name -clock mainclk
 # assume rst_n with ideal drive
 set_drive 0 $reset_name
+###################
 
+###################
 # Preserve signals
 # set_db net:device/$reset_name .preserve true
+###################
 set_db net:device/load_R_res .preserve true
 set_db net:device/load_R_A .preserve true
 set_db net:device/load_R_B .preserve true
+###################
 
 ###################
 # DFT 1 - Setup
@@ -96,19 +135,14 @@ create_port_bus -output -name $tst_dataout_name [current_design]
 define_dft scan_chain -name tst_scan_chain -sdi $tst_datain_name -sdo $tst_dataout_name
 
 report dft_setup
-# connect_scan_chains -chains tst_scan_chain -preview [current_design]
 connect_scan_chains -chains tst_scan_chain [current_design]
-
-report dft_chains
-write_hdl > output/$output_design_name.dft.v
-lappend out_file_list output/$output_design_name.dft.v
 
 set_input_delay 0 $tst_name -clock mainclk
 set_input_delay 0 $tst_sh_en_name -clock mainclk
 set_input_delay 0 $tst_datain_name -clock mainclk
 set_output_delay 0 $tst_dataout_name -clock mainclk
-set_driving_cell -cell BUF_X8 $tst_name $tst_sh_en_name $tst_datain_name
-set_load 0.484009 $tst_dataout_name
+set_driving_cell -cell $drv_cell_name $tst_name $tst_sh_en_name $tst_datain_name
+set_load $out_load_val $tst_dataout_name
 ###################
 
 ###################
@@ -118,20 +152,39 @@ set_load 0.484009 $tst_dataout_name
 syn_generic
 write_hdl > output/$output_design_name.syn_generic.v
 lappend out_file_list output/$output_design_name.syn_generic.v
+###################
 
+###################
+# Syntesis Map
 # - stdcell lib mapping
+###################
 syn_map
 write_hdl > output/$output_design_name.syn_map.v
 lappend out_file_list output/$output_design_name.syn_map.v
+###################
 
-# - optimize
-## ENABLE SYN_OPT
+###################
+# DFT 3
+# Connect scan chain
+###################
+connect_scan_chains -chains tst_scan_chain [current_design]
+
+report dft_chains
+write_hdl > output/$output_design_name.dft.v
+lappend out_file_list output/$output_design_name.dft.v
+###################
+
+###################
+# Syn OPT
+###################
 syn_opt
 write_hdl > output/$output_design_name.syn_opt.v
 lappend out_file_list output/$output_design_name.syn_opt.v
-## ENABLE SYN_OPT
+###################
 
+###################
 # Save reports
+###################
 # - timing
 report_timing > output/$output_design_name.timing_report.txt
 lappend out_file_list output/$output_design_name.timing_report.txt
@@ -148,11 +201,18 @@ lappend out_file_list output/$output_design_name.pwr.txt
 # - delay data (sdf)
 write_sdf > output/$output_design_name.sdf
 lappend out_file_list output/$output_design_name.sdf
+###################
 
-# Output design
+###################
+# Save Output design
+# for physical
+###################
 write_design -innovus -base_name output/synth/${output_design_name} [current_design]
+###################
 
+###################
 # Dump filenames written
+###################
 puts "
 ===================
 === SCRIPT DONE ===
@@ -164,3 +224,4 @@ foreach item ${out_file_list} {
     puts "    - ${item}"
 }
 puts "--- Innovus and Genus scripts written into 'synth/output/synth' folder"
+###################

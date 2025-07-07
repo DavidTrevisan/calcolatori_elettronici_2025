@@ -1,6 +1,6 @@
 = Progetto 3: Multiplier and Count Leading Zeroes
 
-Questa sezione analizza il dispositivo d'esempio chiamato semplicemente `device`.
+Questa sezione analizza il dispositivo d'esempio, chiamato semplicemente `device`.
 Il componente é rappresentato dalle seguenti porte di input/output.
 
 [table_device_IOports,subs="attributes+"]
@@ -58,6 +58,8 @@ Indica che il risultato in uscita al dispositivo puó essere valutato.
                 +----------------+
 ----
 
+Il dispositivo implementa quindi due diverse operazioni aritmetiche sugli operandi di ingresso `A` e `B`, in base al valore del segnale `op`: moltiplicazione `A*B` oppure conteggio dei _most-significant-bit_ a `0` di `A`.
+
 Il comportamento della CTRL-Unit del dispositivo viene descritto insieme al datapath nello stesso file `device.vhdl`.
 Il flusso é rappresentato nel seguente ASM-Chart:
 
@@ -70,7 +72,7 @@ Il flusso di test implementato é riassunto come segue:
 
 . Testa diversi operandi.
 .. Testa entrambe le operazioni.
-. Verifica il risultato proposto confrontandolo con il risultato in software.
+. Verifica il risultato proposto confrontandolo con il risultato ottenuto dal software.
 . Al termine della sequenza stampa un messaggio relativo al successo o meno del test.
 
 Opzionalmente si puó definire il generic `VERBOSE` per stampare su `stdout` più informazioni sugli eventuali risultati errati.
@@ -83,6 +85,7 @@ Quelli più rilevanti per le simulazioni sono:
 . `NTESTS`: Definisce il numero di test and diagrams da effettuare per ogni operazione.
 
 ##TODO: Add some expectations and diagrams on the critical paths##
+
 == RTL Simulations
 
 Sempre con l'aiuto dello script `runSim_ghdl` sono state effettuate simulazioni RTL con i seguenti parametri:
@@ -127,77 +130,132 @@ Un'analisi dei log e dei segnali generati dai due simulatori (GHDL e Xcelium) no
 
 == Stdcells synthesis and evaluations
 
-Per la sintesi di `device`, é stato utilizzato il tool `Genus Synthesis`, con la libreria _stdcells_ di `nangate`.
+Per la sintesi di `device`, é stato utilizzato il tool `Genus Synthesis` di Cadence, con la libreria _stdcells_ di `nangate`.
 Il flusso é raccolto negli script `synth_genus` e `genus.tcl`.
 
 Per utilizzare gli script forniti, si assume che la libreria in questione sia disponibile in un percorso chiamato `libs`.
 Per ottenerlo é possibile creare nella root dei progetti un _symlink_ verso la libreria reale.
 Alternativamente risulta necessario aggiustare il percorso indicato nello script.
 
-=== Synthesis Setup
+=== Configurazione della Sintesi
 
-The synthesis flow target the following:
+Il flusso di sintesi é configurato come segue:
 
 *Tool*::
-- Cadence Genus(TM) Synthesis Solution, Version: 19.14-s108_1
+- Cadence Genus(TM) Synthesis Solution, Versione: 19.14-s108_1
 *Stdcell*::
-- Nangate stdcells v2011.01-HR04-2011-01-19
-- Nominal voltage: 1.10V
-- (Likely) Technology Node: 45nm
+- Stdcell Nangate v2011.01-HR04-2011-01-19
+- Tensione nominale: 1.10V
+- Nodo tecnologico (probabile): 45nm
 *Constraints*::
-- Clock: 1GHz (1ns period) - 5% Jitter
-- Output capacitance: 0.484 pF
-- Input delay/Setup Time: 0.4ns (40% clock period)
-- Output delay/C2O Time: 0.4ns (40% clock period)
-*Device configuration*::
+- Frequenza di clock: 1GHz (periodo di 1ns) - Jitter del 5%
+- Capacità di uscita: 0.484 pF
+- Ritardo di ingresso/Tempo di Setup: 0.4ns (40% del periodo di clock)
+- Ritardo di uscita/Tempo C2O: 0.4ns (40% del periodo di clock)
+*Configurazione del dispositivo*::
 - `NBITS`: 32
 
-The chosen driving cell has been selected as an average candidate between the buffers available in `stdcells.lib`.
-The module is called `BUF_X8`, intermediate between `BUF_X1` and `BUF_X32`, and the script sets it with the command:
+La cella di pilotaggio scelta è stata selezionata come componente medio tra i buffer disponibili in `stdcells.lib`.
+Non viene integrata la libreria `stcells.lef` per via del seguente errore:
+
+[sourcce, tcl]
+----
+Error   : LEF File Interface. [PHYS-100] [set_db]
+        : File '/home/david.trevisan/03_multiplier_and_clz/synth/libs/stdcells.lef' contains an error on or near line '9669'.
+        : Check the LEF file and rerun the command.
+----
+
+Il modulo è chiamato `BUF_X4`, intermedio tra `BUF_X1` e `BUF_X32`, che lo script imposta con i comandi:
 
 [source, tcl]
 ----
-set_driving_cell -cell BUF_X8 $allin
+set drv_cell_name BUF_X4
+...
+set_driving_cell -cell $drv_cell_name $allin
 ----
 
-followed immediately after with the average output capacitance set to the scaled value (Genus uses `fF` while the library uses `pF`) taken from the field `BUF_X8.pin (Z).max_capacitance`:
+seguito dalla capacità di uscita media impostata al valore scalato (Genus utilizza `fF` mentre la libreria utilizza `pF`) preso dal campo `BUF_X8.pin (Z).max_capacitance`:
 
 [source, tcl]
 ----
-set_load 0.484009 $allout
+set out_load_val  0.242310
+...
+set_load $out_load_val $allout
 ----
 
-The resulting metrics are collected in the reports saved under `synth/output`, or can be generated again via the synthesis scripts, and the key figures are collected in the following table:
+Le metriche risultanti sono raccolte nei rapporti salvati sotto `synth/output`, o possono essere generate nuovamente tramite gli script di sintesi.
+I risultati sono raccolti nella seguente tabella:
 
 [table_device_synth,subs="attributes+"]
-[cols="^1m,^2,^2,^2",options="header"]
+[cols="^2m,^2,^2,^2",options="header"]
 |===
-|
+| Synth
 | Area (µm²)
 | Worst Slack (ns)
-| Cell count
+| Numero di celle
 
-| Std
-| 2112.572
-| 1
-| 1336
+// | Std
+// | 2112.572
+// | 1
+// | 1336
 
 | Opt
-| 2103.794
+| 2687.930
 | 1
-| 1323
+| 1788
 
 |===
+
+Lo script di sintesi indica automaticament al tool `Genus` di effettuare lo step di ottimizzazione della sintesi, in quanto il risultato dopo il comando `syn_map` non é sufficientemente soddisfacente per essere utilizzabile.
+Da una breve analisi risulta infatti un percorso critico con slack negativo di `5095 ps`, tra due flip-flop del registro `R_res_reg` del risultato, come indicato nel seguente spezzone di report:
+
+
+[source, tcl]
+----
+@genus:root: 109> report_timing
+Warning : Timing problems have been detected in this design. [TIM-11]
+...
+Path 1: VIOLATED (-5095 ps) Setup Check with Pin R_res_reg[63]/CK->D
+          Group: mainclk
+     Startpoint: (R) R_res_reg[0]/CK
+          Clock: (R) mainclk
+       Endpoint: (F) R_res_reg[63]/D
+          Clock: (R) mainclk
+
+                     Capture       Launch
+        Clock Edge:+    1000            0
+       Src Latency:+       0            0
+       Net Latency:+       0 (I)        0 (I)
+           Arrival:=    1000            0
+
+             Setup:-      80
+       Uncertainty:-      50
+     Required Time:=     870
+      Launch Clock:-       0
+         Data Path:-    5965
+             Slack:=   -5095
+
+#--------------------------------------------------------------------------------------------------
+#      Timing Point        Flags    Arc   Edge   Cell     Fanout Load Trans Delay Arrival Instance
+#                                                                (fF)  (ps)  (ps)   (ps)  Location
+#--------------------------------------------------------------------------------------------------
+  R_res_reg[0]/CK          -       -      R     (arrival)    162    -     0     -       0    (-,-)
+  R_res_reg[0]/QN          -       CK->QN R     SDFFR_X1       1  2.0    10    98      98    (-,-)
+  fopt19220/ZN             -       A->ZN  F     INV_X1         2  4.7     7    24     122    (-,-)
+...
+  g18719__9945/ZN          -       B1->ZN R     AOI22_X1       1  2.0    31    55    5923    (-,-)
+  g18653__7098/ZN          -       A1->ZN F     OAI22_X1       1  1.4    18    33    5956    (-,-)
+  R_res_reg[63]/D          <<<     -      F     SDFFR_X1       1    -     -     9    5965    (-,-)
+#--------------------------------------------------------------------------------------------------
+----
 
 [NOTE]
 ====
-The script does not generate the optimized results by default.
-
-In order to add them, the lines delimited by `## ENABLE SYN_OPT` must be uncommented and the `genus.tcl` script rerun.
+Lo script non salva i risultati (report) standard per impostazione predefinita.
 ====
 
-The `report_timing` returns a warning (`Warning : Timing problems have been detected in this design. [TIM-11]`) due to unconstrained nets.
-Through the command `check_timing_intent` it is visible that the mentioned net is the `rst_n` signal, which doesn't have a driver.
+Il comando `report_timing` restituisce un avviso (`Warning : Timing problems have been detected in this design. [TIM-11]`) a causa di reti _unconstrained_.
+Attraverso il comando `check_timing_intent` è visibile che la rete menzionata è il segnale `rst_n`, che non ha un driver.
 
 [source,tcl]
 ----
@@ -213,7 +271,7 @@ port:device/rst_n
 -------------------------------------------------------------------------------
 ----
 
-The warning is expected and can be waived as it is assumed that the `rst_n` signal is driven by an external _ideal_ synchronizer, as directed by the following tool's `tcl` commands:
+L'avviso è previsto e può essere ignorato in quanto verrá assunto che il segnale `rst_n` sia pilotato da un sincronizzatore esterno _ideale_, come indicato dai seguenti comandi `tcl` dello strumento:
 
 [%unbreakable]
 [source, tcl]
@@ -229,15 +287,132 @@ set_input_delay 0 $reset_name -clock mainclk
 set_drive 0 $reset_name
 ----
 
-Given that the resulting slack is minimal (1ns in both standard and optimized synthesis), the tool doesn't accept adding clock gating, as all present flops are timing critical.
-With the RTL Simulation generated `.saif` file power estimations, it seems acceptable to keep the design without clock gating circuitry.
+Dopo l'ottimizzazione si verifica invece che i constraint di timing vengono rispettati, con lo slack peggiore pari ad `1 ps`.
+
+[source, tcl]
+----
+report_timing -lint
+...
+Path 1: MET (1 ps) Setup Check with Pin R_res_reg[57]/CK->D
+          Group: mainclk
+     Startpoint: (R) R_res_reg[8]/CK
+          Clock: (R) mainclk
+       Endpoint: (R) R_res_reg[57]/D
+          Clock: (R) mainclk
+
+                     Capture       Launch
+        Clock Edge:+    1000            0
+       Src Latency:+       0            0
+       Net Latency:+       0 (I)        0 (I)
+           Arrival:=    1000            0
+
+             Setup:-      73
+       Uncertainty:-      50
+     Required Time:=     877
+      Launch Clock:-       0
+         Data Path:-     876
+             Slack:=       1
+...
+----
+
+A scopo didattico ed esplorativo, é stata testata l'aggiunta del _clock-gating_ sui flip-flop di alcuni registri (`R_B`, `R_A`), trovando che una buona parte dei bit di `R_A_reg` risultano _timing critical_, e non sono perció assegnabili al circuito di gating del clock:
+
+[source, tcl]
+----
+@genus:root: 4> add_xor_clock_gating -flops inst:device/R_B_reg* -skip_async_check
+XOR clock-gating inserted: 'hinst:device/RC_CG_XOR_HIER_INST' for the following group of flops:
+    inst:device/R_B_reg[0]
+..
+    inst:device/R_B_reg[31]
+XOR Clock-Gating Summary
+========================
+Flops given              : 32 (32)
+  Single bit flops       : 32
+  Multibit flops         : 0
+Flops skipped            : 0
+   Single bit flops      : 0
+   Multibit flops        : 0
+Flops gated              : 32 (32)
+  Single bit flops       : 32
+  Multibit flops         : 0
+XOR clock gates inserted : 1
+@genus:root: 5> add_xor_clock_gating -flops inst:device/R_A_reg* -skip_async_check
+Info    : Skipping XOR clock-gating for flop(s). [POPT-103]
+        : Skipping XOR clock-gating for the flop 'inst:device/R_A_reg[0]' as the flop is timing critical.
+...
+Info    : Skipping XOR clock-gating for flop(s). [POPT-103]
+        : Skipping XOR clock-gating for the flop 'inst:device/R_A_reg[19]' as the flop is timing critical.
+----
+
+Analizzando il file HDL con questa modifica, appare correttamente l'aggiunta del circuito di clock gating, con il segnale controllato `rc_gclk` assegnato ai bit dei registri indicati prima:
+
+[source, verilog]
+----
+$ less output/device.cg.v
+module RC_CG_MOD(enable, ck_in, ck_out, test, s_rst, obs);
+  input enable, ck_in, test, s_rst;
+...
+  CLKGATETST_X1 RC_CGIC_INST(.E (enable), .CK (ck_in), .SE (test), .GCK
+       (ck_out));
+endmodule
+
+module device(CLK, rst_n, start, op, A, B, done, RES, TST_SH_EN, TST,
+     TST_SCAN_IN, TST_SCAN_OUT);
+  input CLK, rst_n, start, op, TST_SH_EN, TST, TST_SCAN_IN;
+...
+  wire n_4455, n_4456, n_4457, rc_gclk;
+  RC_CG_MOD RC_CG_XOR_HIER_INST(.enable (n_958), .ck_in (CLK), .ck_out
+       (rc_gclk), .test (1'b0), .s_rst (1'b0), .obs (RC_CG_OBS_NET));
+...
+  SDFFR_X1 \R_B_reg[0] (.RN (rst_n), .CK (rc_gclk), .D (n_385), .SI
+       (n_98), .SE (n_4396), .Q (n_97), .QN (n_561));
+  SDFFR_X1 \R_B_reg[1] (.RN (rst_n), .CK (rc_gclk), .D (n_386), .SI
+       (n_97), .SE (TST_SH_EN), .Q (n_96), .QN (R_B[1]));
+...
+----
+
+Se si desiderasse mantenere questa configurazione, occorrerebbe aggiustare il circuito di gating permettendo il controllo del pin di clock dei registri quando in modalitá `TEST`.
+Attraverso il seguente comando `genus`, é possibile regolare la violazione introdotta nel DFT a causa del clock gating:
+
+[source, tcl]
+----
+fix_dft_violations -clock -test_control test_tst -test_clock_pin CLK
+----
+
+verificando successivamente l'aggiunta dei segnali e porte logiche per controllare il clock quando in modalitá TEST:
+
+[source, verilog]
+----
+$ less output/device.cg_fix_dft.v
+...
+module RC_CG_MOD(enable, ck_in, ck_out, test, s_rst, obs, DFT_in);
+  input enable, ck_in, test, s_rst, DFT_in;
+  output ck_out, obs;
+  wire enable, ck_in, test, s_rst, DFT_in;
+  wire ck_out, obs;
+  wire n_6, n_8, n_9;
+  CLKGATETST_X1 RC_CGIC_INST(.E (enable), .CK (ck_in), .SE (test), .GCK
+       (n_6));
+  INV_X1 DFT_testpoint_0(.A (DFT_in), .ZN (n_9));
+  INV_X1 DFT_testpoint_1(.A (n_8), .ZN (ck_out));
+  AOI22_X1 DFT_testpoint_2(.A1 (DFT_in), .A2 (ck_in), .B1 (n_6), .B2
+       (n_9), .ZN (n_8));
+endmodule
+...
+----
+
+Non viene comunque inserito il _clock-gating_ negli script forniti per le seguenti considerazioni:
+
+. Il dispositivo `device` non sembra risparmiare una porzione giustificabile di potenza dissipata nell'attività di switching, attestandosi sotto lo 0,1%. Questo risparmio marginale non giustifica l'aggiunta di complessità al progetto.
+. L'implementazione del clock-gating richiederebbe un'analisi approfondita delle condizioni operative e delle logiche di controllo, aumentando la complessità del design che ha presentemente solo applicazione didattica.
+. Inoltre, l'integrazione del clock-gating potrebbe comportare un incremento significativo dei tempi di simulazione e verifica, rendendo il processo di sviluppo più lungo e laborioso.
+
+Con il file `.saif` generato dalla simulazione RTL, si possono ottenere delle _stime_ sulla dissipazione di potenza, che verranno confrontate con quelle effettuate con la switching-activity post simulazione gate-level.
 
 .device power estimation on RTL switching activity
 [%unbreakable]
 [source,ascii]
 ----
-Info    : Joules engine is used. [RPT-16]
-        : Joules engine is being used for the command report_power.
 Instance: /device
 Power Unit: W
 PDB Frames: /stim#0/frame#0
@@ -245,21 +420,20 @@ PDB Frames: /stim#0/frame#0
     Category         Leakage     Internal    Switching        Total    Row%
   -------------------------------------------------------------------------
       memory     0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00   0.00%
-    register     1.42434e-05  1.11006e-03  1.86579e-04  1.31088e-03  48.27%
+    register     1.69925e-05  1.28063e-03  1.81033e-04  1.47866e-03  42.97%
        latch     0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00   0.00%
-       logic     3.01213e-05  5.94002e-04  5.94608e-04  1.21873e-03  44.88%
+       logic     3.96334e-05  7.99286e-04  9.37335e-04  1.77625e-03  51.62%
         bbox     0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00   0.00%
-       clock     0.00000e+00  0.00000e+00  1.86219e-04  1.86219e-04   6.86%
+       clock     0.00000e+00  0.00000e+00  1.86219e-04  1.86219e-04   5.41%
          pad     0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00   0.00%
           pm     0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00   0.00%
   -------------------------------------------------------------------------
-    Subtotal     4.43647e-05  1.70406e-03  9.67406e-04  2.71583e-03 100.01%
-  Percentage           1.63%       62.75%       35.62%      100.00% 100.00%
+    Subtotal     5.66259e-05  2.07992e-03  1.30459e-03  3.44113e-03 100.00%
+  Percentage           1.65%       60.44%       37.91%      100.00% 100.00%
   -------------------------------------------------------------------------
 ----
 
-It is possible to see how the library in use seems to be well optimized against leakage currents, which represent less than 2% of the total power.
-More power considerations will be given after the gate-level simulation and the updated switching activity.
+È possibile osservare come la libreria in uso sembri essere ben ottimizzata contro le correnti di dispersione, che rappresentano meno del 2% della potenza dissipata totale.
 
 == Gate-level simulations
 
