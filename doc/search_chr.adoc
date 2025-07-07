@@ -671,3 +671,5 @@ image::images/search_chr_d_instr22.png[]
 Negli esempi precedenti si puó valutare il corretto funzionamento del dispositivo e dell'infrastruttura usata per verificarlo.
 Le istruzioni contenute nel file `assets/instr.txt` sono state generate casualmente a partire dal set iniziale, e potrebbero dunque essere migliorate costruendo _corner-cases_ utili a stressare il DUT in situazioni particolari.
 Si ritiene comunque che il funzionamento ottenuto sia sufficientemente aderente ai requisiti richiesti secondo le simulazioni effettuate.
+
+---

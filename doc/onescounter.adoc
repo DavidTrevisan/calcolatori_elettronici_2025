@@ -551,3 +551,5 @@ Ai diversi marker, é possibile seguire la sequenza identificata ed i risultati 
 
 L'interezza del test e gli altri casi non descritti sono eseguibili e verificabili con l'infrastruttura fornita.
 Si considera quindi il buon funzionamento di base del dispositivo `onescounter` secondo le specifiche ed i requisiti, per quanto identificabile dalla breve sequenza di test diretti inclusi.
+
+---
