@@ -35,18 +35,19 @@ INCLUDE /opt/cadence/installs/XCELIUM2009/tools.lnx86/inca/files/hdl.var
 EOF
 
 # Manually include all files for gate-level
-xmvlog -work VITAL ../synth/libs/stdcells.v
-# xmvhdl -v93 -work VITAL ../synth/libs/vital/stdcells_Vcomponents.vhdl
-# xmvhdl -v93 -work VITAL ../synth/libs/vital/stdcells_Vtables.vhdl
-# xmvhdl -v93 -work VITAL ../synth/libs/vital/stdcells_VITAL.vhdl
+# xmvlog -work VITAL ../synth/libs/stdcells.v
+xmvhdl -v93 -work VITAL ../synth/libs/vital/stdcells_Vcomponents.vhdl
+xmvhdl -v93 -work VITAL ../synth/libs/vital/stdcells_Vtables.vhdl
+xmvhdl -v93 -work VITAL ../synth/libs/vital/stdcells_VITAL.vhdl
 # xmvlog -work WORK ../synth/output/device.syn_generic.v
 xmvlog -work WORK ../synth/output/device.syn_opt.v
 xmvhdl -v93 -work WORK device_wrapper.vhdl
 xmvhdl -v93 -work WORK device_pkg_NBITS32.vhdl # GL Modified to match synthesis
 xmvhdl -v93 -work WORK ../code/lfsr_pkg.vhdl
 xmvhdl -v93 -work WORK ../code/tester_pkg.vhdl
-xmvhdl -v93 -work WORK ../code/tester.vhdl
+xmvhdl -v200x -work WORK ../code/tester.vhdl
 xmvhdl -v200x -work WORK testbench.vhdl # GL Modified to match synthesis
+# xmvlog -work WORK testbench.v
 
 xmelab -generic "NBITS => 32" -generic "NTESTS => 100" -access +rwc testbench
 xmsim -input ../scripts/gl_xmsim.tcl testbench
