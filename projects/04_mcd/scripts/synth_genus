@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Script Name:    synth_genus
+# Description:    Helper script: synthesis flow with Genus
+# Author:         David Trevisan
+# Copyright:      (c) 2025 DT
+# License:        MIT
+# ==============================================================================
+# Usage:          --
+# Dependencies:   cadence genus synthesis
+# ==============================================================================
+
+set -euo pipefail
+
+scriptFull=$(readlink -f "$0")
+scriptPath=$(dirname "${scriptFull}")
+scriptName=$(basename "${scriptFull}")
+rootPath=$(realpath $(dirname "${scriptPath}"))
+
+###########################################################
+function echoUsage() {
+    echo "Usage: ./${scriptName} <stdcell lib directory> "
+}
+
+LIB_DIR="/home/user/libs/nangate"
+# Save first argument as lib directory
+if [ "${1:-}" != "" ]; then
+    LIB_DIR="$(realpath ${1})"
+    shift
+    if [[ ! -d "${LIB_DIR}" ]]; then
+        echo "ERROR: ${LIB_DIR} not found!"
+        echoUsage
+        exit 1
+    fi
+fi
+###########################################################
+# Create, if not existing, target/synth directory, with subfolders
+SYNTH_DIR="${rootPath}/synth"
+mkdir -p "${SYNTH_DIR}/output"
+
+pushd "${SYNTH_DIR}"
+if [[ -d "${SYNTH_DIR}/libs" ]]; then
+    rm -rf "${SYNTH_DIR}/libs"
+fi
+ln -s "${LIB_DIR%/}" "${SYNTH_DIR}/libs"
+
+genus -batch -files "${scriptPath}/genus.tcl"
+
+popd

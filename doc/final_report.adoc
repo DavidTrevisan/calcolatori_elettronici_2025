@@ -3,6 +3,8 @@
 :toc:
 :toc-title: Indice dei Contenuti
 :toclevels: 3
+:icons: font
+:icon-set: fi
 :preface-title: Introduzione
 :figure-caption: Figura
 :listing-caption: Listato

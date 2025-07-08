@@ -1,3 +1,4 @@
+[#project_device]
 = Progetto 3: Multiplier and Count Leading Zeroes
 
 Questa sezione analizza il dispositivo d'esempio, chiamato semplicemente `device`.
@@ -666,6 +667,6 @@ Nella tabella <<table_device_pwr_eval>> si osserva il riassunto dei risultati to
 |===
 
 Si osserva come la stima da simulazione RTL, pur coprendo circa il 50% dell'attivitá di switching, non si discosta troppo dai risultati post-sintesi.
-Nonostante un leggero aumento sulle perdite dovute al leakage, la logica interna consuma meno di quanto stimato inizialmente, cosí come la dissipazione dovuta allo switching, rimanendo su un totale stimato di circa `3 mW`.
+Nonostante un leggero aumento sulle perdite dovute al leakage, la logica interna consuma poco meno di quanto stimato inizialmente, cosí come la dissipazione dovuta allo switching, rimanendo su un totale stimato di circa `3 pW`.
 
 ---

@@ -4,17 +4,20 @@
 Questa sezione analizza il dispositivo `MCD` come quarto componente nello studio del _design flow_ dei dispositivi e calcolatori elettronici.
 Verranno analizzati il codice originale per spiegarne il funzionamento e fornire una rappresentazione grafica della sua Control Unit e Datapath.
 
-Verranno poi spiegate le informazioni salienti sullo sviluppo dell'algoritmo di test e del testbench per valutare e verificare il dispositivo `MCD` a livello _RT_ e _gate-level_.
+Verranno poi spiegate le informazioni salienti sullo sviluppo dell'algoritmo di test e del testbench per valutare e verificare il dispositivo `MCD` a livello _RT_ e _gate_.
 
-Si concluderá infine il capitolo con valutazioni sulla sintesi del device ed i risultati ottenuti con la libreria tecnologica scelta.
+Infine, si concluderá il capitolo con valutazioni sulla sintesi del device ed i risultati ottenuti con la libreria tecnologica scelta.
 
 == Code analysis
 
 Il dispositivo é progettato per calcolare il _massimo comun divisore_ tra due numeri (operandi) forniti in ingresso.
 
-Si ricorda che:
+Si ricorda la definizione:
 
-> il massimo comun divisore di due numeri interi, entrambi non nulli, corrisponde al numero naturale più grande per il quale entrambi possono essere divisi esattamente
+[TIP]
+====
+Il massimo comun divisore di due numeri interi, entrambi non nulli, corrisponde al numero naturale più grande per il quale entrambi possono essere divisi esattamente.
+====
 
 Dall'analisi delle porte di _top-level_ del componente `mcd`, si ottiene il seguente prospetto:
 
@@ -266,7 +269,7 @@ Sono state impostate larghezze di `16` , `32` e `64` bit per gli operandi ed il 
 
 Per le simulazioni RTL, é stato utilizzato `GHDL`, attraverso il _workflow_ giá sperimentato con gli altri progetti, tramite l'<<script_ghdl, helper script ghdl>>.
 Considerato che lo script indica autonomamente al tool di salvare i segnali in un output `<prj_name>.ghw` per l'ispezione delle forme d'onda, e che questo richiede un certo tempo e puó raggiungere dimensioni notevoli (`1.3GB` per `NTESTS=20000` e `OPSIZE=32`), si consiglia di eliminare la sezione di salvataggo dallo script (commentando per esempio la linea `SIM_ARGS+="--wave=${WAVE_FILE} "`).
-Alternativamente si puó modificare il formato di uscita in `.vcd` per ottenere un output leggermente più rapido.
+Alternativamente si puó modificare il formato di uscita in `.vcd` per ottenere un output leggermente più "snello".
 
 Gli operandi vengono di volta in volta ottenuti casualmente, perció i risultati saranno per la maggior parte delle volte poco interessanti (ci si aspetta una grandissima presenza di *MCD* uguali a `1`).
 Si é quindi aggiunta una sezione al processo `check` del `tester` dove i risultati considerati interessanti vengono stampati su `stdout`.
@@ -363,6 +366,126 @@ $ scripts/parse_and_check_mcd.py projects/04_mcd/simul.rtl/report_rtl_NTESTS_150
 Al termine delle simulazioni RTL e delle verifiche, non si riscontra nessuna nota particolare.
 Il dispositivo `mcd` appare deterministicamente funzionante, ed i risultati che conferisce sono corretti nei casi generati casualmente.
 
+Come per il dispositivo <<project_device, Multiplier and CLZ>>, viene fornito uno script per lanciare automaticamente la simulazione RTL tramite `Xcelium`, al percorso `scripts/rtl_xcelium`.
+Per evitare l'utilizzo di molta memoria, il salvataggio dei database delle forme d'onda non viene salvatao di default dallo script `scripts/rtl_xsim.tcl`, che deve quindi essere modificato per includerli.
+Lo script _tcl_ salva comunque il file `saif` per le stime pre-sintesi in `simul.rtl/mcd.saif`.
+Questo file é utilizzato negli script `genus` successivi, per cui risult necessario lanciare lo script `rtl_xcelium` almeno una volta prima di passare al flusso di sintesi.
+
+Lo script esegue una simulazione per 15000 test, con larghezza `OPSIZE = 32`.
+Per modificare questi parametri é sufficiente sovrascrivere le variabili `OPSIZE` e `NTESTS` intestate nello script e rilanciarlo.
+
 === Stdcells synthesis
+
+Come per il dispositivo `device` del <<project_device>>, il flusso di sintesi é contenuto interamente in uno script `tcl`, `scripts/genus.tcl`.
+Il setup delle cartelle e l'esecuzione del flusso tramite l'invocazione del tool é eseguibile da script `scripts/synth_genus`, che anche se duplicato nella sottocartella di questo progetto, risulta esattamente identico a quello usato nel capitolo precedente.
+
+
+
+
 === Gate-level Simulations
 === Other evaluations
+
+[table_mcd_pwr_eval,subs="attributes+"]
+[cols="^2,^8",frame="ends",grid="rows",options="header"]
+|===
+
+|
+|
+
+// Nested table
+.^|RTL - 32
+1+a|
+[cols="^2m,^2m,^2m,^2m,^2m",grid="none", frame="none"]
+!===
+!Category !Leakage !Internal !Switching !Total
+
+!Subtotal
+!4.42570e-05
+!1.49415e-03
+!5.62748e-04
+!2.10116e-03
+
+!Percentage
+!2.11%
+!71.11%
+!26.78%
+!100.00%
+
+5+a!---
+
+!
+2+!Cell Count
+2+!Cell Area
+!
+2+!1183
+2+!2352.238
+
+!===
+// ==============================================
+
+
+// Nested table
+.^|Syn, no SDF - 32
+1+a|
+[cols="^2m,^2m,^2m,^2m,^2m",grid="none", frame="none"]
+!===
+!Category !Leakage !Internal !Switching !Total
+
+!Subtotal
+!4.42570e-05
+!1.49415e-03
+!5.62748e-04
+!2.10116e-03
+
+!Percentage
+!2.11%
+!71.11%
+!26.78%
+!100.00%
+
+5+a!---
+
+!
+2+!Cell Count
+2+!Cell Area
+!
+2+!1183
+2+!2352.238
+
+!===
+// ==============================================
+
+
+// Nested table
+.^|Syn, no SDF - 32
+1+a|
+[cols="^2m,^2m,^2m,^2m,^2m",grid="none", frame="none"]
+!===
+!Category !Leakage !Internal !Switching !Total
+
+!Subtotal
+!4.42570e-05
+!1.49415e-03
+!5.62748e-04
+!2.10116e-03
+
+!Percentage
+!2.11%
+!71.11%
+!26.78%
+!100.00%
+
+5+a!---
+
+!
+2+!Cell Count
+2+!Cell Area
+!
+2+!1183
+2+!2352.238
+
+!===
+// ==============================================
+
+|===
+

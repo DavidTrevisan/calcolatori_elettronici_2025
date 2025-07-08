@@ -1,0 +1,15 @@
+pushd simul.rtl
+pwd
+
+# Prefix "../"  to sources.vc for relative path
+sed -i 's/^/\.\.\//g' ../sources.vc
+xmvhdl -v93 -f ../sources.vc
+sed -i 's/\.\.\///g' ../sources.vc
+
+OPSIZE=32
+NTESTS=15000
+
+xmelab -generic "OPSIZE => ${OPSIZE}" -generic "NTESTS => ${NTESTS}" -access +rwc -coverage all -covdut DUT testbench
+xmsim -covoverwrite -input ../scripts/rtl_xmsim.tcl testbench
+
+popd
