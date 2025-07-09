@@ -57,7 +57,7 @@ xmvlog -work WORK ../synth/output/mcd_OPSIZE${OPSIZE}.syn_opt.v
 xmvhdl -v93 -work WORK mcd_pkg_OPSIZE${OPSIZE}.vhdl # GL Modified to match synthesis
 xmvhdl -v93 -work WORK ../code/lfsr_pkg.vhdl
 xmvhdl -v200x -work WORK ../code/tester.vhdl
-xmvhdl -v200x -work WORK testbench.vhdl # GL Modified to match synthesis
+xmvhdl -v200x -work WORK testbench_OPSIZE${OPSIZE}.vhdl # GL Modified to match synthesis
 
 # If option -sdf, simulate with synth delays
 SIM_DLY=""

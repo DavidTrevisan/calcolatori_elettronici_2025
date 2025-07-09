@@ -9,7 +9,6 @@ entity testbench is
         CLK_SEMIPERIOD0 : time      := 0.5 ns;
         CLK_SEMIPERIOD1 : time      := 0.5 ns;
         RESET_TIME      : time      := 500.1 ns;
-        OPSIZE          : integer   := 8;
         MCD_THRESH      : integer   := 4;
         VERBOSE         : boolean   := false;
         NTESTS          : positive  := 100
@@ -18,6 +17,7 @@ end testbench;
 
 architecture behav of testbench is
 
+    constant OPSIZE          : integer   := 64;
     -----------------------------------------------------------------
     -- TB
     -----------------------------------------------------------------
@@ -75,78 +75,29 @@ begin
             end if;
         end process finish_process;
 
-    opsize_16: if OPSIZE = 16 generate
-        DUT : entity work.mcd_OPSIZE16
-            port map
-            (
-                CLK         => clk,
-                rst_n       => rst_n,
-                abort       => abort,
-                -- data inputs
-                operand1    => operand1,
-                operand2    => operand2,
-                -- data outputs
-                res         => res,
-                -- control signals
-                start       => start,
-                -----------------------------------------------
-                TST             => '0',
-                TST_SH_EN       => '0',
-                TST_SCAN_IN     => '0',
-                TST_SCAN_OUT    => open,
-                -----------------------------------------------
-                -- status signals
-                ready       => ready
-            );
-    end generate; -- OPSIZE 16
-    opsize_32: if OPSIZE = 32 generate
-        DUT : entity work.mcd_OPSIZE32
-            port map
-            (
-                CLK         => clk,
-                rst_n       => rst_n,
-                abort       => abort,
-                -- data inputs
-                operand1    => operand1,
-                operand2    => operand2,
-                -- data outputs
-                res         => res,
-                -- control signals
-                start       => start,
-                -----------------------------------------------
-                TST             => '0',
-                TST_SH_EN       => '0',
-                TST_SCAN_IN     => '0',
-                TST_SCAN_OUT    => open,
-                -----------------------------------------------
-                -- status signals
-                ready       => ready
-            );
-    end generate; -- OPSIZE 32
-    opsize_64: if OPSIZE = 64 generate
-        DUT : entity work.mcd_OPSIZE64
-            port map
-            (
-                CLK         => clk,
-                rst_n       => rst_n,
-                abort       => abort,
-                -- data inputs
-                operand1    => operand1,
-                operand2    => operand2,
-                -- data outputs
-                res         => res,
-                -- control signals
-                start       => start,
-                -----------------------------------------------
-                TST             => '0',
-                TST_SH_EN       => '0',
-                TST_SCAN_IN     => '0',
-                TST_SCAN_OUT    => open,
-                -----------------------------------------------
-                -- status signals
-                ready       => ready
-            );
-    end generate; -- OPSIZE 64
+
+    DUT : entity work.mcd_OPSIZE64
+        port map
+        (
+            CLK         => clk,
+            rst_n       => rst_n,
+            abort       => abort,
+            -- data inputs
+            operand1    => operand1,
+            operand2    => operand2,
+            -- data outputs
+            res         => res,
+            -- control signals
+            start       => start,
+            -----------------------------------------------
+            TST             => '0',
+            TST_SH_EN       => '0',
+            TST_SCAN_IN     => '0',
+            TST_SCAN_OUT    => open,
+            -----------------------------------------------
+            -- status signals
+            ready       => ready
+        );
 
 
     TG : entity work.tester
