@@ -6,8 +6,17 @@ sed -i 's/^/\.\.\//g' ../sources.vc
 xmvhdl -v93 -f ../sources.vc
 sed -i 's/\.\.\///g' ../sources.vc
 
-OPSIZE=32
-NTESTS=15000
+if [ -n "${1+x}" ] && [[ $1 =~ ^-?[0-9]+$ ]]; then
+    export OPSIZE=$1 # Env var to be used in tcl
+else
+    export OPSIZE=32 # Env var to be used in tcl
+fi
+shift
+if [ -n "${1+x}" ] && [[ $1 =~ ^-?[0-9]+$ ]]; then
+    NTESTS=$1
+else
+    NTESTS=15000
+fi
 
 xmelab -generic "OPSIZE => ${OPSIZE}" -generic "NTESTS => ${NTESTS}" -access +rwc -coverage all -covdut DUT testbench
 xmsim -covoverwrite -input ../scripts/rtl_xmsim.tcl testbench
