@@ -4,8 +4,10 @@
 # database -open mcdtrn -into mcd.trn
 # probe -all -database mcdtrn -depth all DUT
 
+set param $env(OPSIZE)
+
 ## Prepare SAIF file for switching activity
-dumpsaif -overwrite -depth all -output mcd.gl.saif -scope DUT -internal
+dumpsaif -overwrite -depth all -output mcd_OPSIZE${OPSIZE}.gl.saif -scope DUT -internal
 
 # Run simulation
 run

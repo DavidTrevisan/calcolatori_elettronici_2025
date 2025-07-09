@@ -16,8 +16,18 @@ scriptFull=$(readlink -f "$0")
 scriptPath=$(dirname "${scriptFull}")
 rootPath=$(realpath $(dirname "${scriptPath}"))
 
-OPSIZE=32
-NTESTS=15000
+if [ -n "${1+x}" ] && [[ $1 =~ ^-?[0-9]+$ ]]; then
+    export OPSIZE=$1 # Env var to be used in tcl
+    shift
+else
+    export OPSIZE=32 # Env var to be used in tcl
+fi
+if [ -n "${1+x}" ] && [[ $1 =~ ^-?[0-9]+$ ]]; then
+    NTESTS=$1
+    shift
+else
+    NTESTS=15000
+fi
 
 mkdir -p "${rootPath}/simul.gate"
 pushd "${rootPath}/simul.gate"
@@ -43,7 +53,7 @@ xmvhdl -v93 -work VITAL ../synth/libs/vital/stdcells_Vcomponents.vhdl
 xmvhdl -v93 -work VITAL ../synth/libs/vital/stdcells_Vtables.vhdl
 xmvhdl -v93 -work VITAL ../synth/libs/vital/stdcells_VITAL.vhdl
 
-xmvlog -work WORK ../synth/output/mcd.syn_opt.v
+xmvlog -work WORK ../synth/output/mcd_OPSIZE${OPSIZE}.syn_opt.v
 xmvhdl -v93 -work WORK mcd_pkg_OPSIZE${OPSIZE}.vhdl # GL Modified to match synthesis
 xmvhdl -v93 -work WORK ../code/lfsr_pkg.vhdl
 xmvhdl -v200x -work WORK ../code/tester.vhdl
@@ -52,16 +62,16 @@ xmvhdl -v200x -work WORK testbench.vhdl # GL Modified to match synthesis
 # If option -sdf, simulate with synth delays
 SIM_DLY=""
 if [ -n "${1+x}" ] && [ "$1" = "-sdf" ]; then
-    xmsdfc -output mcd.sdf.X ../synth/output/mcd.sdf
-    cat <<EOF > mcd.sdf_cmd
-COMPILED_SDF_FILE = "mcd.sdf.X",
+    xmsdfc -output mcd_OPSIZE${OPSIZE}.sdf.X ../synth/output/mcd_OPSIZE${OPSIZE}.sdf
+    cat <<EOF > mcd_OPSIZE${OPSIZE}.sdf_cmd
+COMPILED_SDF_FILE = "mcd_OPSIZE${OPSIZE}.sdf.X",
 SCOPE = ":DUT",
-LOG_FILE = "mcd.sdf.log",
+LOG_FILE = "mcd_OPSIZE${OPSIZE}.sdf.log",
 MTM_CONTROL = "TOOL_CONTROL",
 SCALE_FACTORS = "1.0:1.0:1.0",
 SCALE_TYPE = "FROM_MTM";
 EOF
-    SIM_DLY="-sdf_cmd_file mcd.sdf_cmd -maxdelays"
+    SIM_DLY="-sdf_cmd_file mcd_OPSIZE${OPSIZE}.sdf_cmd -maxdelays"
     echo "NOTE: elaborating design using SDF file delays"
 fi
 

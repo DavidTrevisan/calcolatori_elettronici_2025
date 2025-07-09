@@ -8,12 +8,13 @@ sed -i 's/\.\.\///g' ../sources.vc
 
 if [ -n "${1+x}" ] && [[ $1 =~ ^-?[0-9]+$ ]]; then
     export OPSIZE=$1 # Env var to be used in tcl
+    shift
 else
     export OPSIZE=32 # Env var to be used in tcl
 fi
-shift
 if [ -n "${1+x}" ] && [[ $1 =~ ^-?[0-9]+$ ]]; then
     NTESTS=$1
+    shift
 else
     NTESTS=15000
 fi

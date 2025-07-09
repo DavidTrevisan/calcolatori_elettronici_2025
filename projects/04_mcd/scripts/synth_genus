@@ -23,15 +23,23 @@ function echoUsage() {
 }
 
 LIB_DIR="/home/user/libs/nangate"
-# Save first argument as lib directory
-if [ "${1:-}" != "" ]; then
-    LIB_DIR="$(realpath ${1})"
+# Save '-d <path>' argument as lib directory
+if [ -n "${1+x}" ] && [ "${1:-}" == "-d" ]; then
     shift
+    LIB_DIR="$(realpath ${1})"
     if [[ ! -d "${LIB_DIR}" ]]; then
         echo "ERROR: ${LIB_DIR} not found!"
         echoUsage
         exit 1
     fi
+    shift
+fi
+
+if [ -n "${1+x}" ] && [[ $1 =~ ^-?[0-9]+$ ]]; then
+    export OPSIZE=$1 # Env var to be used in tcl
+    shift
+else
+    export OPSIZE=32 # Env var to be used in tcl
 fi
 ###########################################################
 # Create, if not existing, target/synth directory, with subfolders

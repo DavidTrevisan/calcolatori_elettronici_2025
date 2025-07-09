@@ -75,28 +75,79 @@ begin
             end if;
         end process finish_process;
 
-    DUT : entity work.mcd
-        port map
-        (
-            CLK         => clk,
-            rst_n       => rst_n,
-            abort       => abort,
-            -- data inputs
-            operand1    => operand1,
-            operand2    => operand2,
-            -- data outputs
-            res         => res,
-            -- control signals
-            start       => start,
-            -----------------------------------------------
-            TST             => '0',
-            TST_SH_EN       => '0',
-            TST_SCAN_IN     => '0',
-            TST_SCAN_OUT    => open,
-            -----------------------------------------------
-            -- status signals
-            ready       => ready
-        );
+    opsize_16: if OPSIZE = 16 generate
+        DUT : entity work.mcd_OPSIZE16
+            port map
+            (
+                CLK         => clk,
+                rst_n       => rst_n,
+                abort       => abort,
+                -- data inputs
+                operand1    => operand1,
+                operand2    => operand2,
+                -- data outputs
+                res         => res,
+                -- control signals
+                start       => start,
+                -----------------------------------------------
+                TST             => '0',
+                TST_SH_EN       => '0',
+                TST_SCAN_IN     => '0',
+                TST_SCAN_OUT    => open,
+                -----------------------------------------------
+                -- status signals
+                ready       => ready
+            );
+    end generate; -- OPSIZE 16
+    opsize_32: if OPSIZE = 32 generate
+        DUT : entity work.mcd_OPSIZE32
+            port map
+            (
+                CLK         => clk,
+                rst_n       => rst_n,
+                abort       => abort,
+                -- data inputs
+                operand1    => operand1,
+                operand2    => operand2,
+                -- data outputs
+                res         => res,
+                -- control signals
+                start       => start,
+                -----------------------------------------------
+                TST             => '0',
+                TST_SH_EN       => '0',
+                TST_SCAN_IN     => '0',
+                TST_SCAN_OUT    => open,
+                -----------------------------------------------
+                -- status signals
+                ready       => ready
+            );
+    end generate; -- OPSIZE 32
+    opsize_64: if OPSIZE = 64 generate
+        DUT : entity work.mcd_OPSIZE64
+            port map
+            (
+                CLK         => clk,
+                rst_n       => rst_n,
+                abort       => abort,
+                -- data inputs
+                operand1    => operand1,
+                operand2    => operand2,
+                -- data outputs
+                res         => res,
+                -- control signals
+                start       => start,
+                -----------------------------------------------
+                TST             => '0',
+                TST_SH_EN       => '0',
+                TST_SCAN_IN     => '0',
+                TST_SCAN_OUT    => open,
+                -----------------------------------------------
+                -- status signals
+                ready       => ready
+            );
+    end generate; -- OPSIZE 64
+
 
     TG : entity work.tester
         generic map (

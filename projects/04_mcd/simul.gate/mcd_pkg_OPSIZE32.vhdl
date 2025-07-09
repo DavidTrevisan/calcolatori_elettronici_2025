@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 package mcd_pkg is
-component mcd is
+component mcd_OPSIZE32 is
     port (
         CLK     : in  std_logic;
         rst_n       : in  std_logic;
