@@ -69,8 +69,9 @@ Documento generato dalla revisione Git: {git-sha}
 
 Ogni progetto assume la seguente struttura di cartelle:
 
+.Struttura directory progetti
 [%unbreakable]
-[source,ruby]
+[source, bash, reftext='{listing-caption} {counter:listnum}']
 ----
 <prj_path>
 │
@@ -172,8 +173,9 @@ Inoltre la struttura directory del progetto, passato come primo argomento quando
 
 Per utilizzare lo script, la linea di comando tipica segue la forma:
 
+.Utilizzo _generic override_ con `runSim_ghdl`
 [#runSim_ghdl_generic]
-[source,bash]
+[source, bash, reftext='{listing-caption} {counter:listnum}']
 ----
 $ scripts/runSim_ghdl projects/<prj_name> [(Optional) GENERIC_OVERRIDE=Value]
 ----
@@ -198,6 +200,7 @@ Una normale installazione di python dovrebbe includere automaticamente le dipend
 
 L'utilizzo dello script da linea di comando é il seguente:
 
+.Utilizzo script `parse_and_check_mcd.py`
 [#check_mcd_usage]
 [source,bash]
 ----

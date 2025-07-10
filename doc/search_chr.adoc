@@ -5,8 +5,9 @@ La ricerca viene effettuata a partire da un indirizzo e per una certa lunghezza,
 
 Il dispositivo é descritto dalle seguenti porte di input ed output:
 
+.Descrizione porte dispositivo `search_chr`
 [%unbreakable]
-[table_search_chr_IOports,subs="attributes+"]
+[table_search_chr_IOports,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2m,^2,^2,6",options="header"]
 |===
 
@@ -50,8 +51,9 @@ Il dispositivo é descritto dalle seguenti porte di input ed output:
 Per effettuare la ricerca nella memoria, il dispositivo necessita di un'interfaccia adatta.
 Nella seguente tabella si identificano i segnali utilizzati per interfacciarsi con una generica memoria SRAM.
 
+.Descrizione interfaccia di memoria
 [%unbreakable]
-[table_search_chr_MemoryIF,subs="attributes+"]
+[table_search_chr_MemoryIF,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2m,^2,^1,5",options="header"]
 |===
 
@@ -92,7 +94,8 @@ Nella seguente tabella si identificano i segnali utilizzati per interfacciarsi c
 
 |===
 
-[.center,svgbob-search_chr_ports]
+.Diagramma dispositivo `search_chr`
+[.center,svgbob-search_chr_ports, reftext='{figure-caption} {counter:fignum}']
 [svgbob]
 ----
                     +----------------+
@@ -126,7 +129,8 @@ Le quattro versioni sono da considerarsi incrementali, per cui ogni modifica pre
 <<sources_file, Il file `sources.vc`>>, presente nella root-path di ogni versione di progetto, contiene la lista dei sorgenti utilizzati.
 Di seguito un riassunto degli stessi:
 
-[table_onescounter_sources,subs="attributes+"]
+.Descrizione file sorgente `search_chr`
+[table_onescounter_sources,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="25%,75%",options="header"]
 |===
 | File | Description
@@ -150,8 +154,9 @@ I segnali della control unit sono generati da degli statement concorrenti in sti
 
 Per esempio, considerando il segnale `loadCOUNT`:
 
+.Esempio statement inline
 [%unbreakable]
-[source, vhdl]
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
     loadCOUNT   <= '1' when state = INIT or
                           (state = FETCH and MEM_READY = '1')
@@ -182,7 +187,8 @@ Questo fattore non é comunque impattante per il dispositivo sotto test il quale
 
 Si nota in particolare il metodo di costruzione della memoria:
 
-[source, vhdl]
+.Descrizione memoria VHDL
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
     type ram_type is array (0 to 1023) of bit_vector(7 downto 0);
 ...
@@ -215,7 +221,8 @@ In pratica, una latenza `MEM_LAT => 1` corrisponderá al comportamento originale
 Una latenza superiore, per esempio `MEM_LAT => 3`, renderá il dato disponibile al _terzo_ ciclo di clock, e cosí discorrendo.
 Il seguente diagramma esemplifica le due transazioni descritte.
 
-[wavedrom, , svg, subs="attributes"]
+.Diagramma comportamento segnali di memoria a latenza variabile
+[wavedrom, , svg, subs="attributes",reftext='{figure-caption} {counter:fignum}']
 ....
 { signal: [
   { name: "clk",  	wave: 'p...|......' },
@@ -241,8 +248,9 @@ Dopo aver sperimentato una soluzione in cui gli ingressi venivano registrati e "
 
 Si veda la sezione <<bug_b_mem_lat, Risultati>>, per le considerazioni sulle differenze di approccio.
 
+.Modifiche modello di memoria a latenza variabile
 [%unbreakable]
-[source, vhdl]
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
 entity memory is
     generic (
@@ -309,7 +317,8 @@ Poiché si considera questo componente non sintetizzabile, si accetta l'approssi
 
 Per garantire il comportamento identico all'originale nel caso `MEM_LAT => 1`, e semplificarne la logica, sono stati utilizzati dei costrutti `if...generate` per sovrascrivere _l'extra buffering_ dei segnali in questo caso.
 
-[source,vhdl]
+.Modifica memoria a latenza = 1
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
 gen_no_lat : if MEM_LAT = 1 generate
     seq_ready(0) <= '1';
@@ -322,7 +331,8 @@ Il componente nella condizione descritta appare quindi identico all'originale, e
 La richiesta del tipo `positive` del _generic_ impone al tool di simulazione il controllo che il parametro inserito sia accettabile dall'implementazione.
 Tuttavia si é scelto di introdurre, seppur in maniera ridondante, un `assert` che osservi la stessa regola e, in caso di violazione, stampi un messaggio di errore specifico terminando l'esecuzione.
 
-[source,vhdl]
+.Assert per memoria a latenza variabile
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
     assert MEM_LAT > 0
         report "ERROR: Generic parameter 'MEM_LAT' can't be 0 or a negative number "
@@ -341,7 +351,8 @@ Il testbench contenuto in questo file corrisponde al top-level della simulazione
 
 Gli stimoli agli input del dispositivo sono raccolti in tre vettori di interi:
 
-[source,vhdl]
+.Dettaglio stimoli DUT `search_chr`
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
 
 signal ADDRESSES    : array_of_integers(0 to 2) := ( 3,  5, 20);
@@ -376,8 +387,9 @@ Con riferimento alla sezione <<memory_latency>> relativa al modello VHDL di memo
 
 In primo luogo si é scelto di esporre lo stesso parametro `MEM_LAT` a livello _top_ del testbench, in modo da poterlo configurare da linea di comando utilizzando le opzioni di GHDL.
 
+.Modifica testbench per memoria a latenza variabile
 [%unbreakable]
-[source, vhdl]
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
 ...
 entity tb is
@@ -402,7 +414,8 @@ Il processo é stato modificato per analizzare il file in questo modo, e per ter
 
 Per evitare di complicare eccessivamente il testbench con una riscrittura massiccia, si é mantenuto lo stile originale del conteggio delle 'istruzioni' che ha un valore massimo raggiungibile dato dalla costante
 
-[source,vhdl]
+.Modifica testbench per massimo numero di test/istruzioni `search_chr`
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
 constant MAX_INSTR               : integer := 30;
 ----
@@ -419,8 +432,9 @@ Per gestire la lettura dal file, una funzione impura `load_instr`, confrontabile
 Questa struttura viene infine chiamata `instr_data` e corrisponde ad una _lista di vettori di interi_.
 Nel processo di generazione del reset, e quindi di inizio della simulazione, é stato aggiunto il codice:
 
+.Modifica testbench `search_chr` con istruzioni da file esterno
 [%unbreakable]
-[source, vhdl]
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
 ...
     ADDRESSES <= instr_data(0);
@@ -438,6 +452,8 @@ Allo stesso modo, il controllo della FSM sul numero di istruzioni completate é 
 
 Il dispositivo in versione originale implementa una `CTRL Unit` corrispondente al ASM-chart:
 
+.ASM Chart `search_chr` versione originale (a)
+[#fig_search_chr_orig,reftext='{figure-caption} {counter:fignum}']
 image::images/ASM-search_chr_orig.drawio.svg[]
 
 Si nota che, per ogni transazione con la memoria esterna, un ciclo viene 'sprecato' tra `FETCH` e `COMPARE`.
@@ -445,6 +461,8 @@ Si nota che, per ogni transazione con la memoria esterna, un ciclo viene 'spreca
 [#version_c]
 La versione del dispositivo migliorata (versione `c`) risolve questa osservazione ed é rappresentata nel seguente ASM-chart:
 
+.ASM Chart `search_chr` versione migliorata (c)
+[#fig_search_chr_improved,reftext='{figure-caption} {counter:fignum}']
 image::images/ASM-search_chr_improved.drawio.svg[]
 
 In questa versione, il dispositivo effettua entrambe le operazioni di `FETCH` e `COMPARE` in un unico stato e prepara la prossima richiesta verso la memoria appena questa diventa disponibile (`MEM_READY`).
@@ -462,6 +480,8 @@ Alternativamente si dovrebbero predisporre degli opportuni circuiti "synchronize
 
 Il datapath comprende le risorse mostrate nell'immagine:
 
+.Diagramma datapath `search_chr`
+[#fig_search_chr_dp,reftext='{figure-caption} {counter:fignum}']
 image::images/ASM-search_chr_dp.drawio.svg[]
 
 Per il dispositivo migliorato (<<version_c, versione `c`>>) si risparmia solamente un registro, `D`, che non risulta più necessario vista la comparazione immediata con l'output `dataout` della memoria.
@@ -470,8 +490,9 @@ Per il dispositivo migliorato (<<version_c, versione `c`>>) si risparmia solamen
 
 Come per il dispositivo `onescounter`, lo script `runSim_ghdl` puó essere usato per lanciare automaticamente le fasi di analisi, elaborazione e simulazione di `search_chr`.
 
+.Esempio uso `runSim_ghdl` per simulare le diverse versioni di `search_chr`
 [%unbreakable]
-[source,bash]
+[source,bash, reftext='{listing-caption} {counter:listnum}']
 ----
 $ scripts/runSim_ghdl projects/02_search_chr/a_orig
 $ scripts/runSim_ghdl projects/02_search_chr/b_mem_lat
@@ -486,8 +507,9 @@ Si verifichi che le dipendenze necessarie per eseguire lo script siano soddisfat
 
 I comandi estrapolati dallo script sono come da esempio, assumendo di testare la versione `a_orig`:
 
+.Esempio comandi `runSim_ghdl`, `search_chr` versione a
 [%unbreakable]
-[source,bash]
+[source,bash, reftext='{listing-caption} {counter:listnum}']
 ----
     # Sposta la $PWD nel percorso indicato del progetto, sottocartella `simul.rtl`
 pushd projects/02_search_chr/a_orig/simul.rtl
@@ -511,7 +533,8 @@ NOTE: Lo script estrae il path assoluto per ognuno dei file sorgente, per cui `p
 
 Come anche segnalato nella sezione <<runSim_ghdl_generic, relativa allo script>>, é possibile utilizzare l'helper script configurando il test con diversi valori di latenza per la simulazione.
 
-[source, bash]
+.Esempio `runSim_ghdl`, `search_chr` versione b
+[source, bash, reftext='{listing-caption} {counter:listnum}']
 ----
 $ scripts/runSim_ghdl projects/02_search_chr/b_mem_lat MEM_LAT=1 # Corrispondente alla versione 'a'
 $ scripts/runSim_ghdl projects/02_search_chr/b_mem_lat MEM_LAT=4 # Corrispondente alla versione 'b' in default
@@ -542,7 +565,8 @@ I sorgenti non causano warning od errori in questa fase, assumendo l’utilizzo 
 
 Si nota invece il _print_ dei report introdotti nella <<version_d,versione D>> del testbench:
 
-[source,bash]
+.Dettaglio report `search_chr` versione d
+[source,bash, reftext='{listing-caption} {counter:listnum}']
 ----
 ...
 /code/calcolatori_elettronici_2025/projects/02_search_chr/d_tb_file/code/TB.vhdl:51:17:(report note): Read values - ADDRESS: 687, CHAR: 61, LEN: 6
@@ -557,7 +581,8 @@ Questa conferma testuale corrisponde ai valori presenti in `assets/instr.txt`.
 
 In fase di simulazione si riscontrano nuovamente i messaggi del punto prima, e quello relativo all'impostazione del generic `MEM_LAT`:
 
-[source,bash]
+.Dettaglio report simulazione RTL, `search_chr` versione d
+[source,bash, reftext='{listing-caption} {counter:listnum}']
 ----
 $ scripts/runSim_ghdl projects/02_search_chr/d_tb_file MEM_LAT=4
 ...
@@ -570,9 +595,9 @@ Linking in memory
 
 L'analisi a campione delle _waveform_ di alcune transazioni prese dalle istruzioni, mostrano un comportamento corretto del dispositivo e della memoria, con l'output `nfound` evidenziato in giallo.
 
-[%unbreakable]
 .`search_chr` versione 'd' `MEM_LAT=1`. Ricerca 1
-[table_search_chr_sim1,subs="attributes+"]
+[%unbreakable]
+[table_search_chr_sim1,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2m,^2m",options="header"]
 |===
 |Istruzione
@@ -600,14 +625,14 @@ a|[source,ascii]
 ----
 
 
-2+a|[#fig_search_chr_d_instr01,reftext='{figure-caption} {counter:refnum}']
+2+a|[#fig_search_chr_d_instr01,reftext='{figure-caption} {counter:fignum}']
 image::images/search_chr_d_instr01.png[]
 
 |===
 
-[%unbreakable]
 .`search_chr` versione 'd' `MEM_LAT=2`. Ricerca 6
-[table_search_chr_sim2,subs="attributes+"]
+[%unbreakable]
+[table_search_chr_sim2,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2m,^2m",options="header"]
 |===
 |Istruzione
@@ -631,14 +656,14 @@ a|[source,ascii]
 0x3b \| 11110100
 ----
 
-2+a|[#fig_search_chr_d_instr06,reftext='{figure-caption} {counter:refnum}']
+2+a|[#fig_search_chr_d_instr06,reftext='{figure-caption} {counter:fignum}']
 image::images/search_chr_d_instr06.png[]
 
 |===
 
-[%unbreakable]
 .`search_chr` versione 'd' `MEM_LAT=2`. Ricerca 22
-[table_search_chr_sim2,subs="attributes+"]
+[%unbreakable]
+[table_search_chr_sim2,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2m,^2m",options="header"]
 |===
 |Istruzione
@@ -663,7 +688,7 @@ a|[source,ascii]
 0xc0 \| 11110100
 ----
 
-2+a|[#fig_search_chr_d_instr22,reftext='{figure-caption} {counter:refnum}']
+2+a|[#fig_search_chr_d_instr22,reftext='{figure-caption} {counter:fignum}']
 image::images/search_chr_d_instr22.png[]
 
 |===

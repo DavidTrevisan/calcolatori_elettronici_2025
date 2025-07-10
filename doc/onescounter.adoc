@@ -4,7 +4,8 @@ Il dispositivo effettua il conteggio dei bit impostati ad `1` per una sequenza d
 
 Il dispositivo utilizza le seguenti porte di input ed output:
 
-[table_onescounter_IOports,subs="attributes+"]
+.Descrizione porte dispositivo `onescounter`.
+[table_onescounter_IOports,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2m,^2,6",options="header"]
 |===
 
@@ -37,7 +38,8 @@ A new computation can start.
 
 |===
 
-[.center,svgbob-onescounter_ports]
+.Diagramma dispositivo `onescounter`
+[.center,svgbob-onescounter_ports, reftext='{figure-caption} {counter:fignum}']
 [svgbob]
 ----
                +----------------+
@@ -73,7 +75,8 @@ Il dispositivo viene consegnato con un testbench contenente le seguenti modifich
 [#script_onescounter]
 Per analizzare ed elaborare il design ed eseguirne la simulazione é stato creato uno script bash, che viene fornito, ed é utilizzabile come segue:
 
-[source,bash]
+.Comando di esecuzione script `runSim_ghdl`
+[source, bash, reftext='{listing-caption} {counter:listnum}']
 ----
 $ scripts/runSim_ghdl projects/01_onescounter
 ----
@@ -87,8 +90,9 @@ Lo script richiede almeno un argomento, il path del progetto da simulare, che as
 
 Le operazioni eseguite dallo script sono le seguenti:
 
+.Comandi eseguiti da `runSim_ghdl`, `onescounter`
 [%unbreakable]
-[source,bash]
+[source, bash, reftext='{listing-caption} {counter:listnum}']
 ----
 # Sposta la $PWD nel percorso indicato del progetto, sottocartella `simul.rtl`
 pushd projects/01_onescounter/simul.rtl
@@ -120,7 +124,8 @@ Lo script estrae il path assoluto per ognuno dei file sorgente, per cui `project
 
 Il file `sources.vc` contiene la lista dei sorgenti utilizzati, che vengono di seguito elencati e brevemente descritti:
 
-[table_onescounter_sources,subs="attributes+"]
+.Descrizione file sorgente
+[table_onescounter_sources,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="25%,75%",options="header"]
 |===
 | File | Description
@@ -168,8 +173,9 @@ Vengono presentati di seguito sezioni di codice rilevanti per il funzionamento d
 === onescounter.vhdl
 Al dispositivo é stato aggiunto un _generic_ di tipo testuale (_string_) per indicare quale architettura istanziare.
 
+.Modifica generic architettura `onescounter`
 [%unbreakable]
-[source, vhdl]
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
     entity onescounter is
         generic
@@ -181,7 +187,8 @@ Al dispositivo é stato aggiunto un _generic_ di tipo testuale (_string_) per in
 
 Per mantenere la compatibilitá con lo standard VHDL-1993, sono stati utilizzati due costrutti `if ... generate ... end generate` per istanziare l'architettura desiderata.
 
-[source, vhdl]
+.Istanza doppia architettura CU `onescounter`
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
     gen_mealy : if (CTRL_TYPE = "mealy") generate
         CTRL_mealy : entity work.ctrlunit(mealy)
@@ -215,8 +222,9 @@ Per mantenere la compatibilitá con lo standard VHDL-1993, sono stati utilizzati
 
 Per il registro `ONES` sono stati aggiunti diversi ingressi selezionabili rispetto alla versione originale, che sono riassunti nello spezzone:
 
+.Modifica MUX `ONES_in`
 [%unbreakable]
-[source, vhdl]
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
     -- MUX for ONES
     ONES_in <= (others => '0')                          when selONES = "00" else
@@ -227,7 +235,8 @@ Per il registro `ONES` sono stati aggiunti diversi ingressi selezionabili rispet
 
 Considerando che ad ogni fronte di salita di `CLK` il segnale `ONES_in` viene registrato da `ONES`, la mappa di selezione del multiplexer al suo ingresso é:
 
-[table_onesSel,subs="attributes+"]
+.Esempio selettore mux `selOnes`
+[table_onesSel,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2,8",options="header"]
 |===
 | selOnes
@@ -251,8 +260,9 @@ Considerando che ad ogni fronte di salita di `CLK` il segnale `ONES_in` viene re
 
 Il testbench istanzia entrambe le architetture del dispositivo `onescounter` simultaneamente, raddoppiando solo i segnali di uscita e mantenendone invece i segnali di input unici.
 
+.Modifica testbench `onescounter`
 [%unbreakable]
-[source, vhdl]
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
     DUT_moore : onescounter
     generic map
@@ -275,7 +285,8 @@ Il testbench istanzia entrambe le architetture del dispositivo `onescounter` sim
 
 Sono stati quindi aggiunti degli `assert` per tenere monitorati i segnali di output che, in determinati momenti, sono da assumersi identici tra le due versioni.
 
-[source, vhdl]
+.Assert `onescounter` corrispondenza architetturale
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
     assert not ((rst_n = '1') and
                 (OK_mealy = '1' or OK_moore = '1') and
@@ -294,7 +305,8 @@ Sono stati quindi aggiunti degli `assert` per tenere monitorati i segnali di out
 
 Considerato che GHDL utilizza il _femtosecondo_ quale unitá di tempo, é stata introdotta la funzione `t2s_ns` (_time to string ns_) per stampare coerentemente l'eventuale tempo di simulazione di un `assert` fallito.
 
-[source, vhdl]
+.Funzione `t2s_ns`
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
     function t2s_ns(t : time) return string is
         variable nano : integer := integer(t / 1 ns);
@@ -307,7 +319,8 @@ Per terminare in maniera _graceful_ la simulazione, é stato rimosso l' `assert`
 
 La generazione del clock é invece stata modificata come segue per fermarsi al set del segnale `done`:
 
-[source, vhdl]
+.Processo generazione clock TB `onescounter`
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
     clk_process : process
     begin
@@ -350,6 +363,8 @@ Per terminare il file ed il test occorre aggiungere una seconda riga vuota che v
 Per la versione 'moore', il dispositivo `onescounter` rispecchia il seguente ASM chart:
 
 // :page-layout: landscape
+.ASM Chart `onescounter` versione 'moore'
+[#fig_onescounter_asm_moore,reftext='{figure-caption} {counter:fignum}']
 image::images/ASM-onescounter_moore.drawio.svg[align=center,pdfwidth=100%]
 
 // :page-layout: portrait
@@ -362,6 +377,8 @@ Come esplicitato nella sezione del diagramma relativo al datapath, al registro `
 
 Il diagramma relativo alla versione 'mealy' é invece il seguente:
 
+.ASM Chart `onescounter` versione 'mealy'
+[#fig_onescounter_asm_mealy,reftext='{figure-caption} {counter:fignum}']
 image::images/ASM-onescounter_mealy.drawio.svg[align=center,pdfwidth=100%]
 
 Mentre il datapath é rimasto inalterato, l'utilizzo delle _conditional output box_ ha permesso di ridurre il numero degli stati, integrando la funzionalitá dello stato `INC` all'interno dello stato `SHIFT`.
@@ -392,7 +409,8 @@ I sorgenti sono stati costruiti in modo da non causare warning od errori in ques
 
 L'esecuzione del simulatore cosí generato da GHDL riporta alcuni warning, ed il completamento dei test secondo quanto impostato nel file `assets/data.txt`.
 
-[source, bash]
+.Esempio esecuzione RTL Simulation `onescounter`
+[source, bash, reftext='{listing-caption} {counter:listnum}']
 ----
 ghdl -r -v --std=93c  --time-resolution=ns  tb --wave=onescounter.ghw
 
@@ -410,6 +428,8 @@ Inoltre, a tempo 0, il segnale `rst_n` indica che c'é un reset in corso sul dis
 
 I secondi warning si riferiscono allo stesso problema, ma al primo istante utile (fronte di clock) all'uscita dal reset, ossia a tempo 145ns come visibile nell'immagine.
 
+.Segnali non inizializzati simulazione RTL `onescounter`
+[#fig_onescounter_xprop,reftext='{figure-caption} {counter:fignum}']
 image::images/onescounter_Xprop.png[]
 
 In questo caso, essendo iniziato il funzionamento del dispositivo, il segnale `X` non ancora inizializzato viene ora acquisito nel registro `A` ed il suo bit meno significativo salvato in `LSB_A`.
@@ -430,7 +450,8 @@ Si presentano alcune sezioni rilevanti del test.
 
 Il funzionamento del segnale `DEBUG` é stato stimolato con le sequenze presenti in `assets/data.txt`:
 
-[source, ascii]
+.Sequenza test `onescounter`: segnale `DEBUG`
+[source, ascii, reftext='{listing-caption} {counter:listnum}']
 ----
 
     10000010    # 0x82
@@ -462,6 +483,8 @@ Perció il loro funzionamento verrá 'sovrascritto' da `DEBUG`.
 
 Nell'immagine seguente é possibile osservare le transazioni che verificano questo comportamento.
 
+.Forme d'onda sequenza test `onescounter`: segnale `DEBUG`
+[#fig_onescounter_debug,reftext='{figure-caption} {counter:fignum}']
 image::images/onescounter_DEBUG.png[]
 
 I marker **A**, **B** e **C** identificano i fronti del clock sul quale il segnale `DEBUG` viene letto e conseguentemente l'uscita `OUTP` viene
@@ -473,7 +496,8 @@ Con il test proposto, risulta necessario osservare manualmente lo stato dei segn
 
 Vengono presentate alcune transazioni esemplificative prese dalla sequenza di test.
 
-[source]
+.Sequenza test `onescounter`: esempio 1
+[source, ascii, reftext='{listing-caption} {counter:listnum}']
 ----
 # data.txt
 00010000    # 0x10
@@ -496,6 +520,8 @@ La sequenza inietta (`DATAIN @ 1`) un vettore con uno dei bit centrali ad `1`, a
 
 L'analisi dei segnali mostra che il conteggio e lo shift viene eseguito nei vari casi come da ASM chart.
 
+.Forme d'onda sequenza test `onescounter`: esempio 1
+[#fig_onescounter_datain,reftext='{figure-caption} {counter:fignum}']
 image::images/onescounter_DATAIN.png[]
 
 Il segnale `a_out` in uscita dallo shift register, mostra come i bit vengano traslati per portarli al conteggio.
@@ -505,7 +531,8 @@ Si puó giá notare come le due architetture della Control Unit differenzino nel
 
 La prossima sequenza mostra il comportamento al set del segnale `CALC` e l'impostazione del risultato corretto insieme all'output `OK`.
 
-[source]
+.Sequenza test `onescounter`: esempio 2
+[source, ascii, reftext='{listing-caption} {counter:listnum}']
 ----
 # data.txt
 00000001    # 0x01
@@ -545,6 +572,8 @@ Successivamente inietta il valore `0x80` e ne richiede la computazione, aspettan
 
 Nelle seguenti forme d'onda la verifica di quanto descritto.
 
+.Forme d'onda sequenza test `onescounter`: esempio 2
+[#fig_onescounter_calc,reftext='{figure-caption} {counter:fignum}']
 image::images/onescounter_CALC.png[]
 
 Ai diversi marker, é possibile seguire la sequenza identificata ed i risultati attesi nei segnali di uscita.

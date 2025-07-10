@@ -1,7 +1,7 @@
 [#project_mcd]
 = Progetto 4: Maximum Common Divisor (MCD)
 
-Questa sezione analizza il dispositivo `MCD` come quarto componente nello studio del _design flow_ dei dispositivi e calcolatori elettronici.
+Questa sezione analizza il dispositivo `MCD` come quarto componente nello studio del _design flow_ dei calcolatori elettronici.
 Verranno analizzati il codice originale per spiegarne il funzionamento e fornire una rappresentazione grafica della sua Control Unit e Datapath.
 
 Verranno poi spiegate le informazioni salienti sullo sviluppo dell'algoritmo di test e del testbench per valutare e verificare il dispositivo `MCD` a livello _RT_ e _gate_.
@@ -21,8 +21,9 @@ Il massimo comun divisore di due numeri interi, entrambi non nulli, corrisponde 
 
 Dall'analisi delle porte di _top-level_ del componente `mcd`, si ottiene il seguente prospetto:
 
-
-[table_mcd_IOports,subs="attributes+"]
+.Descrizione porte dispositivo `mcd`.
+[%unbreakable]
+[table_mcd_IOports,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2m,^2,6",options="header"]
 |===
 
@@ -58,6 +59,7 @@ Indica che il risultato in uscita al dispositivo puó essere valutato.
 
 |===
 
+.Diagramma dispositivo `mcd`
 [.center,svgbob-mcd_ports]
 [svgbob]
 ----
@@ -476,7 +478,7 @@ La copertura dell'annotazione dei file `saif` in questo punto é insufficiente p
 
 .Risultati sintesi `mcd` con `OPSIZE => {16, 32, 64}`
 [%unbreakable]
-[#table_mcd_syn_opt_results,subs="attributes+",reftext='{table-caption} {counter:tabnum}']
+[table_mcd_syn_opt_results,subs="attributes+",reftext='{table-caption} {counter:tabnum}']
 [cols="^.^1m,^.^1,^.^1,^.^1,^6a",frame="ends",grid="rows",options="header"]
 |===
 
@@ -609,7 +611,7 @@ Lo script `gl_xcelium` **cancella** la directory `simul.gate/work/` ad ogni invo
 Si presti attenzione ad utilizzare o salvare eventuali dati interessanti prima di effettuare un'ulteriore _run_.
 ====
 
-Per unificare il framework esistente con i nomi generati dalla sintesi, che sono del tipo `mcd_OPSIZE*`, nella cartella `simul.gate/` sono presenti tre _packages_ e _testbench_.
+Per unificare il framework esistente con i nomi e file generati dalla sintesi, che sono del tipo `mcd_OPSIZE*`, nella cartella `simul.gate/` sono presenti tre _packages_ e _testbench_.
 Ognuno di questi viene utilizzato per la relativa dimensione `OPSIZE`, che deve quindi rientrare in uno dei valori utilizzati `{16, 32, 64}`.
 
 Le modifiche effettuate sui sorgenti sono quelle minimamente necessarie ad istanziare il _DUT_ corretto, senza `generic` e con il collegamento per le porte relative al `DFT`.
@@ -629,13 +631,22 @@ Questa ipotesi trova parziale conferma nei report RTL, dove si evidenzia che sol
 Se i percorsi critici dovessero corrispondere proprio a questi bit e segnali scarsamente attivati dai test, ciò spiegherebbe come mai le simulazioni risultino positive fino a frequenze elevate, nonostante la reale capacità del circuito possa essere inferiore.
 
 Tuttavia, dai report di timing sui percorsi con minor slack (`report_timing -max_paths 10`) emerge che quasi tutti coinvolgono il registro `R_B` del componente `divider`, ossia il secondo operando.
-Per confermare o smentire l'ipotesi iniziale sarebbe dunque necessaria un'analisi dettagliata della fase di chiusura del timing in sintesi, unita a uno studio approfondito del `divider`, aspetti che tuttavia esulano dagli obiettivi del presente progetto.
+Per confermare o smentire l'ipotesi iniziale sarebbe dunque necessaria un'analisi dettagliata della fase di chiusura del timing in sintesi, unita ad uno studio approfondito del `divider`, che tuttavia non costituisce un ambito di diretto interesse per questo progetto e risulta incompatibile con le tempistiche disponibili.
+
+Un riepilogo dei risultati delle simulazioni gate-level é visibile in tabella #TODO#.
+In <<fig_mcd_gl_glitch_and_fail>> si possono invece osservare delle forme d'onda gate-level intorno al momento di un risultato errato (`CLK_PERIOD => 840 ps` - `OPSIZE => 64`, `Time: 56791.56`).
+Seppur non direttamente responsabili dell'errore, é interessante osservare dei glitch sul segnale in ingresso al datapath `div1_start` in diversi momenti e di diversa estensione.
 
 
+
+.Simulazione gate-leve, `mcd_OPSIZE64`, risultato errato e glitch
+[#fig_mcd_gl_glitch_and_fail,reftext='{figure-caption} {counter:fignum}']
+image::images/mcd_gl_sdf_glitch_and_fail.png[]
 
 === Other evaluations
 
-[table_mcd_pwr_eval,subs="attributes+"]
+.Consumi post-gate-level
+[table_mcd_pwr_eval,subs="attributes+",reftext='{table-caption} {counter:tabnum}']
 [cols="^2,^8",frame="ends",grid="rows",options="header"]
 |===
 
