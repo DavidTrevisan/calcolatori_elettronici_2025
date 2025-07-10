@@ -147,30 +147,31 @@ Il flusso di sintesi é configurato come segue:
 *Stdcell*::
 - Stdcell Nangate v2011.01-HR04-2011-01-19
 - Tensione nominale: 1.10V
-- Nodo tecnologico (probabile): 45nm
+- Nodo tecnologico: 40nm
 *Constraints*::
 - Frequenza di clock: 1GHz (periodo di 1ns) - Jitter del 5%
-- Capacità di uscita: 0.484 pF
-- Ritardo di ingresso/Tempo di Setup: 0.4ns (40% del periodo di clock)
-- Ritardo di uscita/Tempo C2O: 0.4ns (40% del periodo di clock)
+- Driving cell: BUF_X8
+- Capacità di uscita: 0.006585 pF
+- Ritardo di ingresso: 0.4ns (40% del periodo di clock)
+- Ritardo di uscita: 0.4ns (40% del periodo di clock)
 *Configurazione del dispositivo*::
 - `NBITS`: 32
 
 La cella di pilotaggio scelta è stata selezionata come componente medio tra i buffer disponibili in `stdcells.lib`.
-Il modulo è chiamato `BUF_X4`, intermedio tra `BUF_X1` e `BUF_X32`, che lo script imposta con i comandi:
+Il modulo è chiamato `BUF_X8`, intermedio tra `BUF_X1` e `BUF_X32`, che lo script imposta con i comandi:
 
 [source, tcl]
 ----
-set drv_cell_name BUF_X4
+set drv_cell_name BUF_X8
 ...
 set_driving_cell -cell $drv_cell_name $allin
 ----
 
-seguito dalla capacità di uscita media impostata al valore scalato (Genus utilizza `fF` mentre la libreria utilizza `pF`) preso dal campo `BUF_X8.pin (Z).max_capacitance`:
+seguito dalla capacità di uscita media impostata al valore scalato (Genus utilizza `pF` mentre la libreria utilizza `fF`) preso dal campo `BUF_X8.pin (A).max_capacitance`:
 
 [source, tcl]
 ----
-set out_load_val  0.242310
+set out_load_val  0.006585
 ...
 set_load $out_load_val $allout
 ----
@@ -192,7 +193,7 @@ I risultati sono raccolti nella seguente tabella:
 |===
 | Synth
 | Area (µm²)
-| Worst Slack (ns)
+| Worst Slack (ps)
 | Numero di celle
 
 // | Std

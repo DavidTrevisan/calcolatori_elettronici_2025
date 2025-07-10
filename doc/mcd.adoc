@@ -368,17 +368,214 @@ Il dispositivo `mcd` appare deterministicamente funzionante, ed i risultati che 
 
 Come per il dispositivo <<project_device, Multiplier and CLZ>>, viene fornito uno script per lanciare automaticamente la simulazione RTL tramite `Xcelium`, al percorso `scripts/rtl_xcelium`.
 Per evitare l'utilizzo di molta memoria, il salvataggio dei database delle forme d'onda non viene salvatao di default dallo script `scripts/rtl_xsim.tcl`, che deve quindi essere modificato per includerli.
-Lo script _tcl_ salva comunque il file `saif` per le stime pre-sintesi in `simul.rtl/mcd.saif`.
-Questo file é utilizzato negli script `genus` successivi, per cui risult necessario lanciare lo script `rtl_xcelium` almeno una volta prima di passare al flusso di sintesi.
+Lo script _tcl_ salva comunque il file `saif` per le stime pre-sintesi in `simul.rtl/mcd_OPSIZE{16,32,64}.saif`.
+Questi file sono utilizzati negli script `genus` successivi, per cui risulta necessario la simulazione RTL tramite `rtl_xcelium` almeno una volta per ogni valore di `OPSIZE` prima di passare al flusso di sintesi.
 
 Lo script esegue una simulazione per 15000 test, con larghezza `OPSIZE = 32`.
-Per modificare questi parametri é sufficiente sovrascrivere le variabili `OPSIZE` e `NTESTS` intestate nello script e rilanciarlo.
+Per modificare questi parametri é sufficiente aggiungere i nuovi valori come argomenti dello script, in forma di numeri interi seguendo l'ordine `<OPSIZE> <NTESTS>`, come da esempio:
+
+.Script per simulazione RTL Xcelium `mcd` con `OPSIZE => 16` e `NTESTS => 100`
+[#cli_mcd_rtl_xcelium,reftext='{listing-caption} {counter:refnum}']
+[source, bash]
+----
+~/04_mcd$ scripts/rtl_xcelium 16 100
+----
 
 === Stdcells synthesis
 
 Come per il dispositivo `device` del <<project_device>>, il flusso di sintesi é contenuto interamente in uno script `tcl`, `scripts/genus.tcl`.
-Il setup delle cartelle e l'esecuzione del flusso tramite l'invocazione del tool é eseguibile da script `scripts/synth_genus`, che anche se duplicato nella sottocartella di questo progetto, risulta esattamente identico a quello usato nel capitolo precedente.
+Il setup delle cartelle e l'esecuzione del flusso tramite l'invocazione del tool é eseguibile da script `scripts/synth_genus`, che risulta esattamente identico a quello usato nel capitolo precedente per quanto riguarda il flusso implementato, <<mcd_synth_flow, descritto nella lista successiva>>.
+Per comoditá di esecuzione, `scripts/genus` accetta un argomento intero quale valore di `OPSIZE` per l'elaborazione, in maniera analoga a quanto mostrato in <<cli_mcd_rtl_xcelium>>.
 
+[%unbreakable]
+[#mcd_synth_flow]
+.Flusso di sintesi con script `genus.tcl`
+. Setup dell'environment (`synth_genus`)
+.. Preparazione cartelle di sintesi
+.. Preparazione variabili di ambiente
+. Chiamata a `genus -batch`
+.. Acquisizione variabili da ambiente (`genus.tcl`)
+.. Setup variabili, libreria e HDL
+.. Setup nodo tecnologico e constraints
+... Clock domain (unico - CLK)
+... Input delay
+... Output delay
+... I/O driving cell e output load
+... Segnale di reset (indicazione sincronizzatore di reset)
+.. Setup e connessione DFT
+.. Sintesi generica
+.. Sintesi _mapping_
+.. Sintesi ottimizzata
+.. Scrittura report
+
+La configurazione della sintesi é la seguente
+
+*Tool*::
+- Cadence Genus(TM) Synthesis Solution, Versione: 19.14-s108_1
+*Stdcell*::
+- Stdcell Nangate v2011.01-HR04-2011-01-19
+- Tensione nominale: 1.10V
+- Nodo tecnologico: 40nm
+*Constraints*::
+- Frequenza di clock: 1GHz (periodo di 1ns) - Jitter del 5%
+- Driving cell: BUF_X8
+- Capacità di uscita: 0.006585 pF
+- Ritardo di ingresso: 0.4ns (40% del periodo di clock)
+- Ritardo di uscita: 0.4ns (40% del periodo di clock)
+*Configurazione del dispositivo*::
+- `OPSIZE`: {16, 32, 64}
+
+[WARNING]
+====
+Il target del periodo di clock per il tool `Genus` con il dispositivo `mcd` viene effettivamente impostato a 990ps.
+
+Al valore `$clock_time` viene sottratto `$clk_margin` (10ps) per restringere artificialmente l'effort di ottimizzazione dello strumento di sintesi.
+A tutti gli effetti, questo garantisce una _guard-band_ forzata di 10ps per la chiusura del timing.
+
+Questo implica che ai risultati dei report esposti bisogna considerare l'aggiunta o rimozione di questo margine, in quanto si considera che il dispositivo `mcd` lavori comunque ad 1GHz.
+====
+
+La motivazione per l'inserimento della _guard-band_ artificiale é data dalla presenza di diversi path combinatori profondi nel design `mcd`, e la conseguente difficoltá dello strumento di sintesi a chiudere il timing prima dell'ottimizzazione.
+Ispezionando per esempio il dispositivo sintetizzato `mcd_OPSIZE32` con il comando `report_logic_levels_histogram`:
+
+[#listing_mcd_32_logic_levels,reftext='{figure-caption} {counter:refnum}']
+[%unbreakable]
+[source, tcl]
+----
+@genus:root: 7> report_logic_levels_histogram
+ ---------------------------------------------------------------------------------------------------
+| Number of Logic Levels |     Number(%)   | Histogram
+ ---------------------------------------------------------------------------------------------------
+|        0  ->    3      |    340(62.8)    | **************************************************************
+|        4  ->    7      |      4( 0.7)    |
+|        8  ->   11      |     99(18.3)    | ******************
+|       12  ->   15      |     74(13.7)    | *************
+|       16  ->   19      |     24( 4.4)    | ****
+ ---------------------------------------------------------------------------------------------------
+|       16(worst)       |    541          | total end points
+ ---------------------------------------------------------------------------------------------------
+  View: 'analysis_view:mcd_OPSIZE32/default_emulate_view'
+----
+
+si contano 98 percorsi con un numero di livelli logici maggiore a 12, di cui 24 hanno profonditá 16.
+Vista la semplicitá del componente non si effettua un'analisi su tali percorsi volta a spezzarli tramite l'introduzione di appositi registri, attivitá che altrimenti sarebbe opportuna in un contesto più stringente (maggiore complessitá) o di violazione del timing.
+
+In aggiunta, la libreria utilizzata presenta celle relativamente piccole ed a basso consumo, non fornendo particolari strumenti alla sintesi per ottenere margini più grandi, risultando quindi in un WNS pari a 0.
+
+Seppur valido dal punto di vista dei requisiti - lo slack deve solamente essere _non negativo_ - un margine nullo, o troppo piccolo, non fornisce sufficiente tolleranza per le fasi successive di design ed implementazione fisici.
+
+Pur considerando che `mcd` non verrá correntemente implementato su silicio, si é scelto di introdurre questa forzatura per garantire un margine noto sui risultati ottenuti e come esplorazione didattica.
+
+Le metriche ottenute dalla sintesi di `mcd` per i valori di `OPSIZE => {16,32,64}` sono presentati in tabella, dove il report sul consumo di potenza é basato sull'attivitá di switching ottenuta dalle simulazioni RTL (copertura driver ~26% #TODO#).
+
+[%unbreakable]
+[table_mcd_syn_opt_results,subs="attributes+"]
+[cols="^.^1m,^.^1,^.^1,^.^1,^6a",frame="ends",grid="rows",options="header"]
+|===
+
+|`OPSIZE`
+|Slack (ps)
+|Area (µm²)
+|Cells
+|Pwr (nW)
+
+|16
+|10+5
+|1214.822
+|582
+// Nested table
+|
+[cols="^1m,^1m,^1m,^1m",grid="none", frame="none"]
+!===
+!Leakage !Internal !Switching !Total
+!2.35010e-05
+!8.42517e-04
+!3.14307e-04
+!1.18032e-03
+!===
+
+|32
+|10+4
+|2363.144
+|1197
+// Nested table
+|
+[cols="^1m,^1m,^1m,^1m",grid="none", frame="none"]
+!===
+!Leakage !Internal !Switching !Total
+!4.48811e-05
+!1.59603e-03
+!6.56516e-04
+!2.29743e-03
+!===
+
+|64
+|10+0
+|4746.504
+|2483
+// Nested table
+|
+[cols="^1m,^1m,^1m,^1m",grid="none", frame="none"]
+!===
+!Leakage !Internal !Switching !Total
+!9.12643e-05
+!3.01993e-03
+!1.21231e-03
+!4.32350e-03
+!===
+
+|===
+
+[gnuplot]
+....
+set title "Design metrics vs Parameter"
+set xlabel "Parameter size"
+set xtics ( "16" 1, "32" 2, "64" 3 )
+
+set ylabel "Slack (ps)"
+set y2label "Area (μm²) / Cells / Power (fW)"
+set y2tics
+
+# Move legend on top outside
+set key outside top center horizontal
+
+# Style definitions
+set style data linespoints
+set style line 1 lc rgb '#1f77b4' lw 2 pt 7
+set style line 2 lc rgb '#ff7f0e' lw 2 pt 5
+set style line 3 lc rgb '#2ca02c' lw 2 pt 9
+set style line 4 lc rgb '#d62728' lw 2 pt 13
+
+$slack << EOD
+1 15
+2 14
+3 10
+EOD
+
+$area << EOD
+1 1215
+2 2363
+3 4747
+EOD
+
+$cells << EOD
+1 582
+2 1197
+3 2483
+EOD
+
+$power << EOD
+1 1180
+2 2297
+3 4323
+EOD
+
+plot \
+    $slack using 1:2 axes x1y1 with linespoints ls 1 title "Slack (ps)", \
+    $area using 1:2 axes x1y2 with linespoints ls 2 title "Area (μm²)", \
+    $cells using 1:2 axes x1y2 with linespoints ls 3 title "Cells", \
+    $power using 1:2 axes x1y2 with linespoints ls 4 title "Power (fW)"
+....
 
 
 
