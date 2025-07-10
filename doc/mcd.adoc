@@ -602,7 +602,36 @@ Tuttavia, nel momento in cui questo dispositivo venisse integrato in un contesto
 
 Le simulazioni gate-level seguono il flusso e gli strumenti usati per il progetto `Multiplier and CLZ`, con la possibilitá di impostare `OPSIZE` ed `NTESTS` da riga di comando come argomenti (in ordine) di `scripts/gl_xcelium`.
 
-Per unificare
+[WARNING]
+====
+Lo script `gl_xcelium` **cancella** la directory `simul.gate/work/` ad ogni invocazione.
+
+Si presti attenzione ad utilizzare o salvare eventuali dati interessanti prima di effettuare un'ulteriore _run_.
+====
+
+Per unificare il framework esistente con i nomi generati dalla sintesi, che sono del tipo `mcd_OPSIZE*`, nella cartella `simul.gate/` sono presenti tre _packages_ e _testbench_.
+Ognuno di questi viene utilizzato per la relativa dimensione `OPSIZE`, che deve quindi rientrare in uno dei valori utilizzati `{16, 32, 64}`.
+
+Le modifiche effettuate sui sorgenti sono quelle minimamente necessarie ad istanziare il _DUT_ corretto, senza `generic` e con il collegamento per le porte relative al `DFT`.
+
+Le simulazioni nelle varie condizioni mostrano il prompt di successo per il numero di test effettuati (fino a 1000) utilizzando i file post-sintesi.
+Questo segnala che la funzionalitá é stata correttamente mantenuta anche dopo il flusso applicato.
+
+Utilizzando i file SDF generati dallo strumento di sintesi - per il quale lo script `gl_xcelium` fornisce una scorciatoia usando il parametro `-sdf` come ultimo argomento - si nota un comportamento interessante: i test non falliscono fino ad una soglia relativamente alta del periodo di clock.
+Le simulazioni infatti funzionano correttamente fino ad un periodo di clock di `840 ps` (quasi 1.2GHz), duty cycle 50%, per tutti i 1000 test nei casi `OPSIZE => {16, 32}`.
+Per il caso 64 bit la soglia si sposta a circa 870 ps, comunque distante dal target forzato di 990 ps e dal funzionamento atteso ad 1GHz.
+
+La spiegazione che si fornisce per l'ampiezza di questo margine é plausibilmente da ricercarsi nella costruzione degli stimoli del test.
+Si é visto che dalla sezione RTL la copertura ottenuta per i segnali e lo switching interni é estremamente bassa, inferiore al 1% per i flip-flop, mentre la copertura degli I\O arriva al ~94%.
+Considerata la natura dell'applicazione, la ricerca del MCD, é da aspettarsi che una grande fetta di segnali relativi ai bit più significativi del risultato non vengano mai stimolati.
+
+Questo é corroborato dai report RTL in cui si vedono che solo una centinaia di risultati utilizzano più dei tre bit meno significativi, e comunque raramente o mai oltre l'undicesimo bit (nel report `OPSIZE64` un solo risultato utilizza il tredicesimo bit).
+
+Se i percorsi critici più a rischio si dovessero trovare in corrispondenza di bit e segnali che non vengono sufficiente stimolati dai test implementati, allora potremmo spiegare i risultati positivi fino ad una frequenza troppo alta per l'intero sistema.
+
+Tuttavia, i report di timing sui percorsi con minore slack (`report_timing -max_paths 10`) mostrano che la quasi totalitá di questi é riferita al registro `R_B` del componente `divider`, ossia il secondo operando.
+Per sostenere o smentire l'ipotesi di cui sopra sarebbe necessaria un'analisi più approfondita della fase chiusura di timing durante la sintesi congiuntamente ad uno studio più dettagliato del `divider`, che peró elude dallo scopo del progetto esistente.
+
 
 === Other evaluations
 
