@@ -18,6 +18,10 @@ rootPath=$(realpath $(dirname "${scriptPath}"))
 
 if [ -n "${1+x}" ] && [[ $1 =~ ^-?[0-9]+$ ]]; then
     export OPSIZE=$1 # Env var to be used in tcl
+    if ! [[ "$OPSIZE" == "16" || "$OPSIZE" == "32" || "$OPSIZE" == "64" ]]; then
+        echo "ERROR: $OPSIZE is not an acceptable value for parameter OPSIZE."
+        exit 1
+    fi
     shift
 else
     export OPSIZE=32 # Env var to be used in tcl
@@ -28,12 +32,22 @@ if [ -n "${1+x}" ] && [[ $1 =~ ^-?[0-9]+$ ]]; then
 else
     NTESTS=15000
 fi
+if [ -n "${1+x}" ] && [[ $1 =~ ^-?[0-9]+$ ]]; then
+    CLK_PERIOD=$1
+    shift
+else
+    CLK_PERIOD=1000
+fi
+CLK_SEMIPERIOD=$(( ${CLK_PERIOD} / 2 ))
 
 mkdir -p "${rootPath}/simul.gate"
 pushd "${rootPath}/simul.gate"
 pwd
 
 # work + vital libraries and lib/var files
+if [ -d "work" ]; then
+    rm -vrf work
+fi
 mkdir -p vital work
 # specific paths to eda-27267 server
 # cds.lib
@@ -75,7 +89,11 @@ EOF
     echo "NOTE: elaborating design using SDF file delays"
 fi
 
-xmelab -generic "OPSIZE => ${OPSIZE}" -generic "NTESTS => ${NTESTS}" ${SIM_DLY} -access +rwc testbench
+xmelab \
+    -generic "CLK_SEMIPERIOD0 => ${CLK_SEMIPERIOD} ps" \
+    -generic "CLK_SEMIPERIOD1 => ${CLK_SEMIPERIOD} ps" \
+    -generic "NTESTS => ${NTESTS}" \
+    ${SIM_DLY} -access +rwc testbench
 xmsim -input ../scripts/gl_xmsim.tcl testbench
 
 popd
