@@ -65,7 +65,7 @@ Il comportamento della CTRL-Unit del dispositivo viene descritto insieme al data
 Il flusso é rappresentato nel seguente ASM-Chart:
 
 .`device` ASM-Chart CTRL-Unit
-[#fig_device_ctrl,reftext='{figure-caption} {counter:refnum}']
+[#fig_device_ctrl,reftext='{figure-caption} {counter:fignum}']
 image::images/ASM-device_ctrl.drawio.svg[]
 
 Risulta disponibile un'infrastruttura di test composta da `testbench` che istanzia i generatori di reset e clock, ed il dispositivo `device` collegato ad un generatore di stimoli, `tester`.
@@ -577,7 +577,7 @@ Mentre il tester restituisce la stringa `WRONG`, si verifica che le forme d'onda
 Nell'immagine seguente, si nota come i segnali di output `RES` e `done` si muovano in momenti chiaramente successivi al fronte di salita del `CLK`, cosí come alcuni segnali interni a `device`:
 
 .`device` gate level simulation with delay
-[#fig_device_gl_sdf_waves,reftext='{figure-caption} {counter:refnum}']
+[#fig_device_gl_sdf_waves,reftext='{figure-caption} {counter:fignum}']
 image::images/device_gl_sdf_waves.png[]
 
 == Other evaluations

@@ -6,6 +6,7 @@
 :icons: font
 :icon-set: fi
 :preface-title: Introduzione
+:table-caption: Tabella
 :figure-caption: Figura
 :listing-caption: Listato
 :note-caption: Nota

@@ -154,7 +154,7 @@ Tuttavia si considerano queste caratteristiche salienti a riguardo:
 La rappresentazione della CTRL-Unit del dispositivo `mcd` é visibile nel seguente diagramma:
 
 .`mcd` ASM-Chart CTRL-Unit
-[#fig_mcd_ctrl,reftext='{figure-caption} {counter:refnum}']
+[#fig_mcd_ctrl,reftext='{figure-caption} {counter:fignum}']
 image::images/ASM-mcd_ctrl.drawio.svg[]
 
 Dove si é apposto un flusso fuori dal normale controllo della FSM per indicare il comportamento del segnale `abort` quale _override_ del normale funzionamento.
@@ -162,7 +162,7 @@ Dove si é apposto un flusso fuori dal normale controllo della FSM per indicare 
 Le risorse visibili nel datapath sono invece rappresentate nella seguente immagine:
 
 .`mcd` Risorse Datapath
-[#fig_mcd_dp,reftext='{figure-caption} {counter:refnum}']
+[#fig_mcd_dp,reftext='{figure-caption} {counter:fignum}']
 image::images/ASM-mcd_dp.drawio.svg[]
 
 Si é rappresentato il componente `divider` come un blocco gerarchico di cui si considera solo il comportamento alle porte di input e di output.
@@ -331,7 +331,7 @@ Questi risultati sono giá stati confrontati e verificati dalla funzione ricorsi
 Dall'esempio sopra, si vede l'operazione in cui il risultato é `MCD = 15`:
 
 .`mcd` - Risultato esempio
-[#fig_mcd_interesting_result,reftext='{figure-caption} {counter:refnum}']
+[#fig_mcd_interesting_result,reftext='{figure-caption} {counter:fignum}']
 image::images/mcd_interesting_15.png[]
 
 [#mcd_rtl_reports]
@@ -375,7 +375,7 @@ Lo script esegue una simulazione per 15000 test, con larghezza `OPSIZE = 32`.
 Per modificare questi parametri é sufficiente aggiungere i nuovi valori come argomenti dello script, in forma di numeri interi seguendo l'ordine `<OPSIZE> <NTESTS>`, come da esempio:
 
 .Script per simulazione RTL Xcelium `mcd` con `OPSIZE => 16` e `NTESTS => 100`
-[#cli_mcd_rtl_xcelium,reftext='{listing-caption} {counter:refnum}']
+[#cli_mcd_rtl_xcelium,reftext='{listing-caption} {counter:listnum}']
 [source, bash]
 ----
 ~/04_mcd$ scripts/rtl_xcelium 16 100
@@ -436,9 +436,9 @@ Questo implica che ai risultati dei report esposti bisogna considerare l'aggiunt
 ====
 
 La motivazione per l'inserimento della _guard-band_ artificiale é data dalla presenza di diversi path combinatori profondi nel design `mcd`, e la conseguente difficoltá dello strumento di sintesi a chiudere il timing prima dell'ottimizzazione.
-Ispezionando per esempio il dispositivo sintetizzato `mcd_OPSIZE32` con il comando `report_logic_levels_histogram`:
+Ispezionando per esempio il dispositivo sintetizzato `mcd_OPSIZE32` con il comando `report_logic_levels_histogram`
 
-[#listing_mcd_32_logic_levels,reftext='{figure-caption} {counter:refnum}']
+[#listing_mcd_32_logic_levels,reftext='{figure-caption} {counter:listnum}']
 [%unbreakable]
 [source, tcl]
 ----
@@ -466,10 +466,17 @@ Seppur valido dal punto di vista dei requisiti - lo slack deve solamente essere 
 
 Pur considerando che `mcd` non verrá correntemente implementato su silicio, si é scelto di introdurre questa forzatura per garantire un margine noto sui risultati ottenuti e come esplorazione didattica.
 
-Le metriche ottenute dalla sintesi di `mcd` per i valori di `OPSIZE => {16,32,64}` sono presentati in tabella, dove il report sul consumo di potenza é basato sull'attivitá di switching ottenuta dalle simulazioni RTL (copertura driver ~26% #TODO#).
+Le metriche ottenute dalla sintesi di `mcd` per i valori di `OPSIZE => {16,32,64}` sono presentati in tabella <<table_mcd_syn_opt_results>>, dove il report sul consumo di potenza é basato sull'attivitá di switching ottenuta dalle simulazioni RTL.
+Gli stessi risultati vengono plottati nel grafico <<plt_mcd_syn_opt_results>>
 
+[WARNING]
+====
+La copertura dell'annotazione dei file `saif` in questo punto é insufficiente per quanto riguarda i segnali interni e flip-flop (con un minimo dello 0.47%), quindi risulterá necessario confrontare la potenza stimata in condizione _post-gate-level_.
+====
+
+.Risultati sintesi `mcd` con `OPSIZE => {16, 32, 64}`
 [%unbreakable]
-[table_mcd_syn_opt_results,subs="attributes+"]
+[#table_mcd_syn_opt_results,subs="attributes+",reftext='{table-caption} {counter:tabnum}']
 [cols="^.^1m,^.^1,^.^1,^.^1,^6a",frame="ends",grid="rows",options="header"]
 |===
 
@@ -526,18 +533,30 @@ Le metriche ottenute dalla sintesi di `mcd` per i valori di `OPSIZE => {16,32,64
 
 |===
 
+Come si vede da questi dati, la condizione di elaborazione del dispositivo `mcd` con `OPSIZE => 32` rappresenta un punto dove il trade-off _power-performance-area_ gode di un certo equilibrio, perdendo invece più margine sullo slack disponibile mentre le altre metriche mantengono l'andamento lineare con il raddoppio del generic `OPSIZE`.
+Tuttavia, grazie al margine artificiale inserito sul periodo di clock, anche i risultati nel caso di larghezza degli operandi 64 é accettabile e soddisfacente, rendendo la scelta del parametro praticamente indipendente dal rapporto _PPA_ ed esclusivamente dettato dalla necessitá funzionale.
+
+.`mcd` design metrics vs `OPSIZE`
+[#plt_mcd_syn_opt_results,subs="attributes+"reftext='{figure-caption} {counter:fignum}']
 [gnuplot]
 ....
-set title "Design metrics vs Parameter"
-set xlabel "Parameter size"
-set xtics ( "16" 1, "32" 2, "64" 3 )
+set title "Design metrics vs OPSIZE"
+set xlabel "OPSIZE"
+set xtics ( "16" 16, "32" 32, "64" 64)
 
 set ylabel "Slack (ps)"
 set y2label "Area (μm²) / Cells / Power (fW)"
 set y2tics
 
+# Squeeze the left axis range
+set yrange [-5:20]
+
 # Move legend on top outside
 set key outside top center horizontal
+
+# Dashed line at Slack=10 with label
+set arrow from graph 0, first 10 to graph 1, first 10 nohead dashtype 2 lc rgb "gray"
+set label "clk margin" at graph 0.02, first 11 tc rgb "gray"
 
 # Style definitions
 set style data linespoints
@@ -547,27 +566,27 @@ set style line 3 lc rgb '#2ca02c' lw 2 pt 9
 set style line 4 lc rgb '#d62728' lw 2 pt 13
 
 $slack << EOD
-1 15
-2 14
-3 10
+16 15
+32 14
+64 10
 EOD
 
 $area << EOD
-1 1215
-2 2363
-3 4747
+16 1215
+32 2363
+64 4747
 EOD
 
 $cells << EOD
-1 582
-2 1197
-3 2483
+16 582
+32 1197
+64 2483
 EOD
 
 $power << EOD
-1 1180
-2 2297
-3 4323
+16 1180
+32 2297
+64 4323
 EOD
 
 plot \
@@ -577,9 +596,14 @@ plot \
     $power using 1:2 axes x1y2 with linespoints ls 4 title "Power (fW)"
 ....
 
-
+Tuttavia, nel momento in cui questo dispositivo venisse integrato in un contesto di maggior complessitá, potrebbe risultare necessario aggiungere registri e stadi di pipeline per spezzare i path combinatori, incidendo maggiormente sull'area al crescere di `OPSIZE`.
 
 === Gate-level Simulations
+
+Le simulazioni gate-level seguono il flusso e gli strumenti usati per il progetto `Multiplier and CLZ`, con la possibilitá di impostare `OPSIZE` ed `NTESTS` da riga di comando come argomenti (in ordine) di `scripts/gl_xcelium`.
+
+Per unificare
+
 === Other evaluations
 
 [table_mcd_pwr_eval,subs="attributes+"]
@@ -686,3 +710,4 @@ plot \
 
 |===
 
+---
