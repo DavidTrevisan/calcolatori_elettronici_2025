@@ -19,15 +19,15 @@ set out_file_list {}
 # the entire prj
 ###################
 # set drv_cell_name BUF_X32
-# set out_load_val  1.904300
+# set out_load_val  0.026704
 # set drv_cell_name BUF_X16
-# set out_load_val  0.965576
-# set drv_cell_name BUF_X8
-# set out_load_val  0.484009
-set drv_cell_name BUF_X4
-set out_load_val  0.242310
+# set out_load_val  0.012411
+set drv_cell_name BUF_X8
+set out_load_val  0.006585
+# set drv_cell_name BUF_X4
+# set out_load_val  0.003402
 # set drv_cell_name BUF_X2
-# set out_load_val  0.121155
+# set out_load_val  0.001779
 ###################
 
 ###################

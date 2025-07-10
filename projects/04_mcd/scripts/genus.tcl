@@ -18,6 +18,7 @@ set output_design_name mcd_$param_name$param_value
 set clock_name CLK
 set reset_name rst_n
 set clock_time 1
+set clk_margin 0.01
 
 set out_file_list {}
 ###################
@@ -28,15 +29,15 @@ set out_file_list {}
 # the entire prj
 ###################
 # set drv_cell_name BUF_X32
-# set out_load_val  1.904300
+# set out_load_val  0.026704
 # set drv_cell_name BUF_X16
-# set out_load_val  0.965576
-# set drv_cell_name BUF_X8
-# set out_load_val  0.484009
-set drv_cell_name BUF_X4
-set out_load_val  0.242310
+# set out_load_val  0.012411
+set drv_cell_name BUF_X8
+set out_load_val  0.006585
+# set drv_cell_name BUF_X4
+# set out_load_val  0.003402
 # set drv_cell_name BUF_X2
-# set out_load_val  0.121155
+# set out_load_val  0.001779
 ###################
 
 ###################
@@ -83,7 +84,7 @@ report_units
 # Setup Constraints
 # - CLK, IO, drive, load
 ###################
-create_clock -domain clock_domain1 -name mainclk -period $clock_time [get_db ports $clock_name]
+create_clock -domain clock_domain1 -name mainclk -period [expr $clock_time - $clk_margin] [get_db ports $clock_name]
 set_clock_uncertainty [expr 0.05 * $clock_time] [get_clocks mainclk]
 
 set allin [all_inputs]
