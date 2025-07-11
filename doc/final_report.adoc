@@ -5,6 +5,7 @@
 :toclevels: 3
 :icons: font
 :icon-set: fi
+:source-highlighter: pygments
 :preface-title: Introduzione
 :table-caption: Tabella
 :figure-caption: Figura
@@ -74,7 +75,7 @@ Ogni progetto assume la seguente struttura di cartelle:
 
 .Struttura directory progetti
 [%unbreakable]
-[source, bash, reftext="{listing-caption} {counter:listnum}"]
+[source, console, reftext="{listing-caption} {counter:listnum}"]
 ----
 <prj_path>
 │
@@ -120,7 +121,7 @@ Per compatibilità con GHDL, che non supporta direttamente l'uso di file-list pa
 
 Questo permette di mantenere separata la descrizione dei file sorgente dalla logica di analisi, semplificando eventuali modifiche o riutilizzi del progetto.
 
-== Versione degli strumenti
+=== Versione degli strumenti
 
 Le considerazioni di questo documento si basano sulle seguenti versioni:
 
@@ -130,13 +131,13 @@ Le considerazioni di questo documento si basano sulle seguenti versioni:
 * Genus Synthesis Solution 19.14-s108_1
 * Python 3.13.3
 
-== Scripts
+=== Scripts
 
 
 Vengono descritti gli script principali utili per l'esecuzione sistematica dei progetti.
 
 [#script_ghdl]
-=== `runSim_ghdl`
+==== `runSim_ghdl`
 
 Questo script è un helper che automatizza:
 
@@ -159,7 +160,7 @@ Per utilizzarlo, la riga di comando tipica è:
 
 .Utilizzo _generic override_ con `runSim_ghdl`
 [#runSim_ghdl_generic]
-[source,bash,reftext="{listing-caption} {counter:listnum}"]
+[source, console,reftext="{listing-caption} {counter:listnum}"]
 ----
 $ scripts/runSim_ghdl <prj_path> [GENERIC_OVERRIDE=value]
 ----
@@ -184,7 +185,7 @@ Utilizzo:
 
 .Utilizzo script `parse_and_check_mcd.py`
 [#script_check_mcd_usage]
-[source,bash]
+[source, console]
 ----
 $ scripts/parse_and_check_mcd.py <input_file>
 ----
@@ -197,13 +198,13 @@ Questo insieme di successivi script si trova principalmente nei progetti `03-dev
 ====
 
 [#script_tl_xcelium]
-=== `rtl_xcelium`
+==== `rtl_xcelium`
 
 Script Bash per la simulazione RTL del progetto con Xcelium.
 Esegue la compilazione di tutti i file elencati in `sources.vc`, elabora il design parametrizzato e avvia la simulazione con raccolta della copertura.
 
 .Utilizzo `scripts/rll_xcelium`
-[source,bash,reftext="{listing-caption} {counter:listnum}"]
+[source, console,reftext="{listing-caption} {counter:listnum}"]
 ----
 $ scripts/rtl_xcelium [OPSIZE] [NTESTS]
 ----
@@ -211,13 +212,13 @@ $ scripts/rtl_xcelium [OPSIZE] [NTESTS]
 `OPSIZE` e `NTESTS` funzionano come parametri di configurazione come da progetto.
 
 [#script_rtl_xmsim_tcl]
-=== `rtl_xmsim.tcl`
+==== `rtl_xmsim.tcl`
 
 Script TCL di supporto per la simulazione RTL che produce file SAIF per analisi dell'attività commutativa.
 Offre anche configurazioni per generare file VCD o TRN da utilizzare con tool di debug come SimVision.
 
 [#script_gl_xcelium]
-=== `gl_xcelium`
+==== `gl_xcelium`
 
 Script Bash che automatizza la simulazione gate-level tramite Xcelium.
 Prepara le directory di lavoro, compila le librerie standard-cell VITAL, le netlist sintetizzate ed i testbench adattati alla sintesi.
@@ -229,7 +230,7 @@ Dipendenze:
 * Bash (POSIX utilities)
 
 .Utilizzo `scripts/gl_xcelium`
-[source,bash,reftext="{listing-caption} {counter:listnum}"]
+[source, console,reftext="{listing-caption} {counter:listnum}"]
 ----
 $ scripts/gl_xcelium [OPSIZE] [NTESTS] [CLK_PERIOD] [-sdf]
 ----
@@ -240,13 +241,13 @@ $ scripts/gl_xcelium [OPSIZE] [NTESTS] [CLK_PERIOD] [-sdf]
 * Il flag `-sdf` abilita la simulazione con i ritardi estratti dalla sintesi.
 
 [#script_gl_xmsim_tcl]
-=== `gl_xmsim.tcl`
+==== `gl_xmsim.tcl`
 
 Script TCL di supporto per Xcelium che, durante la simulazione gate-level, genera i file SAIF utili per la stima della potenza.
 Configura il dump dell'attività dei segnali interni e avvia la simulazione.
 
 [#script_synth_genus]
-=== `synth_genus`
+==== `synth_genus`
 
 Script Bash progettato per avviare il flusso di sintesi tramite Cadence Genus.
 Prepara la directory `synth`, crea i link simbolici alla libreria standard-cell indicata e avvia Genus in modalità batch passando lo script `genus.tcl`.
@@ -257,7 +258,7 @@ Dipendenze:
 * Bash (POSIX utilities)
 
 .Utilizzo `synt_genus`
-[source,bash,reftext="{listing-caption} {counter:listnum}"]
+[source, console,reftext="{listing-caption} {counter:listnum}"]
 ----
 $ scripts/synth_genus -d <lib_dir> [OPSIZE]
 ----
@@ -266,7 +267,7 @@ Il parametro `-d` indica la directory delle librerie standard-cell.
 `OPSIZE` è un parametro opzionale che imposta una variabile d`ambiente utilizzata nello script TCL.
 
 [#script_genus_tcl]
-=== `genus.tcl`
+==== `genus.tcl`
 
 Script TCL per Cadence Genus che definisce il flusso completo di sintesi RTL.
 Legge i file HDL, elabora i parametri come `OPSIZE`, imposta i vincoli di clock e reset, applica i vincoli di scan chain per il DFT, genera i report di timing, area e potenza, infine salva le netlist e gli script per le fasi successive.
@@ -277,8 +278,9 @@ Viene richiamato automaticamente da `synth_genus` e produce nella cartella `synt
 
 [WARNING]
 ====
-Le immagini ottenute tramite screenshot incluse in questo documento sono state catturate con attenzione per garantire la migliore qualità possibile.
-Si consiglia di consultare la versione digitale del documento per una resa ottimale di tali immagini.
+Le immagini dei diagrammi ed ottenute tramite screenshot incluse in questo documento sono state catturate e costruite con attenzione per garantire la migliore qualità possibile per permettere l'ingradimento necessario ad osservare i dettagli.
+
+Si consiglia di consultare la versione digitale originale del documento per una resa ottimale di tali immagini.
 ====
 
 == Progetti

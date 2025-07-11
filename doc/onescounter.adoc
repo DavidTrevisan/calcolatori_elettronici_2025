@@ -5,7 +5,7 @@ Il dispositivo effettua il conteggio dei bit impostati ad `1` per una sequenza d
 Il dispositivo utilizza le seguenti porte di input ed output:
 
 .Descrizione porte dispositivo `onescounter`.
-[table_onescounter_IOports,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
+[#table_onescounter_IOports,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2m,^2,6",options="header"]
 |===
 
@@ -76,7 +76,7 @@ Il dispositivo viene consegnato con un testbench contenente le seguenti modifich
 Per analizzare ed elaborare il design ed eseguirne la simulazione é stato creato uno script bash, che viene fornito, ed é utilizzabile come segue:
 
 .Comando di esecuzione script `runSim_ghdl`
-[source, bash, reftext='{listing-caption} {counter:listnum}']
+[source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 $ scripts/runSim_ghdl projects/01_onescounter
 ----
@@ -92,7 +92,7 @@ Le operazioni eseguite dallo script sono le seguenti:
 
 .Comandi eseguiti da `runSim_ghdl`, `onescounter`
 [%unbreakable]
-[source, bash, reftext='{listing-caption} {counter:listnum}']
+[source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 # Sposta la $PWD nel percorso indicato del progetto, sottocartella `simul.rtl`
 pushd projects/01_onescounter/simul.rtl
@@ -125,7 +125,7 @@ Lo script estrae il path assoluto per ognuno dei file sorgente, per cui `project
 Il file `sources.vc` contiene la lista dei sorgenti utilizzati, che vengono di seguito elencati e brevemente descritti:
 
 .Descrizione file sorgente
-[table_onescounter_sources,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
+[#table_onescounter_sources,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="25%,75%",options="header"]
 |===
 | File | Description
@@ -188,7 +188,7 @@ Al dispositivo é stato aggiunto un _generic_ di tipo testuale (_string_) per in
 Per mantenere la compatibilitá con lo standard VHDL-1993, sono stati utilizzati due costrutti `if ... generate ... end generate` per istanziare l'architettura desiderata.
 
 .Istanza doppia architettura CU `onescounter`
-[source, vhdl, reftext='{listing-caption} {counter:listnum}']
+[source.reduced-listing-text, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
     gen_mealy : if (CTRL_TYPE = "mealy") generate
         CTRL_mealy : entity work.ctrlunit(mealy)
@@ -236,7 +236,7 @@ Per il registro `ONES` sono stati aggiunti diversi ingressi selezionabili rispet
 Considerando che ad ogni fronte di salita di `CLK` il segnale `ONES_in` viene registrato da `ONES`, la mappa di selezione del multiplexer al suo ingresso é:
 
 .Esempio selettore mux `selOnes`
-[table_onesSel,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
+[#table_onesSel,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2,8",options="header"]
 |===
 | selOnes
@@ -286,6 +286,7 @@ Il testbench istanzia entrambe le architetture del dispositivo `onescounter` sim
 Sono stati quindi aggiunti degli `assert` per tenere monitorati i segnali di output che, in determinati momenti, sono da assumersi identici tra le due versioni.
 
 .Assert `onescounter` corrispondenza architetturale
+[%autofit]
 [source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
     assert not ((rst_n = '1') and
@@ -320,6 +321,8 @@ Per terminare in maniera _graceful_ la simulazione, é stato rimosso l' `assert`
 La generazione del clock é invece stata modificata come segue per fermarsi al set del segnale `done`:
 
 .Processo generazione clock TB `onescounter`
+[%autofit]
+[%unbreakable]
 [source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
     clk_process : process
@@ -410,7 +413,7 @@ I sorgenti sono stati costruiti in modo da non causare warning od errori in ques
 L'esecuzione del simulatore cosí generato da GHDL riporta alcuni warning, ed il completamento dei test secondo quanto impostato nel file `assets/data.txt`.
 
 .Esempio esecuzione RTL Simulation `onescounter`
-[source, bash, reftext='{listing-caption} {counter:listnum}']
+[source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 ghdl -r -v --std=93c  --time-resolution=ns  tb --wave=onescounter.ghw
 

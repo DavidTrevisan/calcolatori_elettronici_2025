@@ -300,8 +300,9 @@ La soglia di interesse é altrettanto configurabile da linea di comando come gen
 Con un comando di esecuzione come:
 
 .Esempio comando simulazione RTL `mcd` per report dettagliati
+[%autofit]
 [%unbreakable]
-[source,bash, reftext='{listing-caption} {counter:listnum}']
+[source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 ghdl -e -v --std=93c -gOPSIZE=32 -gNTESTS=100 -gVERBOSE=true -gMCD_THRESH=10  testbench
 ghdl -r -v --std=93c  --time-resolution=ns -gOPSIZE=32 -gNTESTS=100 -gVERBOSE=true -gMCD_THRESH=10  testbench
@@ -311,7 +312,7 @@ Si otterranno dei report nella seguente forma:
 
 .Esempio report dettagliato simulazione RTL `mcd`
 [%unbreakable]
-[source,bash, reftext='{listing-caption} {counter:listnum}']
+[source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 ...
 Interesting result at 43077 cycles:
@@ -361,7 +362,7 @@ Lo script é presente al percorso `scripts/parse_and_check_mcd.py`.
 
 .Esempio di output dello script di verifica dei report
 [%unbreakable]
-[source, bash, reftext='{listing-caption} {counter:listnum}']
+[source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 $ scripts/parse_and_check_mcd.py projects/04_mcd/simul.rtl/report_rtl_NTESTS_15000_OPSIZE_32.txt
 [ OK ] At 129430 cycles: MCD correct (716)
@@ -386,7 +387,7 @@ Per modificare questi parametri é sufficiente aggiungere i nuovi valori come ar
 
 .Script per simulazione RTL Xcelium `mcd` con `OPSIZE => 16` e `NTESTS => 100`
 [#cli_mcd_rtl_xcelium,reftext='{listing-caption} {counter:listnum}']
-[source, bash, reftext='{listing-caption} {counter:listnum}']
+[source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 ~/04_mcd$ scripts/rtl_xcelium 16 100
 ----
@@ -452,6 +453,7 @@ Ispezionando per esempio il dispositivo sintetizzato `mcd_OPSIZE32` con il coman
 
 .Istogramma numero livelli logici sintesi `mcd_OPSIZE32`
 [#listing_mcd_32_logic_levels]
+[%autofit]
 [%unbreakable]
 [source, tcl, reftext='{listing-caption} {counter:listnum}']
 ----
