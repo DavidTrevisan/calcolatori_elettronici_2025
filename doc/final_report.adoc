@@ -210,6 +210,14 @@ Usage: scripts/parse_and_check_mcd.py <input_file>
 
 Dove `<input_file>` é uno dei report indicati nella <<mcd_rtl_reports,relativa sezione>>.
 
+=== Altre informazioni
+
+[WARNING]
+====
+Le immagini ottenute tramite screenshot incluse in questo documento sono state catturate con attenzione per garantire la migliore qualità possibile.
+Si consiglia di consultare la versione digitale del documento per una resa ottimale di tali immagini.
+====
+
 == Progetti
 
 include::onescounter.adoc[leveloffset=2]

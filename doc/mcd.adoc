@@ -266,13 +266,13 @@ Il dispositivo `tester` inietta operandi casuali, ottenuti tramite il generatore
 
 Questa versione di calcolo del *MCD* differisce da quella implementativa per la ricorsivitá, ma si assume che il risultato sia equivalente in assenza di errori nel dispositivo `mcd`.
 
-== Simulations, Synthesis and Evaluations
+.Simulations, Synthesis and Evaluations
 
 In questa sezione verranno presentati i risultati e le valutazioni relative alle diverse simulazioni del dispositivo `mcd`.
 
 Sono state impostate larghezze di `16` , `32` e `64` bit per gli operandi ed il risultato, con `NTESTS >= 10000` per ogni simulazione.
 
-=== RTL Simulations
+== RTL Simulations
 
 Per le simulazioni RTL, é stato utilizzato `GHDL`, attraverso il _workflow_ giá sperimentato con gli altri progetti, tramite l'<<script_ghdl, helper script ghdl>>.
 Considerato che lo script indica autonomamente al tool di salvare i segnali in un output `<prj_name>.ghw` per l'ispezione delle forme d'onda, e che questo richiede un certo tempo e puó raggiungere dimensioni notevoli (`1.3GB` per `NTESTS=20000` e `OPSIZE=32`), si consiglia di eliminare la sezione di salvataggo dallo script (commentando per esempio la linea `SIM_ARGS+="--wave=${WAVE_FILE} "`).
@@ -391,7 +391,7 @@ Per modificare questi parametri é sufficiente aggiungere i nuovi valori come ar
 ~/04_mcd$ scripts/rtl_xcelium 16 100
 ----
 
-=== Stdcells synthesis
+== Stdcells synthesis
 
 Come per il dispositivo `device` del <<project_device>>, il flusso di sintesi é contenuto interamente in uno script `tcl`, `scripts/genus.tcl`.
 Il setup delle cartelle e l'esecuzione del flusso tramite l'invocazione del tool é eseguibile da script `scripts/synth_genus`, che risulta esattamente identico a quello usato nel capitolo precedente per quanto riguarda il flusso implementato, <<mcd_synth_flow, descritto nella lista successiva>>.
@@ -611,7 +611,7 @@ plot \
 
 Tuttavia, nel momento in cui questo dispositivo venisse integrato in un contesto di maggior complessitá, potrebbe risultare necessario aggiungere registri e stadi di pipeline per spezzare i path combinatori, incidendo maggiormente sull'area al crescere di `OPSIZE`.
 
-=== Gate-level Simulations
+== Gate-level Simulations
 
 Le simulazioni gate-level seguono il flusso e gli strumenti usati per il progetto `Multiplier and CLZ`, con la possibilitá di impostare `OPSIZE` ed `NTESTS` da riga di comando come argomenti (in ordine) di `scripts/gl_xcelium`.
 
@@ -654,7 +654,7 @@ Seppur non direttamente responsabili dell'errore, é interessante osservare dei 
 [#fig_mcd_gl_glitch_and_fail,reftext='{figure-caption} {counter:fignum}']
 image::images/mcd_gl_sdf_glitch_and_fail.png[]
 
-=== Other evaluations
+== Other evaluations
 
 .Consumi post-gate-level (nW)
 [table_mcd_pwr_eval,subs="attributes+",reftext='{table-caption} {counter:tabnum}']
