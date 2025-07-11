@@ -57,6 +57,7 @@ exec_cmd docker run -it \
     -v "${DOC_ROOT_PATH}/build":/build/ \
     -v "${DOC_PATH}":/documents/ adocbuilder \
     asciidoctor-pdf --trace \
+    -a pdf-theme=theme.yml \
     -a git-sha="${GIT_SHA}" \
     -a diagram-cachedir=/tmp \
     -r asciidoctor-diagram "${SRC_NAME}" \
