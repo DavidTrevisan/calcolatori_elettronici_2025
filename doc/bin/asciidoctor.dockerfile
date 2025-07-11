@@ -20,6 +20,7 @@ RUN npm i wavedrom-cli -g
 # Setup asciidoctor-diagram
 RUN apk add --no-cache ruby ruby-dev build-base
 RUN gem install asciidoctor-diagram
+RUN gem install asciidoctor-lists
 
 # Install Rust and svgbob_cli
 RUN apk add --no-cache curl

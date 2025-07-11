@@ -1,0 +1,11 @@
+[appendix]
+== Indice delle immagini
+list-of::image[enhanced_rendering=true, hide_empty_section=true]
+
+[appendix]
+== Indice dei listati
+list-of::listing[enhanced_rendering=true, hide_empty_section=true]
+
+[appendix]
+== Indice delle tabelle
+list-of::table[enhanced_rendering=true, hide_empty_section=true]

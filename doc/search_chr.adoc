@@ -7,7 +7,7 @@ Il dispositivo é descritto dalle seguenti porte di input ed output:
 
 .Descrizione porte dispositivo `search_chr`
 [%unbreakable]
-[table_search_chr_IOports,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
+[#table_search_chr_IOports,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2m,^2,^2,6",options="header"]
 |===
 
@@ -53,7 +53,7 @@ Nella seguente tabella si identificano i segnali utilizzati per interfacciarsi c
 
 .Descrizione interfaccia di memoria
 [%unbreakable]
-[table_search_chr_MemoryIF,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
+[#table_search_chr_MemoryIF,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2m,^2,^1,5",options="header"]
 |===
 
@@ -130,7 +130,7 @@ Le quattro versioni sono da considerarsi incrementali, per cui ogni modifica pre
 Di seguito un riassunto degli stessi:
 
 .Descrizione file sorgente `search_chr`
-[table_onescounter_sources,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
+[#table_search_chr_sources,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="25%,75%",options="header"]
 |===
 | File | Description
@@ -249,6 +249,7 @@ Dopo aver sperimentato una soluzione in cui gli ingressi venivano registrati e "
 Si veda la sezione <<bug_b_mem_lat, Risultati>>, per le considerazioni sulle differenze di approccio.
 
 .Modifiche modello di memoria a latenza variabile
+[%autofit]
 [%unbreakable]
 [source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
@@ -366,6 +367,7 @@ signal LENS         : array_of_integers(0 to 2) := (10, 10, 15);
 ====
 Rispetto alla versione originale, 'da slides', ai segnali é stato apposto un range definito per evitare l'errore specifico dello standard `--std=93c` di GHDL, con signature:
 
+[%autofit]
 ```
 ../TB.vhdl:23:12:error: declaration of signal "ADDRESSES" with unconstrained array type "array_of_integers" is not allowed
     signal ADDRESSES    : array_of_integers := ( 3,  5, 20);
@@ -492,7 +494,7 @@ Come per il dispositivo `onescounter`, lo script `runSim_ghdl` puó essere usato
 
 .Esempio uso `runSim_ghdl` per simulare le diverse versioni di `search_chr`
 [%unbreakable]
-[source,bash, reftext='{listing-caption} {counter:listnum}']
+[source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 $ scripts/runSim_ghdl projects/02_search_chr/a_orig
 $ scripts/runSim_ghdl projects/02_search_chr/b_mem_lat
@@ -508,8 +510,9 @@ Si verifichi che le dipendenze necessarie per eseguire lo script siano soddisfat
 I comandi estrapolati dallo script sono come da esempio, assumendo di testare la versione `a_orig`:
 
 .Esempio comandi `runSim_ghdl`, `search_chr` versione a
+[%autofit]
 [%unbreakable]
-[source,bash, reftext='{listing-caption} {counter:listnum}']
+[source, bash, reftext='{listing-caption} {counter:listnum}']
 ----
     # Sposta la $PWD nel percorso indicato del progetto, sottocartella `simul.rtl`
 pushd projects/02_search_chr/a_orig/simul.rtl
@@ -534,7 +537,8 @@ NOTE: Lo script estrae il path assoluto per ognuno dei file sorgente, per cui `p
 Come anche segnalato nella sezione <<runSim_ghdl_generic, relativa allo script>>, é possibile utilizzare l'helper script configurando il test con diversi valori di latenza per la simulazione.
 
 .Esempio `runSim_ghdl`, `search_chr` versione b
-[source, bash, reftext='{listing-caption} {counter:listnum}']
+[%autofit]
+[source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 $ scripts/runSim_ghdl projects/02_search_chr/b_mem_lat MEM_LAT=1 # Corrispondente alla versione 'a'
 $ scripts/runSim_ghdl projects/02_search_chr/b_mem_lat MEM_LAT=4 # Corrispondente alla versione 'b' in default
@@ -566,7 +570,8 @@ I sorgenti non causano warning od errori in questa fase, assumendo l’utilizzo 
 Si nota invece il _print_ dei report introdotti nella <<version_d,versione D>> del testbench:
 
 .Dettaglio report `search_chr` versione d
-[source,bash, reftext='{listing-caption} {counter:listnum}']
+[%autofit]
+[source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 ...
 /code/calcolatori_elettronici_2025/projects/02_search_chr/d_tb_file/code/TB.vhdl:51:17:(report note): Read values - ADDRESS: 687, CHAR: 61, LEN: 6
@@ -582,7 +587,8 @@ Questa conferma testuale corrisponde ai valori presenti in `assets/instr.txt`.
 In fase di simulazione si riscontrano nuovamente i messaggi del punto prima, e quello relativo all'impostazione del generic `MEM_LAT`:
 
 .Dettaglio report simulazione RTL, `search_chr` versione d
-[source,bash, reftext='{listing-caption} {counter:listnum}']
+[%autofit]
+[source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 $ scripts/runSim_ghdl projects/02_search_chr/d_tb_file MEM_LAT=4
 ...
@@ -597,7 +603,7 @@ L'analisi a campione delle _waveform_ di alcune transazioni prese dalle istruzio
 
 .`search_chr` versione 'd' `MEM_LAT=1`. Ricerca 1
 [%unbreakable]
-[table_search_chr_sim1,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
+[#table_search_chr_sim1,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2m,^2m",options="header"]
 |===
 |Istruzione
@@ -632,7 +638,7 @@ image::images/search_chr_d_instr01.png[]
 
 .`search_chr` versione 'd' `MEM_LAT=2`. Ricerca 6
 [%unbreakable]
-[table_search_chr_sim2,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
+[#table_search_chr_sim6,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2m,^2m",options="header"]
 |===
 |Istruzione
@@ -663,7 +669,7 @@ image::images/search_chr_d_instr06.png[]
 
 .`search_chr` versione 'd' `MEM_LAT=2`. Ricerca 22
 [%unbreakable]
-[table_search_chr_sim2,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
+[#table_search_chr_sim22,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2m,^2m",options="header"]
 |===
 |Istruzione

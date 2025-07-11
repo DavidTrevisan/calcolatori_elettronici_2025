@@ -1,0 +1,99 @@
+extends: default
+
+page:
+  darktext_color: 0A100D
+  primary_color: A22C29
+  secondary_color: 902923
+  accent1_color: B9BAA3
+  accent2_color: D6D5C9
+  lightbg_color: f8f8f8
+  margin: [ 2cm, 1.5cm, 2cm, 1.5cm ]
+
+
+role:
+  small-text:
+    font-size: 6
+  skill-text:
+    font-size: 8
+    font-color: $page_secondary_color
+    font-family: Hack
+  jolly-text:
+    font-size: 9
+    font-color: $page_primary_color
+    font-family: Hack
+  code:
+      font-family: Hack
+      font-size: 50
+
+column-rule: true
+
+font:
+  catalog:
+    merge: true
+    Hack:
+      normal: /fonts/Hack/Hack-Regular.ttf
+      italic: /fonts/Hack/Hack-Italic.ttf
+      bold: /fonts/Hack/Hack-Bold.ttf
+      bold_italic: /fonts/Hack/Hack-BoldItalic.ttf
+    serif:
+      normal: /fonts/Noto_Serif/static/NotoSerif-Regular.ttf
+      italic: /fonts/Noto_Serif/static/NotoSerif-Italic.ttf
+      bold: /fonts/Noto_Serif/static/NotoSerif-Bold.ttf
+      bold_italic: /fonts/Noto_Serif/static/NotoSerif-BoldItalic.ttf
+    sans:
+      normal: /fonts/Roboto/static/Roboto-Regular.ttf
+      italic: /fonts/Roboto/static/Roboto-Italic.ttf
+      bold: /fonts/Roboto/static/Roboto-Bold.ttf
+      bold_italic: /fonts/Roboto/static/Roboto-BoldItalic.ttf
+  fallbacks: [sans]
+
+base:
+  font-color: $page_darktext_color
+  font-size: 10
+
+heading-h1:
+  margin-top: 20
+  margin-bottom: 12
+  font-size: 18
+  font-color: $page_primary_color
+  text-transform: uppercase
+
+heading-h2:
+  margin-page-top: 4
+  margin-top: 0
+  margin-bottom: 8
+  font-size: 16
+  text-transform: uppercase
+  border-width: [0, 0, 1, 0]
+  border-color: $page_primary_color
+
+heading-h3:
+  margin-page-top: 0
+  margin-top: 0
+  margin-bottom: 8
+  font-size: 14
+  # text-transform: uppercase
+  border-width: [0, 0, 0, 4]
+  border-color: $page_secondary_color
+  padding: [4, 0, 12, 12]
+
+heading-h4:
+  margin-page-top: 0
+  margin-top: 0
+  margin-bottom: 8
+  font-size: 12
+  # text-transform: uppercase
+  border-width: [0, 0, 0, 4]
+  border-color: $page_accent2_color
+  padding: [4, 0, 12, 12]
+
+table:
+  # head:
+    # background-color: $page_lightbg_color
+  cell:
+    line-height: 1.2
+    padding: [2, 2, 4, 4]
+
+list:
+  indent: 18
+  item-spacing: 4

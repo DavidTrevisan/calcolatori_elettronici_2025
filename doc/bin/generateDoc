@@ -1,0 +1,72 @@
+#!/usr/bin/bash
+
+# Get the full path of the script and its components
+SCRIPT_FULL=$(readlink -f "$0")
+SCRIPT_PATH=$(dirname "${SCRIPT_FULL}")
+SCRIPT_NAME=$(basename "${SCRIPT_FULL}")
+DOC_ROOT_PATH=$(dirname "${SCRIPT_PATH}")
+
+# Function to execute commands
+function exec_cmd() {
+    echo "$@"
+    eval "$@"
+}
+
+# Initialize variables
+SRC_NAME="final_report.adoc"
+DST_NAME=""
+
+# Parse options using getopt
+while getopts ":o:" OPT; do
+    case ${OPT} in
+        o )
+            DST_NAME="-o /build/$OPTARG"  # Set DST_NAME to the provided filename
+            ;;
+        \? )
+            echo "${SCRIPT_NAME} | Invalid option: -$OPTARG" 1>&2
+            exit 1
+            ;;
+        : )
+            echo "${SCRIPT_NAME} | Invalid option: -$OPTARG requires an argument" 1>&2
+            exit 1
+            ;;
+    esac
+done
+
+# Shift off the options and arguments
+shift $((OPTIND - 1))
+
+# Set the document path
+DOC_PATH=$(realpath "$(dirname "${SCRIPT_PATH}")")
+SRC_FILE="${DOC_PATH}/${SRC_NAME}"
+
+# Get the current Git SHA
+GIT_SHA=$(git rev-parse --short HEAD)
+
+# Start rendering process
+echo "Rendering ${SRC_FILE}..."
+
+# Create build directory if it doesn't exist
+mkdir -p build
+pushd build > /dev/null
+
+# Execute the Docker command
+exec_cmd docker run -it \
+    -v "${DOC_ROOT_PATH}/fonts":/fonts/ \
+    -v "${DOC_ROOT_PATH}/images":/images/ \
+    -v "${DOC_ROOT_PATH}/build":/build/ \
+    -v "${DOC_PATH}":/documents/ adocbuilder \
+    asciidoctor-pdf --trace \
+    -a pdf-theme=theme.yml \
+    -a git-sha="${GIT_SHA}" \
+    -a diagram-cachedir=/tmp \
+    -r asciidoctor-lists \
+    -r asciidoctor-diagram \
+    "${SRC_NAME}" \
+    "${DST_NAME}" && \
+    echo "Build success!" || \
+    echo "ERROR: Build failed"
+
+# Return to the previous directory
+popd > /dev/null
+

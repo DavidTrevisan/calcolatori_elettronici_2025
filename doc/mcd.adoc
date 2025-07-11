@@ -300,8 +300,9 @@ La soglia di interesse é altrettanto configurabile da linea di comando come gen
 Con un comando di esecuzione come:
 
 .Esempio comando simulazione RTL `mcd` per report dettagliati
+[%autofit]
 [%unbreakable]
-[source,bash, reftext='{listing-caption} {counter:listnum}']
+[source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 ghdl -e -v --std=93c -gOPSIZE=32 -gNTESTS=100 -gVERBOSE=true -gMCD_THRESH=10  testbench
 ghdl -r -v --std=93c  --time-resolution=ns -gOPSIZE=32 -gNTESTS=100 -gVERBOSE=true -gMCD_THRESH=10  testbench
@@ -311,7 +312,7 @@ Si otterranno dei report nella seguente forma:
 
 .Esempio report dettagliato simulazione RTL `mcd`
 [%unbreakable]
-[source,bash, reftext='{listing-caption} {counter:listnum}']
+[source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 ...
 Interesting result at 43077 cycles:
@@ -361,7 +362,7 @@ Lo script é presente al percorso `scripts/parse_and_check_mcd.py`.
 
 .Esempio di output dello script di verifica dei report
 [%unbreakable]
-[source, bash, reftext='{listing-caption} {counter:listnum}']
+[source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 $ scripts/parse_and_check_mcd.py projects/04_mcd/simul.rtl/report_rtl_NTESTS_15000_OPSIZE_32.txt
 [ OK ] At 129430 cycles: MCD correct (716)
@@ -386,7 +387,7 @@ Per modificare questi parametri é sufficiente aggiungere i nuovi valori come ar
 
 .Script per simulazione RTL Xcelium `mcd` con `OPSIZE => 16` e `NTESTS => 100`
 [#cli_mcd_rtl_xcelium,reftext='{listing-caption} {counter:listnum}']
-[source, bash, reftext='{listing-caption} {counter:listnum}']
+[source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 ~/04_mcd$ scripts/rtl_xcelium 16 100
 ----
@@ -452,6 +453,7 @@ Ispezionando per esempio il dispositivo sintetizzato `mcd_OPSIZE32` con il coman
 
 .Istogramma numero livelli logici sintesi `mcd_OPSIZE32`
 [#listing_mcd_32_logic_levels]
+[%autofit]
 [%unbreakable]
 [source, tcl, reftext='{listing-caption} {counter:listnum}']
 ----
@@ -613,42 +615,48 @@ Tuttavia, nel momento in cui questo dispositivo venisse integrato in un contesto
 
 == Gate-level Simulations
 
-Le simulazioni gate-level seguono il flusso e gli strumenti usati per il progetto `Multiplier and CLZ`, con la possibilitá di impostare `OPSIZE` ed `NTESTS` da riga di comando come argomenti (in ordine) di `scripts/gl_xcelium`.
+Le simulazioni gate-level seguono lo stesso flusso e utilizzano gli stessi strumenti descritti per il progetto `Multiplier and CLZ`.
+È possibile impostare i parametri `OPSIZE` ed `NTESTS` direttamente da riga di comando, come argomenti (nell'ordine) dello script `scripts/gl_xcelium`.
 
 [WARNING]
 ====
 Lo script `gl_xcelium` **cancella** la directory `simul.gate/work/` ad ogni invocazione.
 
-Si presti attenzione ad utilizzare o salvare eventuali dati interessanti prima di effettuare un'ulteriore _run_.
+Si raccomanda quindi di salvare o archiviare eventuali dati di interesse prima di avviare una nuova _run_.
 ====
 
-Per unificare il framework esistente con i nomi e file generati dalla sintesi, che sono del tipo `mcd_OPSIZE*`, nella cartella `simul.gate/` sono presenti tre _packages_ e _testbench_.
-Ognuno di questi viene utilizzato per la relativa dimensione `OPSIZE`, che deve quindi rientrare in uno dei valori utilizzati `{16, 32, 64}`.
+Per uniformare il framework agli output della sintesi, che genera file denominati `mcd_OPSIZE*`, nella cartella `simul.gate/` sono stati predisposti tre _packages_ e un _testbench_ distinti.
+Ognuno di questi corrisponde a una specifica dimensione `OPSIZE` e richiede quindi un valore tra `{16, 32, 64}`.
 
-Le modifiche effettuate sui sorgenti sono quelle minimamente necessarie ad istanziare il _DUT_ corretto, senza `generic` e con il collegamento per le porte relative al `DFT`.
+Le modifiche sui sorgenti in versione gate-level sono state volutamente minime, limitandosi a istanziare il _DUT_ appropriato senza `generic`, e a connettere le porte relative al `DFT`.
 
-Le simulazioni nelle varie condizioni mostrano il prompt di successo per il numero di test effettuati (fino a 1000) utilizzando i file post-sintesi.
-Questo segnala che la funzionalitá é stata correttamente mantenuta anche dopo il flusso applicato.
+Le simulazioni in condizioni nominali hanno riportato esito positivo fino a 1000 test, confermando che la funzionalità del circuito è stata preservata anche dopo il processo di sintesi.
+Utilizzando i file SDF prodotti dal tool di sintesi — per i quali lo script `gl_xcelium` prevede un'opzione comoda tramite il flag `-sdf` — sono emersi risultati degni di nota.
 
-Utilizzando i file SDF generati dallo strumento di sintesi — per cui lo script `gl_xcelium` offre una scorciatoia tramite il parametro `-sdf` — si è osservato un comportamento interessante: i test non falliscono fino a periodi di clock sorprendentemente bassi.
-Le simulazioni infatti risultano corrette fino ad un periodo di `840 ps` (circa 1.2 GHz, duty cycle 50%) per tutti i 1000 test nei casi `OPSIZE => {16, 32}`.
-Per il caso a 64 bit, la soglia si sposta a circa `870 ps`, comunque ben al di sotto del target di `990 ps` previsto per il funzionamento nominale a 1 GHz.
+I test infatti rimangono validi fino a periodi di clock sorprendentemente ridotti.
 
-Una possibile spiegazione di questo ampio margine risiede nella natura degli stimoli utilizzati nei test: dall'analisi RTL emerge una copertura estremamente bassa sui flip-flop interni (inferiore all'1%), a fronte di una copertura sugli I/O di circa il 94%.
-Considerando che l'applicazione si occupa di calcolare il massimo comune divisore (MCD), è plausibile che i bit più significativi del risultato non vengano quasi mai sollecitati.
+Per `OPSIZE` pari a `16` e `32` bit, il circuito si comporta correttamente fino a `840 ps` (circa `1.2 GHz`, duty cycle `50%`).
+Nel caso `64` bit, la soglia si alza leggermente a `870 ps`, rimanendo comunque al di sotto del target di `990 ps` previsto per l'operatività nominale a `1 GHz`.
 
-Questa ipotesi trova parziale conferma nei report RTL, dove si evidenzia che solo poche centinaia di risultati utilizzano più dei tre bit meno significativi, e solo in rarissimi casi oltre l'undicesimo bit (nel caso `OPSIZE64`, un solo risultato arriva a coinvolgere il tredicesimo bit).
+Una possibile spiegazione di questo ampio margine risiede nella natura degli stimoli utilizzati nei test.
 
-Se i percorsi critici dovessero corrispondere proprio a questi bit e segnali scarsamente attivati dai test, ciò spiegherebbe come mai le simulazioni risultino positive fino a frequenze elevate, nonostante la reale capacità del circuito possa essere inferiore.
+Dall'analisi RTL si ricava infatti una copertura estremamente bassa sui flip-flop interni (meno dell'`1%`), a fronte di una copertura sui pin I/O superiore al `94%`.
+Considerato che il circuito calcola il massimo comune divisore (MCD), è plausibile che i bit più significativi dei risultati vengano raramente esercitati.
 
-Tuttavia, dai report di timing sui percorsi con minor slack (`report_timing -max_paths 10`) emerge che quasi tutti coinvolgono il registro `R_B` del componente `divider`, ossia il secondo operando.
-Per confermare o smentire l'ipotesi iniziale sarebbe dunque necessaria un'analisi dettagliata della fase di chiusura del timing in sintesi, unita ad uno studio approfondito del `divider`, che tuttavia non costituisce un ambito di diretto interesse per questo progetto e risulta incompatibile con le tempistiche disponibili.
+Questa ipotesi trova parziale conferma nei report RTL, dove emerge che solo poche centinaia di risultati coinvolgono più dei tre bit meno significativi, e che solo raramente — nel caso `OPSIZE64` — vengono toccati oltre undici bit (con un solo caso registrato fino al tredicesimo bit).
 
-Un riepilogo dei risultati delle simulazioni gate-level é visibile in tabella #TODO#.
-In <<fig_mcd_gl_glitch_and_fail>> si possono invece osservare delle forme d'onda gate-level intorno al momento di un risultato errato (`CLK_PERIOD => 840 ps` - `OPSIZE => 64`, `Time: 56791.56`).
-Seppur non direttamente responsabili dell'errore, é interessante osservare dei glitch sul segnale in ingresso al datapath `div1_start` in diversi momenti e di diversa estensione.
+Se i percorsi critici corrispondono proprio a questi segnali poco attivati, si spiega come mai le simulazioni si mantengano corrette fino a frequenze così elevate, pur non riflettendo necessariamente il limite fisico effettivo del circuito.
 
+I report di timing (`report_timing -max_paths 10`) mostrano che quasi tutti i cammini più lenti coinvolgono tuttavia il registro `R_B` del modulo `divider`, cioè il secondo operando.
+Per validare in modo definitivo l'ipotesi fatta sarebbe necessaria un'analisi accurata della chiusura del timing in fase di sintesi, insieme a uno studio del componente `divider`.
 
+Tali indagini esulano però dagli obiettivi di questo progetto e non risultano compatibili con le tempistiche disponibili.
+
+Un riepilogo dei risultati delle simulazioni gate-level é riportato nella tabella #TODO#.
+
+In <<fig_mcd_gl_glitch_and_fail>> sono invece visibili forme d'onda gate-level al momento di un risultato errato (`CLK_PERIOD => 840 ps` — `OPSIZE => 64`, `Time: 56791.56`).
+
+Pur non essendo direttamente causa dell'errore, si notano alcuni glitch sul segnale di ingresso al datapath `div1_start`, presenti in istanti diversi e di varia entità.
 
 .Simulazione gate-leve, `mcd_OPSIZE64`, risultato errato e glitch
 [#fig_mcd_gl_glitch_and_fail,reftext='{figure-caption} {counter:fignum}']
@@ -656,6 +664,15 @@ image::images/mcd_gl_sdf_glitch_and_fail.png[]
 
 == Other evaluations
 
+Dai dati raccolti si osserva una crescita complessivamente proporzionale dei consumi passando da 16 a 64 bit, sia prima che dopo il passaggio gate-level.
+
+Si rileva tuttavia un lieve aumento percentuale della componente interna post-sintesi, in particolare per la configurazione a 64 bit, dove la voce `Internal` incide per oltre il 77% del totale.
+
+Ciò è coerente con l'introduzione di logica addizionale legata al supporto DFT e alle ottimizzazioni di timing operate dal tool di sintesi.
+
+Nella tabella di chiusura della sezione, sono riassunti i dati di dissipazione di potenza.
+
+[%unbreakable]
 .Consumi post-gate-level (nW)
 [table_mcd_pwr_eval,subs="attributes+",reftext='{table-caption} {counter:tabnum}']
 [cols="^.^1m,^.^2,^2m,^2m,^2m,^2m,^2m",frame="ends",grid="rows",options="header"]
