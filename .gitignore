@@ -27,12 +27,15 @@
 
 # Keep base files
 !.gitignore
+!Makefile
 !LICENSE
 !README.md
 
 # Never track these files
 .asciidoctor/
 .asciidoctor/**
+doc/build/
+doc/build/**
 doc/diag-*
 doc/ditaa-*
 doc/svgbob-*
