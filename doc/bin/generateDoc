@@ -60,7 +60,9 @@ exec_cmd docker run -it \
     -a pdf-theme=theme.yml \
     -a git-sha="${GIT_SHA}" \
     -a diagram-cachedir=/tmp \
-    -r asciidoctor-diagram "${SRC_NAME}" \
+    -r asciidoctor-lists \
+    -r asciidoctor-diagram \
+    "${SRC_NAME}" \
     "${DST_NAME}" && \
     echo "Build success!" || \
     echo "ERROR: Build failed"

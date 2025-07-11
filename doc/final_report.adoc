@@ -295,3 +295,7 @@ include::multiplier_and_clz.adoc[leveloffset=2]
 
 <<<
 include::mcd.adoc[leveloffset=2]
+
+<<<
+include::appendix.adoc[]
+include::list-of-figures.adoc[]
