@@ -656,108 +656,144 @@ image::images/mcd_gl_sdf_glitch_and_fail.png[]
 
 === Other evaluations
 
-.Consumi post-gate-level
+.Consumi post-gate-level (nW)
 [table_mcd_pwr_eval,subs="attributes+",reftext='{table-caption} {counter:tabnum}']
-[cols="^2,^8",frame="ends",grid="rows",options="header"]
+[cols="^.^1m,^.^2,^2m,^2m,^2m,^2m,^2m",frame="ends",grid="rows",options="header"]
 |===
 
-|
-|
+|`OPSIZE`
+|Stage
+|Category |Leakage |Internal |Switching |Total
 
+// ##############################################
 // Nested table
-.^|RTL - 32
-1+a|
+|16
+|Pre Synth
+5+a|
 [cols="^2m,^2m,^2m,^2m,^2m",grid="none", frame="none"]
 !===
-!Category !Leakage !Internal !Switching !Total
 
-!Subtotal
-!4.42570e-05
-!1.49415e-03
-!5.62748e-04
-!2.10116e-03
+!Subt.
+!2.35010e-05
+!8.42517e-04
+!3.14307e-04
+!1.18032e-03
 
-!Percentage
-!2.11%
-!71.11%
-!26.78%
+!%
+!1.99%
+!71.38%
+!26.63%
 !100.00%
-
-5+a!---
-
-!
-2+!Cell Count
-2+!Cell Area
-!
-2+!1183
-2+!2352.238
-
 !===
 // ==============================================
 
-
 // Nested table
-.^|Syn, no SDF - 32
-1+a|
+|16
+|Post GL
+5+a|
 [cols="^2m,^2m,^2m,^2m,^2m",grid="none", frame="none"]
 !===
-!Category !Leakage !Internal !Switching !Total
 
-!Subtotal
-!4.42570e-05
-!1.49415e-03
-!5.62748e-04
-!2.10116e-03
+!Subt.
+!2.37557e-05
+!9.72416e-04
+!3.35012e-04
+!1.33118e-03
 
-!Percentage
-!2.11%
-!71.11%
-!26.78%
+!%
+!1.78%
+!73.05%
+!25.17%
 !100.00%
-
-5+a!---
-
-!
-2+!Cell Count
-2+!Cell Area
-!
-2+!1183
-2+!2352.238
-
 !===
 // ==============================================
 
-
+// ##############################################
 // Nested table
-.^|Syn, no SDF - 32
-1+a|
+|32
+|Pre Synth
+5+a|
 [cols="^2m,^2m,^2m,^2m,^2m",grid="none", frame="none"]
 !===
-!Category !Leakage !Internal !Switching !Total
 
-!Subtotal
-!4.42570e-05
-!1.49415e-03
-!5.62748e-04
-!2.10116e-03
+!Subt.
+!4.48811e-05
+!1.59603e-03
+!6.56516e-04
+!2.29743e-03
 
-!Percentage
-!2.11%
-!71.11%
-!26.78%
+!%
+!1.95%
+!69.47%
+!28.58%
 !100.00%
-
-5+a!---
-
-!
-2+!Cell Count
-2+!Cell Area
-!
-2+!1183
-2+!2352.238
-
 !===
 // ==============================================
+
+// Nested table
+|32
+|Post GL
+5+a|
+[cols="^2m,^2m,^2m,^2m,^2m",grid="none", frame="none"]
+!===
+
+!Subt.
+!4.56188e-05
+!1.71217e-03
+!5.32327e-04
+!2.29011e-03
+
+!%
+!1.99%
+!74.76%
+!23.24%
+!100.00%
+!===
+// ==============================================
+
+// ##############################################
+// Nested table
+|64
+|Pre Synth
+5+a|
+[cols="^2m,^2m,^2m,^2m,^2m",grid="none", frame="none"]
+!===
+
+!Subt.
+!9.13908e-05
+!3.07493e-03
+!1.25575e-03
+!4.42207e-03
+
+!%
+!2.07%
+!69.54%
+!28.40%
+!100.00%
+!===
+// ==============================================
+
+// Nested table
+|64
+|Post GL
+5+a|
+[cols="^2m,^2m,^2m,^2m,^2m",grid="none", frame="none"]
+!===
+
+!Subt.
+!9.29084e-05
+!3.12194e-03
+!8.10391e-04
+!4.02524e-03
+
+!%
+!2.31%
+!77.56%
+!20.13%
+!100.00%
+!===
+// ==============================================
+
 
 |===
 
