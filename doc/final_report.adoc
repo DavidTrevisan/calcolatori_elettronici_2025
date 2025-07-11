@@ -12,6 +12,7 @@
 :listing-caption: Listato
 :note-caption: Nota
 :warning-caption: Avvertenza
+:appendix-caption: Appendice
 David Trevisan • 112643 • 2025-07-12
 
 // Use the following template to have only the caption text when linking to image
@@ -217,6 +218,35 @@ $ scripts/rtl_xcelium [OPSIZE] [NTESTS]
 Script TCL di supporto per la simulazione RTL che produce file SAIF per analisi dell'attività commutativa.
 Offre anche configurazioni per generare file VCD o TRN da utilizzare con tool di debug come SimVision.
 
+[#script_synth_genus]
+==== `synth_genus`
+
+Script Bash progettato per avviare il flusso di sintesi tramite Cadence Genus.
+Prepara la directory `synth`, crea i link simbolici alla libreria standard-cell indicata e avvia Genus in modalità batch passando lo script `genus.tcl`.
+
+Dipendenze:
+
+* Cadence Genus
+* Bash (POSIX utilities)
+
+.Utilizzo `synth_genus`
+[source, console,reftext="{listing-caption} {counter:listnum}"]
+----
+$ scripts/synth_genus -d <lib_dir> [OPSIZE]
+----
+
+Il parametro `-d` indica la directory delle librerie standard-cell.
+`OPSIZE` è un parametro opzionale che imposta una variabile d`ambiente utilizzata nello script TCL.
+
+[#script_genus_tcl]
+==== `genus.tcl`
+
+Script TCL per Cadence Genus che definisce il flusso completo di sintesi RTL.
+Legge i file HDL, elabora i parametri come `OPSIZE`, imposta i vincoli di clock e reset, applica i vincoli di scan chain per il DFT, genera i report di timing, area e potenza, infine salva le netlist e gli script per le fasi successive.
+
+Viene richiamato automaticamente da `synth_genus` e produce nella cartella `synth/output` tutti i file di output, comprese netlist a diversi stadi (elab, syn_generic, syn_map, syn_opt, dft) e report dettagliati.
+
+
 [#script_gl_xcelium]
 ==== `gl_xcelium`
 
@@ -246,34 +276,6 @@ $ scripts/gl_xcelium [OPSIZE] [NTESTS] [CLK_PERIOD] [-sdf]
 Script TCL di supporto per Xcelium che, durante la simulazione gate-level, genera i file SAIF utili per la stima della potenza.
 Configura il dump dell'attività dei segnali interni e avvia la simulazione.
 
-[#script_synth_genus]
-==== `synth_genus`
-
-Script Bash progettato per avviare il flusso di sintesi tramite Cadence Genus.
-Prepara la directory `synth`, crea i link simbolici alla libreria standard-cell indicata e avvia Genus in modalità batch passando lo script `genus.tcl`.
-
-Dipendenze:
-
-* Cadence Genus
-* Bash (POSIX utilities)
-
-.Utilizzo `synt_genus`
-[source, console,reftext="{listing-caption} {counter:listnum}"]
-----
-$ scripts/synth_genus -d <lib_dir> [OPSIZE]
-----
-
-Il parametro `-d` indica la directory delle librerie standard-cell.
-`OPSIZE` è un parametro opzionale che imposta una variabile d`ambiente utilizzata nello script TCL.
-
-[#script_genus_tcl]
-==== `genus.tcl`
-
-Script TCL per Cadence Genus che definisce il flusso completo di sintesi RTL.
-Legge i file HDL, elabora i parametri come `OPSIZE`, imposta i vincoli di clock e reset, applica i vincoli di scan chain per il DFT, genera i report di timing, area e potenza, infine salva le netlist e gli script per le fasi successive.
-
-Viene richiamato automaticamente da `synth_genus` e produce nella cartella `synth/output` tutti i file di output, comprese netlist a diversi stadi (elab, syn_generic, syn_map, syn_opt, dft) e report dettagliati.
-
 == Nota sulle immagini
 
 [WARNING]
@@ -297,5 +299,8 @@ include::multiplier_and_clz.adoc[leveloffset=2]
 include::mcd.adoc[leveloffset=2]
 
 <<<
-include::appendix.adoc[]
+
+// Appendixes
+
+include::gl-issues.adoc[]
 include::list-of-figures.adoc[]

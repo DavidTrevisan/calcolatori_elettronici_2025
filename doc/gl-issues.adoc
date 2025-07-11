@@ -1,5 +1,5 @@
 [appendix]
-= Problematiche riscontrate nella simulazione gate-level
+== Problematiche riscontrate nella simulazione gate-level
 
 Durante lo sviluppo del progetto `device` (Multiplier and CLZ) sono state riscontrate significative problematiche nell'esecuzione delle simulazioni gate-level.
 

@@ -672,6 +672,7 @@ Ciò è coerente con l'introduzione di logica addizionale legata al supporto DFT
 
 Nella tabella di chiusura della sezione, sono riassunti i dati di dissipazione di potenza.
 
+[%unbreakable]
 .Consumi post-gate-level (nW)
 [table_mcd_pwr_eval,subs="attributes+",reftext='{table-caption} {counter:tabnum}']
 [cols="^.^1m,^.^2,^2m,^2m,^2m,^2m,^2m",frame="ends",grid="rows",options="header"]
