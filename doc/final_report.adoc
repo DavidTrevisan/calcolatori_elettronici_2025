@@ -1,6 +1,6 @@
 = Calcolatori Elettronici 2025: Projects Report
 :doctype: book
-:toc:
+:toc: preamble
 :toc-title: Indice dei Contenuti
 :toclevels: 3
 :icons: font
@@ -17,10 +17,15 @@ David Trevisan • 112643 • 2025-07-12
 // [#fig_mem_lat_bug2,reftext='{figure-caption} {counter:fignum}']
 
 [abstract]
-== Abstract
-Questo report presenta l'analisi e la simulazione di quattro dispositivi VHDL osservati durante il corso *Calcolatori Elettronici 2025*.
-Vengono descritte le metodologie di test RTL e post-sintesi, i risultati di timing e utilizzo risorse, e vengono presentate considerazioni su questi.
-Infine, si evidenziano limiti sperimentali e potenziali sviluppi futuri.
+Abstract
+
+Questo report presenta l'analisi e la simulazione di quattro dispositivi VHDL osservati durante il corso *Calcolatori Elettronici 2025*, presso l'Università degli Studi di Udine.
+
+Per ciascun dispositivo, vengono esaminate le scelte progettuali, i risultati delle simulazioni RTL e gate-level, e le metriche di sintesi relative a timing, area e potenza.
+Vengono inoltre considerati i limiti funzionali riscontrati durante la validazione e le discrepanze tra le stime pre e post-sintesi.
+
+Il report accompagna e descrive workflow automatizzati sviluppati in Bash, Python e TCL, offrendo un framework riutilizzabile per progetti di design di dispositivi digitali.
+Infine, si discutono i limiti sperimentali e le prospettive di futuri sviluppi.
 
 == Introduzione
 
