@@ -87,8 +87,6 @@ Quelli più rilevanti per le simulazioni sono:
 . `VERBOSE`: Abilita il comportamento del `tester` descritto sopra.
 . `NTESTS`: Definisce il numero di test and diagrams da effettuare per ogni operazione.
 
-##TODO: Add some expectations and diagrams on the critical paths##
-
 == RTL Simulations
 
 Sempre con l'aiuto dello script `runSim_ghdl` sono state effettuate simulazioni RTL con i seguenti parametri:
