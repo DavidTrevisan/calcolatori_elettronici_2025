@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Script Name:    gl_xcelium
+# Description:    Helper script: gate-level simulation with xcelium
+# Author:         David Trevisan
+# Copyright:      (c) 2025 DT
+# License:        MIT
+# ==============================================================================
+# Usage:          --
+# Dependencies:   xcelium, synthesis files
+# ==============================================================================
+
+set -euo pipefail
+
+scriptFull=$(readlink -f "$0")
+scriptPath=$(dirname "${scriptFull}")
+rootPath=$(realpath $(dirname "${scriptPath}"))
+
+mkdir -p "${rootPath}/simul.gate"
+pushd "${rootPath}/simul.gate"
+pwd
+
+# work + vital libraries and lib/var files
+mkdir -p vital work
+# specific paths to eda-27267 server
+# cds.lib
+cat > cds.lib <<EOF
+INCLUDE /opt/cadence/installs/XCELIUM2009/tools.lnx86/inca/files/cdsvhdl.lib
+DEFINE VITAL ./vital
+DEFINE WORK ./work
+EOF
+# hdl.var
+cat > hdl.var <<EOF
+INCLUDE /opt/cadence/installs/XCELIUM2009/tools.lnx86/inca/files/hdl.var
+EOF
+
+# Manually include all files for gate-level
+# xmvlog -work VITAL ../synth/libs/stdcells.v
+xmvhdl -v93 -work VITAL ../synth/libs/vital/stdcells_Vcomponents.vhdl
+xmvhdl -v93 -work VITAL ../synth/libs/vital/stdcells_Vtables.vhdl
+xmvhdl -v93 -work VITAL ../synth/libs/vital/stdcells_VITAL.vhdl
+
+xmvlog -work WORK ../synth/output/device.syn_opt.v
+xmvhdl -v93 -work WORK device_wrapper.vhdl
+xmvhdl -v93 -work WORK device_pkg_NBITS32.vhdl # GL Modified to match synthesis
+xmvhdl -v93 -work WORK ../code/lfsr_pkg.vhdl
+xmvhdl -v93 -work WORK ../code/tester_pkg.vhdl
+xmvhdl -v200x -work WORK ../code/tester.vhdl
+xmvhdl -v200x -work WORK testbench.vhdl # GL Modified to match synthesis
+
+# If option -sdf, simulate with synth delays
+SIM_DLY=""
+if [ -n "${1+x}" ] && [ "$1" = "-sdf" ]; then
+    xmsdfc -output device.sdf.X ../synth/output/device.sdf
+    cat <<EOF > device.sdf_cmd
+COMPILED_SDF_FILE = "device.sdf.X",
+SCOPE = ":DUT",
+LOG_FILE = "device.sdf.log",
+MTM_CONTROL = "TOOL_CONTROL",
+SCALE_FACTORS = "1.0:1.0:1.0",
+SCALE_TYPE = "FROM_MTM";
+EOF
+    SIM_DLY="-sdf_cmd_file device.sdf_cmd -maxdelays"
+    echo "NOTE: elaborating design using SDF file delays"
+fi
+
+xmelab -generic "NBITS => 32" -generic "NTESTS => 1000" ${SIM_DLY} -access +rwc testbench
+xmsim -input ../scripts/gl_xmsim.tcl testbench
+
+popd

@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Script Name:    gl_xcelium
+# Description:    Helper script: gate-level simulation with xcelium
+# Author:         David Trevisan
+# Copyright:      (c) 2025 DT
+# License:        MIT
+# ==============================================================================
+# Usage:          --
+# Dependencies:   xcelium, synthesis files
+# ==============================================================================
+
+set -euo pipefail
+
+scriptFull=$(readlink -f "$0")
+scriptPath=$(dirname "${scriptFull}")
+rootPath=$(realpath $(dirname "${scriptPath}"))
+
+if [ -n "${1+x}" ] && [[ $1 =~ ^-?[0-9]+$ ]]; then
+    export OPSIZE=$1 # Env var to be used in tcl
+    if ! [[ "$OPSIZE" == "16" || "$OPSIZE" == "32" || "$OPSIZE" == "64" ]]; then
+        echo "ERROR: $OPSIZE is not an acceptable value for parameter OPSIZE."
+        exit 1
+    fi
+    shift
+else
+    export OPSIZE=32 # Env var to be used in tcl
+fi
+if [ -n "${1+x}" ] && [[ $1 =~ ^-?[0-9]+$ ]]; then
+    NTESTS=$1
+    shift
+else
+    NTESTS=15000
+fi
+if [ -n "${1+x}" ] && [[ $1 =~ ^-?[0-9]+$ ]]; then
+    CLK_PERIOD=$1
+    shift
+else
+    CLK_PERIOD=1000
+fi
+CLK_SEMIPERIOD=$(( ${CLK_PERIOD} / 2 ))
+
+mkdir -p "${rootPath}/simul.gate"
+pushd "${rootPath}/simul.gate"
+pwd
+
+# work + vital libraries and lib/var files
+if [ -d "work" ]; then
+    rm -vrf work
+fi
+mkdir -p vital work
+# specific paths to eda-27267 server
+# cds.lib
+cat > cds.lib <<EOF
+INCLUDE /opt/cadence/installs/XCELIUM2009/tools.lnx86/inca/files/cdsvhdl.lib
+DEFINE VITAL ./vital
+DEFINE WORK ./work
+EOF
+# hdl.var
+cat > hdl.var <<EOF
+INCLUDE /opt/cadence/installs/XCELIUM2009/tools.lnx86/inca/files/hdl.var
+EOF
+
+# Manually include all files for gate-level
+# xmvlog -work VITAL ../synth/libs/stdcells.v
+xmvhdl -v93 -work VITAL ../synth/libs/vital/stdcells_Vcomponents.vhdl
+xmvhdl -v93 -work VITAL ../synth/libs/vital/stdcells_Vtables.vhdl
+xmvhdl -v93 -work VITAL ../synth/libs/vital/stdcells_VITAL.vhdl
+
+xmvlog -work WORK ../synth/output/mcd_OPSIZE${OPSIZE}.syn_opt.v
+xmvhdl -v93 -work WORK mcd_pkg_OPSIZE${OPSIZE}.vhdl # GL Modified to match synthesis
+xmvhdl -v93 -work WORK ../code/lfsr_pkg.vhdl
+xmvhdl -v200x -work WORK ../code/tester.vhdl
+xmvhdl -v200x -work WORK testbench_OPSIZE${OPSIZE}.vhdl # GL Modified to match synthesis
+
+# If option -sdf, simulate with synth delays
+SIM_DLY=""
+if [ -n "${1+x}" ] && [ "$1" = "-sdf" ]; then
+    xmsdfc -output mcd_OPSIZE${OPSIZE}.sdf.X ../synth/output/mcd_OPSIZE${OPSIZE}.sdf
+    cat <<EOF > mcd_OPSIZE${OPSIZE}.sdf_cmd
+COMPILED_SDF_FILE = "mcd_OPSIZE${OPSIZE}.sdf.X",
+SCOPE = ":DUT",
+LOG_FILE = "mcd_OPSIZE${OPSIZE}.sdf.log",
+MTM_CONTROL = "TOOL_CONTROL",
+SCALE_FACTORS = "1.0:1.0:1.0",
+SCALE_TYPE = "FROM_MTM";
+EOF
+    SIM_DLY="-sdf_cmd_file mcd_OPSIZE${OPSIZE}.sdf_cmd -maxdelays"
+    echo "NOTE: elaborating design using SDF file delays"
+fi
+
+xmelab \
+    -generic "CLK_SEMIPERIOD0 => ${CLK_SEMIPERIOD} ps" \
+    -generic "CLK_SEMIPERIOD1 => ${CLK_SEMIPERIOD} ps" \
+    -generic "NTESTS => ${NTESTS}" \
+    ${SIM_DLY} -access +rwc testbench
+xmsim -input ../scripts/gl_xmsim.tcl testbench
+
+popd

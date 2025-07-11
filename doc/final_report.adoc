@@ -1,20 +1,69 @@
-= Calcolatori Elettronici 2025: Final Report
+= Calcolatori Elettronici 2025: Projects Report
 :doctype: book
-:toc:
+:toc: preamble
 :toc-title: Indice dei Contenuti
 :toclevels: 3
+:icons: font
+:icon-set: fi
 :preface-title: Introduzione
+:table-caption: Tabella
 :figure-caption: Figura
+:listing-caption: Listato
 :note-caption: Nota
 :warning-caption: Avvertenza
-David Trevisan
+David Trevisan • 112643 • 2025-07-12
 
 // Use the following template to have only the caption text when linking to image
-// [#fig_mem_lat_bug2,reftext='{figure-caption} {counter:refnum}']
+// [#fig_mem_lat_bug2,reftext='{figure-caption} {counter:fignum}']
+
+[abstract]
+Abstract
+
+Questo report presenta l'analisi e la simulazione di quattro dispositivi VHDL osservati durante il corso *Calcolatori Elettronici 2025*, presso l'Università degli Studi di Udine.
+
+Per ciascun dispositivo, vengono esaminate le scelte progettuali, i risultati delle simulazioni RTL e gate-level, e le metriche di sintesi relative a timing, area e potenza.
+Vengono inoltre considerati i limiti funzionali riscontrati durante la validazione e le discrepanze tra le stime pre e post-sintesi.
+
+Il report accompagna e descrive workflow automatizzati sviluppati in Bash, Python e TCL, offrendo un framework riutilizzabile per progetti di design di dispositivi digitali.
+Infine, si discutono i limiti sperimentali e le prospettive di futuri sviluppi.
 
 == Introduzione
 
-Questo documento contiene il resoconto finale dei progetti di esame del corso di Calcolatori Elettronici 2025, tenuto dal prof. Mirko Loghi, Universitá degli Studi di Udine.
+Questo documento rappresenta il resoconto conclusivo dei progetti svolti per l'esame di Calcolatori Elettronici 2025, tenuto dal prof. Mirko Loghi presso l'Università degli Studi di Udine.
+
+Dopo alcune informazioni preliminari utili alla gestione della _code-base_ fornita, vengono descritte in dettaglio le procedure adottate e i risultati ottenuti nell'analisi e simulazione dei dispositivi oggetto d'esame.
+
+Il lavoro inizia con lo studio del componente `onescounter` nelle sue diverse varianti, evidenziando le principali modifiche introdotte nel codice sorgente.
+Si illustrano l'uso degli strumenti forniti per la simulazione, i diagrammi funzionali e alcune forme d'onda esemplificative del comportamento del dispositivo.
+
+Segue un'analisi simile per il `search_chr`, con particolare attenzione al percorso evolutivo delle versioni implementate e a considerazioni sul modello di memoria, esteso per supportare latenza variabile.
+Il capitolo si chiude con diagrammi e risultati di simulazione RTL.
+
+Nel progetto `multiplier_and_clz` si affronta, oltre al livello RT, anche il flusso di sintesi, approfondendo le implicazioni sul piano delle risorse e delle temporizzazioni.
+
+Infine, il dispositivo `mcd` viene discusso a partire dalla struttura del codice, con la presentazione dei diagrammi ASM-Chart e del datapath estratto, fino alla descrizione dell'infrastruttura di test sviluppata e alla verifica tramite simulazioni RTL, flusso di sintesi e simulazioni gate-level con relative considerazioni.
+
+{nbsp}
+
+{nbsp}
+
+{nbsp}
+
+{nbsp}
+
+{nbsp}
+
+{nbsp}
+
+{nbsp}
+
+{nbsp}
+
+{nbsp}
+
+{nbsp}
+
+Documento generato dalla revisione Git: {git-sha}
 
 == Informazioni Preliminari
 
@@ -23,97 +72,214 @@ Questo documento contiene il resoconto finale dei progetti di esame del corso di
 
 Ogni progetto assume la seguente struttura di cartelle:
 
-[source,ruby]
+.Struttura directory progetti
+[%unbreakable]
+[source, bash, reftext="{listing-caption} {counter:listnum}"]
 ----
 <prj_path>
 │
 ├── assets
-│ └── <prj_assets>
+│   └── <prj_assets>
 ├── code
-│ │
-│ ├── <prj_srcs>.vhdl
-│ │
-│ ├── ...
-│ │
-│ └── <prj_tb>.vhdl
-│
+│   ├── <prj_srcs>.vhdl
+│   └── <prj_tb>.vhdl
 ├── scripts
-│ │
-│ ├── runSim_ghdl
-│ │
-│ ├── ...
-│ │
-│ └── <synth>.tcl
-│
-├── *simul.rtl
-│ └── ...
-│
-├── *simul.gate
-│ └── ...
-│
+│   └── <synth>.tcl
+├── simul.rtl
+├── simul.gate
+├── synth
+│   ├── libs
+│   └── output
 └── sources.vc
 ----
 
-Le cartelle `simul.gate` e `simul.rtl` possono non essere presenti, mentre gli script potranno generarle come percorsi di lavoro per le relative fasi.
 
-La cartella `code` contiene tutti i sorgenti necessari al funzionamento del dispositivo, ed i sorgenti necessari alla simulazione.
+Ogni progetto assume la seguente struttura di cartelle.
 
-La cartella `assets` contiene eventuali file di utilizzo del dispositivo o del testbench;
-Ad esempio i file di input agli stimoli del TB potranno trovarsi in `<prj_path>/assets/data.txt`, se lo stesso viene chiamato dal codice in simulazione.
+Le cartelle `simul.gate` e `simul.rtl` possono non essere presenti.
+Gli script potranno generarle automaticamente come percorsi di lavoro per le relative fasi.
+
+La cartella `code` contiene tutti i sorgenti necessari al funzionamento del dispositivo.
+Contiene inoltre i sorgenti necessari alla simulazione.
+
+La cartella `assets` raccoglie eventuali file di supporto per il dispositivo o per il testbench.
+Ad esempio i file di input per gli stimoli del TB potranno trovarsi in `<prj_path>/assets/data.txt`, se richiamati dal codice in simulazione.
+
+La cartella `scripts` raccoglie script utili all'analisi, simulazione o sintesi.
+Può contenere script generici riutilizzabili oppure script specifici o modificati appositamente per il progetto corrente, inclusi file `.tcl` o script Bash/Python dedicati.
+
+La cartella `synth` contiene i dati generati dalla sintesi del dispositivo.
+Questa cartella viene solitamente creata dagli script forniti.
+In alternativa, può essere creata manualmente secondo i requisiti del progetto.
 
 [#sources_file]
-Il file `sources.vc` é una lista dei file sorgente che devono essere passati al tool di analisi.
-Per compatibilitá con GHDL, che non fornisce l'opzione di utilizzare direttamente file-lists da parametri di _command line_, lo script fornito estrae i nomi e percorsi dei file in autonomia.
 
-Il formato atteso per questo funzionamento é:
+Il file `sources.vc` è una lista ordinata dei file sorgente che devono essere forniti al tool di analisi.
 
-* un nome file per riga.
-* fine riga: `line-feed` (`\n`).
-* percorso del file relativo (plausibilemente sempre `code/file.vhdl`).
-* l'ultimo file in lista contiene la top-entity da simulare (solitamente il `testbench`).
-* new-line finale (riga vuota) in stile sorgente C.
+Per compatibilità con GHDL, che non supporta direttamente l'uso di file-list passate come parametro da riga di comando, lo script fornito si occupa di estrarre automaticamente i nomi e i percorsi dei file indicati in `sources.vc`.
 
-=== Scripts
+Questo permette di mantenere separata la descrizione dei file sorgente dalla logica di analisi, semplificando eventuali modifiche o riutilizzi del progetto.
 
-Vengono presentati di seguito gli script che sono stati compilati come parte del _framework_ per l'esecuzione sistematica dei progetti inclusi.
+== Versione degli strumenti
 
-Si riportano la descrizione del funzionamento e le eventuali dipendenze per gli script inclusi.
+Le considerazioni di questo documento si basano sulle seguenti versioni:
+
+* GHDL 6.0.0-dev (b6.0.0.r58.g87396157e) - GNAT 14.2.1
+* GTKWave Analyzer v3.3.121
+* Xcelium 20.09-s001
+* Genus Synthesis Solution 19.14-s108_1
+* Python 3.13.3
+
+== Scripts
+
+
+Vengono descritti gli script principali utili per l'esecuzione sistematica dei progetti.
 
 [#script_ghdl]
-==== runSim_ghdl
+=== `runSim_ghdl`
 
-Questo script é un _helper_ che colleziona alcune utilities per eseguire automaticamente:
+Questo script è un helper che automatizza:
 
-* analisi ed elaborazione tramite GHDL
-* simulazione tramite GHDL
-* apertura del 'wave-file' generato tramite GTKWave
+* l'analisi e la simulazione tramite GHDL,
+* e l'apertura automatica del file wave in GTKWave.
 
-Per funzionare, lo script necessita delle seguenti dipendenze:
+Dipendenze richieste:
 
 * GHDL (v5+)
 * GTKWave
 * Bash built-ins (POSIX):
 ** `readlink`, `realpath`
 ** `dirname`, `basename`
-** `grep`
-** `tail`
-** `eval`
-** `mkdir`
-** `pushd`, `popd`
+** `grep`, `tail`, `eval`, `mkdir`, `pushd`, `popd`
 
-Inoltre la struttura directory del progetto, passato come primo argomento quando si invoca lo script, si assume rispecchi quella definita nella sezione <<#dir_struct>>.
 
-Per utilizzare lo script, la linea di comando tipica segue la forma:
+La struttura del progetto passato come primo argomento deve rispettare quanto indicato nella sezione <<#dir_struct>>.
 
+Per utilizzarlo, la riga di comando tipica è:
+
+.Utilizzo _generic override_ con `runSim_ghdl`
 [#runSim_ghdl_generic]
+[source,bash,reftext="{listing-caption} {counter:listnum}"]
+----
+$ scripts/runSim_ghdl <prj_path> [GENERIC_OVERRIDE=value]
+----
+
+Il primo argomento è obbligatorio e indica il percorso del progetto da simulare.
+Gli argomenti successivi vengono trattati come 'generic overrides' e passati con `-g` a GHDL.
+
+Lo script legge i file da analizzare direttamente dalla lista `sources.vc` presente nel progetto.
+Si veda <<sources_file, sources.vc>> per i dettagli.
+
+[#script_check_mcd]
+==== `parse_and_check_mcd.py`
+
+Script Python per validare i report MCD generati.
+
+Dipendenze:
+
+* python3
+** libreria `re`, `math`, `sys`
+
+Utilizzo:
+
+.Utilizzo script `parse_and_check_mcd.py`
+[#script_check_mcd_usage]
 [source,bash]
 ----
-$ scripts/runSim_ghdl projects/<prj_name> [(Optional) GENERIC_OVERRIDE=Value]
+$ scripts/parse_and_check_mcd.py <input_file>
 ----
 
-Dove il primo argomento é obbligatorio e corrisponde al percorso del progetto che si vuole simulare, mentre i seguenti argomenti saranno interpretati come 'generic overrides' e passati alla linea di comando con il prefisso `-g`, come accettato da GHDL.
-Lo script estrae i file da analizzare ed elaborare da una lista `sources.vc` nel root-path del progetto, con un file per linea indicato come percorso relativo.
-Si veda il paragrafo <<sources_file, sources.vc>> per altri dettagl.
+Dove `<input_file>` è il report testuale prodotto dalle simulazioni RTL o gate-level del dispositivo MCD.
+
+[NOTE]
+====
+Questo insieme di successivi script si trova principalmente nei progetti `03-device` e `04-mcd`, configurati per supportare sia simulazioni RTL che gate-level nello stesso flusso di validazione.
+====
+
+[#script_tl_xcelium]
+=== `rtl_xcelium`
+
+Script Bash per la simulazione RTL del progetto con Xcelium.
+Esegue la compilazione di tutti i file elencati in `sources.vc`, elabora il design parametrizzato e avvia la simulazione con raccolta della copertura.
+
+.Utilizzo `scripts/rll_xcelium`
+[source,bash,reftext="{listing-caption} {counter:listnum}"]
+----
+$ scripts/rtl_xcelium [OPSIZE] [NTESTS]
+----
+
+`OPSIZE` e `NTESTS` funzionano come parametri di configurazione come da progetto.
+
+[#script_rtl_xmsim_tcl]
+=== `rtl_xmsim.tcl`
+
+Script TCL di supporto per la simulazione RTL che produce file SAIF per analisi dell'attività commutativa.
+Offre anche configurazioni per generare file VCD o TRN da utilizzare con tool di debug come SimVision.
+
+[#script_gl_xcelium]
+=== `gl_xcelium`
+
+Script Bash che automatizza la simulazione gate-level tramite Xcelium.
+Prepara le directory di lavoro, compila le librerie standard-cell VITAL, le netlist sintetizzate ed i testbench adattati alla sintesi.
+Supporta l'uso di file SDF per includere i ritardi di propagazione post-sintesi.
+
+Dipendenze:
+
+* Cadence Xcelium
+* Bash (POSIX utilities)
+
+.Utilizzo `scripts/gl_xcelium`
+[source,bash,reftext="{listing-caption} {counter:listnum}"]
+----
+$ scripts/gl_xcelium [OPSIZE] [NTESTS] [CLK_PERIOD] [-sdf]
+----
+
+* `OPSIZE` specifica la dimensione operativa del design.
+* `NTESTS` definisce il numero di test da eseguire.
+* `CLK_PERIOD` imposta il periodo del clock in ps.
+* Il flag `-sdf` abilita la simulazione con i ritardi estratti dalla sintesi.
+
+[#script_gl_xmsim_tcl]
+=== `gl_xmsim.tcl`
+
+Script TCL di supporto per Xcelium che, durante la simulazione gate-level, genera i file SAIF utili per la stima della potenza.
+Configura il dump dell'attività dei segnali interni e avvia la simulazione.
+
+[#script_synth_genus]
+=== `synth_genus`
+
+Script Bash progettato per avviare il flusso di sintesi tramite Cadence Genus.
+Prepara la directory `synth`, crea i link simbolici alla libreria standard-cell indicata e avvia Genus in modalità batch passando lo script `genus.tcl`.
+
+Dipendenze:
+
+* Cadence Genus
+* Bash (POSIX utilities)
+
+.Utilizzo `synt_genus`
+[source,bash,reftext="{listing-caption} {counter:listnum}"]
+----
+$ scripts/synth_genus -d <lib_dir> [OPSIZE]
+----
+
+Il parametro `-d` indica la directory delle librerie standard-cell.
+`OPSIZE` è un parametro opzionale che imposta una variabile d`ambiente utilizzata nello script TCL.
+
+[#script_genus_tcl]
+=== `genus.tcl`
+
+Script TCL per Cadence Genus che definisce il flusso completo di sintesi RTL.
+Legge i file HDL, elabora i parametri come `OPSIZE`, imposta i vincoli di clock e reset, applica i vincoli di scan chain per il DFT, genera i report di timing, area e potenza, infine salva le netlist e gli script per le fasi successive.
+
+Viene richiamato automaticamente da `synth_genus` e produce nella cartella `synth/output` tutti i file di output, comprese netlist a diversi stadi (elab, syn_generic, syn_map, syn_opt, dft) e report dettagliati.
+
+== Nota sulle immagini
+
+[WARNING]
+====
+Le immagini ottenute tramite screenshot incluse in questo documento sono state catturate con attenzione per garantire la migliore qualità possibile.
+Si consiglia di consultare la versione digitale del documento per una resa ottimale di tali immagini.
+====
 
 == Progetti
 
@@ -122,6 +288,8 @@ include::onescounter.adoc[leveloffset=2]
 <<<
 include::search_chr.adoc[leveloffset=2]
 
-
 <<<
 include::multiplier_and_clz.adoc[leveloffset=2]
+
+<<<
+include::mcd.adoc[leveloffset=2]

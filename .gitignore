@@ -36,6 +36,7 @@
 doc/diag-*
 doc/ditaa-*
 doc/svgbob-*
+doc/plt*
 *.cf
 *.ghw
 *.log

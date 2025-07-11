@@ -117,7 +117,6 @@ ELAB_ARGS+="${TB_ENTITY_NAME} "
 
 ###########################################################
 WAVE_FILE="$(basename ${TARGET}).ghw"
-WAVE_FILE_PATH="${TARGET}/simul.rtl/${WAVE_FILE}"
 
 SIM_CMD="ghdl"
 

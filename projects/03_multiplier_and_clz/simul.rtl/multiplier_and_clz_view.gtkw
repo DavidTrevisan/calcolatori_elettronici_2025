@@ -1,0 +1,35 @@
+[*]
+[*] GTKWave Analyzer v3.3.121 (w)1999-2024 BSI
+[*] Tue May 27 18:32:26 2025
+[*]
+[dumpfile] "/ajeje/code/calcolatori_elettronici_2025/projects/03_multiplier_and_clz/simul.rtl/03_multiplier_and_clz.ghw"
+[dumpfile_mtime] "Tue May 27 18:31:32 2025"
+[dumpfile_size] 163393510
+[savefile] "/ajeje/code/calcolatori_elettronici_2025/projects/03_multiplier_and_clz/simul.rtl/multiplier_and_clz_view.gtkw"
+[timestart] 443
+[size] 2560 1392
+[pos] -781 -397
+*-6.830740 512 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.testbench.
+[sst_width] 209
+[signals_width] 398
+[sst_expanded] 1
+[sst_vpaned_height] 805
+@28
+top.testbench.test_finished
+@420
+top.testbench.end_simul
+@28
+top.testbench.done
+top.testbench.op
+top.testbench.start
+top.testbench.rst_n
+top.testbench.clk
+@24
+#{top.testbench.a[63:0]} top.testbench.a[63] top.testbench.a[62] top.testbench.a[61] top.testbench.a[60] top.testbench.a[59] top.testbench.a[58] top.testbench.a[57] top.testbench.a[56] top.testbench.a[55] top.testbench.a[54] top.testbench.a[53] top.testbench.a[52] top.testbench.a[51] top.testbench.a[50] top.testbench.a[49] top.testbench.a[48] top.testbench.a[47] top.testbench.a[46] top.testbench.a[45] top.testbench.a[44] top.testbench.a[43] top.testbench.a[42] top.testbench.a[41] top.testbench.a[40] top.testbench.a[39] top.testbench.a[38] top.testbench.a[37] top.testbench.a[36] top.testbench.a[35] top.testbench.a[34] top.testbench.a[33] top.testbench.a[32] top.testbench.a[31] top.testbench.a[30] top.testbench.a[29] top.testbench.a[28] top.testbench.a[27] top.testbench.a[26] top.testbench.a[25] top.testbench.a[24] top.testbench.a[23] top.testbench.a[22] top.testbench.a[21] top.testbench.a[20] top.testbench.a[19] top.testbench.a[18] top.testbench.a[17] top.testbench.a[16] top.testbench.a[15] top.testbench.a[14] top.testbench.a[13] top.testbench.a[12] top.testbench.a[11] top.testbench.a[10] top.testbench.a[9] top.testbench.a[8] top.testbench.a[7] top.testbench.a[6] top.testbench.a[5] top.testbench.a[4] top.testbench.a[3] top.testbench.a[2] top.testbench.a[1] top.testbench.a[0]
+#{top.testbench.b[63:0]} top.testbench.b[63] top.testbench.b[62] top.testbench.b[61] top.testbench.b[60] top.testbench.b[59] top.testbench.b[58] top.testbench.b[57] top.testbench.b[56] top.testbench.b[55] top.testbench.b[54] top.testbench.b[53] top.testbench.b[52] top.testbench.b[51] top.testbench.b[50] top.testbench.b[49] top.testbench.b[48] top.testbench.b[47] top.testbench.b[46] top.testbench.b[45] top.testbench.b[44] top.testbench.b[43] top.testbench.b[42] top.testbench.b[41] top.testbench.b[40] top.testbench.b[39] top.testbench.b[38] top.testbench.b[37] top.testbench.b[36] top.testbench.b[35] top.testbench.b[34] top.testbench.b[33] top.testbench.b[32] top.testbench.b[31] top.testbench.b[30] top.testbench.b[29] top.testbench.b[28] top.testbench.b[27] top.testbench.b[26] top.testbench.b[25] top.testbench.b[24] top.testbench.b[23] top.testbench.b[22] top.testbench.b[21] top.testbench.b[20] top.testbench.b[19] top.testbench.b[18] top.testbench.b[17] top.testbench.b[16] top.testbench.b[15] top.testbench.b[14] top.testbench.b[13] top.testbench.b[12] top.testbench.b[11] top.testbench.b[10] top.testbench.b[9] top.testbench.b[8] top.testbench.b[7] top.testbench.b[6] top.testbench.b[5] top.testbench.b[4] top.testbench.b[3] top.testbench.b[2] top.testbench.b[1] top.testbench.b[0]
+[color] 2
+#{top.testbench.res[127:0]} top.testbench.res[127] top.testbench.res[126] top.testbench.res[125] top.testbench.res[124] top.testbench.res[123] top.testbench.res[122] top.testbench.res[121] top.testbench.res[120] top.testbench.res[119] top.testbench.res[118] top.testbench.res[117] top.testbench.res[116] top.testbench.res[115] top.testbench.res[114] top.testbench.res[113] top.testbench.res[112] top.testbench.res[111] top.testbench.res[110] top.testbench.res[109] top.testbench.res[108] top.testbench.res[107] top.testbench.res[106] top.testbench.res[105] top.testbench.res[104] top.testbench.res[103] top.testbench.res[102] top.testbench.res[101] top.testbench.res[100] top.testbench.res[99] top.testbench.res[98] top.testbench.res[97] top.testbench.res[96] top.testbench.res[95] top.testbench.res[94] top.testbench.res[93] top.testbench.res[92] top.testbench.res[91] top.testbench.res[90] top.testbench.res[89] top.testbench.res[88] top.testbench.res[87] top.testbench.res[86] top.testbench.res[85] top.testbench.res[84] top.testbench.res[83] top.testbench.res[82] top.testbench.res[81] top.testbench.res[80] top.testbench.res[79] top.testbench.res[78] top.testbench.res[77] top.testbench.res[76] top.testbench.res[75] top.testbench.res[74] top.testbench.res[73] top.testbench.res[72] top.testbench.res[71] top.testbench.res[70] top.testbench.res[69] top.testbench.res[68] top.testbench.res[67] top.testbench.res[66] top.testbench.res[65] top.testbench.res[64] top.testbench.res[63] top.testbench.res[62] top.testbench.res[61] top.testbench.res[60] top.testbench.res[59] top.testbench.res[58] top.testbench.res[57] top.testbench.res[56] top.testbench.res[55] top.testbench.res[54] top.testbench.res[53] top.testbench.res[52] top.testbench.res[51] top.testbench.res[50] top.testbench.res[49] top.testbench.res[48] top.testbench.res[47] top.testbench.res[46] top.testbench.res[45] top.testbench.res[44] top.testbench.res[43] top.testbench.res[42] top.testbench.res[41] top.testbench.res[40] top.testbench.res[39] top.testbench.res[38] top.testbench.res[37] top.testbench.res[36] top.testbench.res[35] top.testbench.res[34] top.testbench.res[33] top.testbench.res[32] top.testbench.res[31] top.testbench.res[30] top.testbench.res[29] top.testbench.res[28] top.testbench.res[27] top.testbench.res[26] top.testbench.res[25] top.testbench.res[24] top.testbench.res[23] top.testbench.res[22] top.testbench.res[21] top.testbench.res[20] top.testbench.res[19] top.testbench.res[18] top.testbench.res[17] top.testbench.res[16] top.testbench.res[15] top.testbench.res[14] top.testbench.res[13] top.testbench.res[12] top.testbench.res[11] top.testbench.res[10] top.testbench.res[9] top.testbench.res[8] top.testbench.res[7] top.testbench.res[6] top.testbench.res[5] top.testbench.res[4] top.testbench.res[3] top.testbench.res[2] top.testbench.res[1] top.testbench.res[0]
+[pattern_trace] 1
+[pattern_trace] 0

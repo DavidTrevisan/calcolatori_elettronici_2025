@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Script Name:    sync_eda_server
+# Description:    Synchronize code folders in course EDA-server
+# Author:         David Trevisan
+# Copyright:      (c) 2025 DT
+# License:        MIT
+# ==============================================================================
+# Usage:          --
+# Dependencies:   rsync, ssh
+# ==============================================================================
+
+set -euo pipefail
+
+scriptFull=$(readlink -f "$0")
+scriptPath=$(dirname "${scriptFull}")
+scriptName=$(basename "${scriptFull}")
+rootPath=$(realpath $(dirname "${scriptPath}"))
+
+###########################################################
+source ~/.ce_secrets
+# Importing:
+# USER
+# TARGET_PATH
+# IPADDR
+# SSH_PORT
+###########################################################
+
+prjs_to_sync=(
+    "../scripts"
+    "03_multiplier_and_clz"
+    "04_mcd"
+)
+
+# Prepend projects with absolute path
+prefix="${rootPath}/projects/"
+for i in "${!prjs_to_sync[@]}"; do
+  prjs_to_sync[$i]="${prefix}${prjs_to_sync[$i]}"
+done
+
+# Check if rsync exists in env and quit with error otherwise
+command -v rsync >/dev/null 2>&1 || { echo "Error: rsync not found in PATH." >&2; exit 1; }
+
+for i in "${prjs_to_sync[@]}"; do
+    echo "Copy ${i} to ${USER}@${IPADDR}:${TARGET_PATH}"
+    rsync -avP -e "ssh -p ${SSH_PORT}" "${i}" "${USER}@${IPADDR}:${TARGET_PATH}"
+done

@@ -1,0 +1,452 @@
+/code/calcolatori_elettronici_2025/projects/04_mcd/simul.rtl /code/calcolatori_elettronici_2025
+set +o allexport
+set -o braceexpand
+set +o emacs
+set +o errexit
+set +o errtrace
+set +o functrace
+set -o hashall
+set +o histexpand
+set +o history
+set +o ignoreeof
+set -o interactive-comments
+set +o keyword
+set +o monitor
+set +o noclobber
+set +o noexec
+set +o noglob
+set +o nolog
+set +o notify
+set +o nounset
+set +o onecmd
+set +o physical
+set -o pipefail
+set +o posix
+set +o privileged
+set +o verbose
+set +o vi
+set +o xtrace
+GHDL Analysis:
+ghdl -a -v --std=93c /code/calcolatori_elettronici_2025/projects/04_mcd/code/divider_ctrl.vhdl /code/calcolatori_elettronici_2025/projects/04_mcd/code/divider_dp.vhdl /code/calcolatori_elettronici_2025/projects/04_mcd/code/divider.vhdl /code/calcolatori_elettronici_2025/projects/04_mcd/code/mcd_ctrl.vhdl /code/calcolatori_elettronici_2025/projects/04_mcd/code/mcd_dp.vhdl /code/calcolatori_elettronici_2025/projects/04_mcd/code/mcd.vhdl /code/calcolatori_elettronici_2025/projects/04_mcd/code/lfsr_pkg.vhdl /code/calcolatori_elettronici_2025/projects/04_mcd/code/tester.vhdl /code/calcolatori_elettronici_2025/projects/04_mcd/code/testbench.vhdl
+Elaborate TB
+ghdl -e -v --std=93c -gOPSIZE=16 -gNTESTS=15000 -gVERBOSE=true -gMCD_THRESH=100  testbench
+Run simulation
+ghdl -r -v --std=93c  --time-resolution=ns -gOPSIZE=16 -gNTESTS=15000 -gVERBOSE=true -gMCD_THRESH=100  testbench
+Linking in memory
+/code/calcolatori_elettronici_2025/projects/04_mcd/code/testbench.vhdl:51:13:@0ms:(report note): Testbench: Using OPSIZE = 16
+../../src/ieee/v93/numeric_std-body.vhdl:2151:7:@500ns:(assertion warning): NUMERIC_STD.TO_UNSIGNED: vector truncated
+../../src/ieee/v93/numeric_std-body.vhdl:2151:7:@500ns:(assertion warning): NUMERIC_STD.TO_UNSIGNED: vector truncated
+Interesting result at 6808 cycles:
+  A   = 0010110111000110
+  B   = 1001000101010000
+  mcd = 0000000010111010
+Interesting result at 7162 cycles:
+  A   = 0000010110111000
+  B   = 1101001000101010
+  mcd = 0000000101101110
+Interesting result at 7220 cycles:
+  A   = 0000001011011100
+  B   = 0110100100010101
+  mcd = 0000000010110111
+Interesting result at 48595 cycles:
+  A   = 1010001001001100
+  B   = 0010101101010100
+  mcd = 0000000010111100
+Interesting result at 66889 cycles:
+  A   = 0000000011010110
+  B   = 1101111100110010
+  mcd = 0000000011010110
+Interesting result at 66911 cycles:
+  A   = 0000000001101011
+  B   = 0110111110011001
+  mcd = 0000000001101011
+Interesting result at 93844 cycles:
+  A   = 0101001101101110
+  B   = 1001111101111100
+  mcd = 0000000001110110
+Interesting result at 115996 cycles:
+  A   = 1100001001101010
+  B   = 1000111110111000
+  mcd = 0000000001111110
+Interesting result at 207494 cycles:
+  A   = 1011100001111101
+  B   = 0010011111011111
+  mcd = 0000000010101101
+Interesting result at 308775 cycles:
+  A   = 1001100011101111
+  B   = 0001001110000110
+  mcd = 0000001101000001
+Interesting result at 340997 cycles:
+  A   = 0001000010101000
+  B   = 1001001010101000
+  mcd = 0000000001101000
+Interesting result at 362011 cycles:
+  A   = 1101010111001111
+  B   = 1001000001000111
+  mcd = 0000000110111101
+Interesting result at 434658 cycles:
+  A   = 1011111110010110
+  B   = 0000100111001010
+  mcd = 0000000101100110
+Interesting result at 434733 cycles:
+  A   = 0101111111001011
+  B   = 0000010011100101
+  mcd = 0000000010110011
+Interesting result at 533992 cycles:
+  A   = 1010101110100110
+  B   = 1100111011001010
+  mcd = 0000000101011010
+Interesting result at 534104 cycles:
+  A   = 0101010111010011
+  B   = 0110011101100101
+  mcd = 0000000010101101
+Interesting result at 570249 cycles:
+  A   = 1111100101010100
+  B   = 0001100011100100
+  mcd = 0000000001101100
+Interesting result at 581630 cycles:
+  A   = 1111110110111000
+  B   = 1110101001010000
+  mcd = 0000000010111000
+Interesting result at 584128 cycles:
+  A   = 1000000101111110
+  B   = 0001111111100000
+  mcd = 0000000111111110
+Interesting result at 584167 cycles:
+  A   = 0100000010111111
+  B   = 0000111111110000
+  mcd = 0000000011111111
+Interesting result at 586200 cycles:
+  A   = 1011111000100000
+  B   = 1000000100110000
+  mcd = 0000001001110000
+Interesting result at 586275 cycles:
+  A   = 0101111100010000
+  B   = 0100000010011000
+  mcd = 0000000100111000
+Interesting result at 586350 cycles:
+  A   = 0010111110001000
+  B   = 0010000001001100
+  mcd = 0000000010011100
+Interesting result at 595418 cycles:
+  A   = 1111001010110000
+  B   = 0000110001101001
+  mcd = 0000000101100001
+Interesting result at 611627 cycles:
+  A   = 1011111011001101
+  B   = 1110010011110110
+  mcd = 0010011000101001
+Interesting result at 623309 cycles:
+  A   = 0010100101011001
+  B   = 1101111100101010
+  mcd = 0000000010010001
+Interesting result at 717608 cycles:
+  A   = 1101011100000100
+  B   = 1010111101100001
+  mcd = 0000000010001011
+Interesting result at 736895 cycles:
+  A   = 1001001110110000
+  B   = 0100010000000000
+  mcd = 0000000100010000
+Interesting result at 736988 cycles:
+  A   = 0100100111011000
+  B   = 0010001000000000
+  mcd = 0000000010001000
+Interesting result at 738681 cycles:
+  A   = 1000110000000000
+  B   = 1001001111100000
+  mcd = 0000000011100000
+Interesting result at 738775 cycles:
+  A   = 0100011000000000
+  B   = 0100100111110000
+  mcd = 0000000001110000
+Interesting result at 758220 cycles:
+  A   = 0010111010010101
+  B   = 1011000110100010
+  mcd = 0000000010011111
+Interesting result at 778742 cycles:
+  A   = 0101010110100000
+  B   = 1010111110001000
+  mcd = 0000010001001000
+Interesting result at 778782 cycles:
+  A   = 0010101011010000
+  B   = 0101011111000100
+  mcd = 0000001000100100
+Interesting result at 778822 cycles:
+  A   = 0001010101101000
+  B   = 0010101111100010
+  mcd = 0000000100010010
+Interesting result at 778862 cycles:
+  A   = 0000101010110100
+  B   = 0001010111110001
+  mcd = 0000000010001001
+Interesting result at 798176 cycles:
+  A   = 0011011010001101
+  B   = 1101111110001001
+  mcd = 0000000001101001
+Interesting result at 840328 cycles:
+  A   = 1100001101101000
+  B   = 0011110010110100
+  mcd = 0000000010010100
+Interesting result at 1004653 cycles:
+  A   = 1100010000011100
+  B   = 1100000001001010
+  mcd = 0000000101000110
+Interesting result at 1004710 cycles:
+  A   = 0110001000001110
+  B   = 0110000000100101
+  mcd = 0000000010100011
+Interesting result at 1038741 cycles:
+  A   = 1011011010100000
+  B   = 0001110010001001
+  mcd = 0000010110110101
+Interesting result at 1040054 cycles:
+  A   = 0000001011101101
+  B   = 1010100000000110
+  mcd = 0000000001101011
+Interesting result at 1059970 cycles:
+  A   = 1101111110010111
+  B   = 1111100011100010
+  mcd = 0000000100000011
+Interesting result at 1062311 cycles:
+  A   = 1111010000011011
+  B   = 0111111000111110
+  mcd = 0000000010001111
+Interesting result at 1066108 cycles:
+  A   = 1111110010111101
+  B   = 0001011111000100
+  mcd = 0000000001110101
+Interesting result at 1072868 cycles:
+  A   = 0101010101010110
+  B   = 1011100011100101
+  mcd = 0000111000111001
+Interesting result at 1164755 cycles:
+  A   = 1111000100101100
+  B   = 0001000010100111
+  mcd = 0000000010010011
+Interesting result at 1176186 cycles:
+  A   = 1010111001001011
+  B   = 0101011011110000
+  mcd = 0000000001101011
+Interesting result at 1224443 cycles:
+  A   = 1000011011011100
+  B   = 0100100101010110
+  mcd = 0000000001111110
+Interesting result at 1228418 cycles:
+  A   = 0111010100110000
+  B   = 1001101010110000
+  mcd = 0000010010110000
+Interesting result at 1228476 cycles:
+  A   = 0011101010011000
+  B   = 0100110101011000
+  mcd = 0000001001011000
+Interesting result at 1228534 cycles:
+  A   = 0001110101001100
+  B   = 0010011010101100
+  mcd = 0000000100101100
+Interesting result at 1228592 cycles:
+  A   = 0000111010100110
+  B   = 0001001101010110
+  mcd = 0000000010010110
+Interesting result at 1249633 cycles:
+  A   = 1111010001111010
+  B   = 1101001100010100
+  mcd = 0000000101010110
+Interesting result at 1249708 cycles:
+  A   = 0111101000111101
+  B   = 0110100110001010
+  mcd = 0000000010101011
+Interesting result at 1282106 cycles:
+  A   = 1011110101000010
+  B   = 0011101100000001
+  mcd = 0000000100011101
+Interesting result at 1325847 cycles:
+  A   = 1100010101111001
+  B   = 1111010000001000
+  mcd = 0000000110011011
+Interesting result at 1344399 cycles:
+  A   = 0101111110011100
+  B   = 1001000000111101
+  mcd = 0000000011010011
+Interesting result at 1375851 cycles:
+  A   = 1000100111011000
+  B   = 1000100001000111
+  mcd = 0000000110010001
+Interesting result at 1378233 cycles:
+  A   = 1111110111001100
+  B   = 0100111010100000
+  mcd = 0000000010010100
+Interesting result at 1383175 cycles:
+  A   = 0110101110101000
+  B   = 1100111100111101
+  mcd = 0000001010110001
+Interesting result at 1392695 cycles:
+  A   = 0010011001110000
+  B   = 1001011111100000
+  mcd = 0000000011110000
+Interesting result at 1392771 cycles:
+  A   = 0001001100111000
+  B   = 0100101111110000
+  mcd = 0000000001111000
+Interesting result at 1394636 cycles:
+  A   = 1110100110001000
+  B   = 0000100111110000
+  mcd = 0000010011111000
+Interesting result at 1394675 cycles:
+  A   = 0111010011000100
+  B   = 0000010011111000
+  mcd = 0000001001111100
+Interesting result at 1394714 cycles:
+  A   = 0011101001100010
+  B   = 0000001001111100
+  mcd = 0000000100111110
+Interesting result at 1394753 cycles:
+  A   = 0001110100110001
+  B   = 0000000100111110
+  mcd = 0000000010011111
+Interesting result at 1398381 cycles:
+  A   = 0101110111100110
+  B   = 1010001000111011
+  mcd = 0000000001110111
+Interesting result at 1505145 cycles:
+  A   = 1000010010011110
+  B   = 0000111110111001
+  mcd = 0000000010101111
+Interesting result at 1508213 cycles:
+  A   = 1011011110010110
+  B   = 1110000101101100
+  mcd = 0000000001111110
+Interesting result at 1523915 cycles:
+  A   = 1111111010110000
+  B   = 0000000010100011
+  mcd = 0000000010100011
+Interesting result at 1557009 cycles:
+  A   = 1001010000110100
+  B   = 0011001011011100
+  mcd = 0000000010001100
+Interesting result at 1619629 cycles:
+  A   = 0011100000110000
+  B   = 1110111001011000
+  mcd = 0000000011101000
+Interesting result at 1619705 cycles:
+  A   = 0001110000011000
+  B   = 0111011100101100
+  mcd = 0000000001110100
+Interesting result at 1656257 cycles:
+  A   = 1111110111010010
+  B   = 1101111100101110
+  mcd = 0000000001101010
+Interesting result at 1687057 cycles:
+  A   = 1101110011111101
+  B   = 0010000000001001
+  mcd = 0000000010001011
+Interesting result at 1837756 cycles:
+  A   = 1011111100110110
+  B   = 0111101001110110
+  mcd = 0000001000100110
+Interesting result at 1837885 cycles:
+  A   = 0101111110011011
+  B   = 0011110100111011
+  mcd = 0000000100010011
+Interesting result at 1846371 cycles:
+  A   = 1010110110000101
+  B   = 1110100100010110
+  mcd = 0000001010010111
+Interesting result at 1920337 cycles:
+  A   = 0101111110011101
+  B   = 1011000100111100
+  mcd = 0000001001010101
+Interesting result at 1932689 cycles:
+  A   = 1001011111010000
+  B   = 1000101001000010
+  mcd = 0000001010110110
+Interesting result at 1932746 cycles:
+  A   = 0100101111101000
+  B   = 0100010100100001
+  mcd = 0000000101011011
+Interesting result at 1980326 cycles:
+  A   = 0100111001001000
+  B   = 1000011100001001
+  mcd = 0000000111110101
+Interesting result at 1993136 cycles:
+  A   = 1010100001011011
+  B   = 1010101001100111
+  mcd = 0000000010000011
+Interesting result at 2015760 cycles:
+  A   = 0101100101011100
+  B   = 1110101101011001
+  mcd = 0000000010000101
+Interesting result at 2021858 cycles:
+  A   = 1001010100010100
+  B   = 1111101111110000
+  mcd = 0000000001110100
+Interesting result at 2095718 cycles:
+  A   = 0000000000001001
+  B   = 1001111001001111
+  mcd = 0000000000001001
+Interesting result at 2151934 cycles:
+  A   = 1000010100011101
+  B   = 1000000100110110
+  mcd = 0000000001101111
+Interesting result at 2162311 cycles:
+  A   = 0011100100011000
+  B   = 1010101111110110
+  mcd = 0000000010101110
+Interesting result at 2186676 cycles:
+  A   = 1110000111010100
+  B   = 1000000011010100
+  mcd = 0000000110000100
+Interesting result at 2186751 cycles:
+  A   = 0111000011101010
+  B   = 0100000001101010
+  mcd = 0000000011000010
+Interesting result at 2244024 cycles:
+  A   = 0001001000001100
+  B   = 1001101111111010
+  mcd = 0000000101001010
+Interesting result at 2244118 cycles:
+  A   = 0000100100000110
+  B   = 0100110111111101
+  mcd = 0000000010100101
+Interesting result at 2252282 cycles:
+  A   = 1001010010100000
+  B   = 0101110011100100
+  mcd = 0001001010010100
+Interesting result at 2252357 cycles:
+  A   = 0100101001010000
+  B   = 0010111001110010
+  mcd = 0000100101001010
+Interesting result at 2252432 cycles:
+  A   = 0010010100101000
+  B   = 0001011100111001
+  mcd = 0000010010100101
+Interesting result at 2300148 cycles:
+  A   = 0110110011011000
+  B   = 1010010111110100
+  mcd = 0000000010101100
+Interesting result at 2305525 cycles:
+  A   = 1110110100101101
+  B   = 0110101011010110
+  mcd = 0000001000100011
+Interesting result at 2323097 cycles:
+  A   = 0110100101111100
+  B   = 1011000000000011
+  mcd = 0000000010011101
+Interesting result at 2429368 cycles:
+  A   = 1111100001101101
+  B   = 1001010100101000
+  mcd = 0000000010000001
+Interesting result at 2440727 cycles:
+  A   = 1011100111111101
+  B   = 1101111101010011
+  mcd = 0000000010110001
+Interesting result at 2441723 cycles:
+  A   = 0001011011100111
+  B   = 1111011101110101
+  mcd = 0000000010001111
+TEST PASS: 15000 tests
+Open waves
+gtkwave 04_mcd.ghw
+GTKWAVE | Touch screen detected, enabling gestures.
+WM Destroy
+/code/calcolatori_elettronici_2025

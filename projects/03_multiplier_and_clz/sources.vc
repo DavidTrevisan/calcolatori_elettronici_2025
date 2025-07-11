@@ -1,0 +1,6 @@
+code/lfsr_pkg.vhdl
+code/device_pkg.vhdl
+code/device.vhdl
+code/tester_pkg.vhdl
+code/tester.vhdl
+code/testbench.vhdl
