@@ -60,7 +60,7 @@ Indica che il risultato in uscita al dispositivo puó essere valutato.
 |===
 
 .Diagramma dispositivo `mcd`
-[.center,svgbob-mcd_ports]
+[.center,svgbob-mcd_ports, reftext='{figure-caption} {counter:fignum}']
 [svgbob]
 ----
                            +----------------+
@@ -120,7 +120,8 @@ La sequenza delle operazioni del dispositivo `mcd` é:
 
 L'algoritmo di Euclide corrisponde a questo comportamento, come rappresentato dal seguente spezzone di codice python che lo descrive:
 
-[source, python]
+.Algoritmo di Euclide per il MCD, python
+[source, python, reftext='{listing-caption} {counter:listnum}']
 ----
 def mcd(a, b):
     while b != 0:
@@ -155,7 +156,7 @@ Tuttavia si considerano queste caratteristiche salienti a riguardo:
 
 La rappresentazione della CTRL-Unit del dispositivo `mcd` é visibile nel seguente diagramma:
 
-.`mcd` ASM-Chart CTRL-Unit
+.ASM-Chart CTRL-Unit `mcd`
 [#fig_mcd_ctrl,reftext='{figure-caption} {counter:fignum}']
 image::images/ASM-mcd_ctrl.drawio.svg[]
 
@@ -163,7 +164,7 @@ Dove si é apposto un flusso fuori dal normale controllo della FSM per indicare 
 
 Le risorse visibili nel datapath sono invece rappresentate nella seguente immagine:
 
-.`mcd` Risorse Datapath
+.Risorse Datapath `mcd`
 [#fig_mcd_dp,reftext='{figure-caption} {counter:fignum}']
 image::images/ASM-mcd_dp.drawio.svg[]
 
@@ -179,7 +180,8 @@ L'architettura di test segue l'impostazione vista nella sezione <<Multiplier and
 
 // see https://ivanceras.github.io/svgbob-editor/
 
-[.custom-style,svgbob-mcd_tb_arch]
+.Architettura di test: DUT e Tester
+[.custom-style,svgbob-mcd_tb_arch, reftext='{figure-caption} {counter:fignum}']
 [svgbob]
 ----
 .------------------------------------------------------------------.
@@ -230,6 +232,9 @@ dut = {
 
 Il diagramma ASM relativo al `tester` ricalca quello usato per il dispositivo `multiplier_and_clz`, con le opportune modifiche per confrontare il risultato nel processo `check`.
 
+
+.Flow-chart Tester `mcd`
+[#fig_asm_tester_mcd,reftext='{figure-caption} {counter:fignum}']
 image::images/ASM-mcd_tester.drawio.svg[]
 
 Il segnale `abort` non viene testato esplicitamente, ma viene utilizzato solo nel caso in cui uno dei due operandi sia nullo.
@@ -243,7 +248,7 @@ Il dispositivo `tester` inietta operandi casuali, ottenuti tramite il generatore
 
 .Calcolo *MCD*, funzione ricorsiva per `tester`
 [%unbreakable]
-[source, vhdl]
+[source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
     function mcd_r(op1: unsigned; op2: unsigned) return unsigned is
     begin
@@ -283,8 +288,9 @@ I criteri per definire i risultati interessanti sono:
 Per abilitare questo _report_, bisogna definire la variabile `VERBOSE` come nel caso di maggiore verbositá per gli eventuali errori.
 La soglia di interesse é altrettanto configurabile da linea di comando come generic override:
 
+.Generic per soglia report `mcd`
 [%unbreakable]
-[source,vhdl]
+[source,vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
 ...
     MCD_THRESH  : integer := 4;
@@ -293,8 +299,9 @@ La soglia di interesse é altrettanto configurabile da linea di comando come gen
 
 Con un comando di esecuzione come:
 
+.Esempio comando simulazione RTL `mcd` per report dettagliati
 [%unbreakable]
-[source,bash]
+[source,bash, reftext='{listing-caption} {counter:listnum}']
 ----
 ghdl -e -v --std=93c -gOPSIZE=32 -gNTESTS=100 -gVERBOSE=true -gMCD_THRESH=10  testbench
 ghdl -r -v --std=93c  --time-resolution=ns -gOPSIZE=32 -gNTESTS=100 -gVERBOSE=true -gMCD_THRESH=10  testbench
@@ -302,8 +309,9 @@ ghdl -r -v --std=93c  --time-resolution=ns -gOPSIZE=32 -gNTESTS=100 -gVERBOSE=tr
 
 Si otterranno dei report nella seguente forma:
 
+.Esempio report dettagliato simulazione RTL `mcd`
 [%unbreakable]
-[source,bash]
+[source,bash, reftext='{listing-caption} {counter:listnum}']
 ----
 ...
 Interesting result at 43077 cycles:
@@ -332,7 +340,7 @@ TEST PASS: 100 tests
 Questi risultati sono giá stati confrontati e verificati dalla funzione ricorsiva inclusa in `tester`, ma permettono di ritrovare più agevolmente il punto saliente nelle forme d'onda qual'ora si volesse praticare un'analisi più approfondita dei segnali.
 Dall'esempio sopra, si vede l'operazione in cui il risultato é `MCD = 15`:
 
-.`mcd` - Risultato esempio
+.Forme d'onda isultato esempio `mcd`
 [#fig_mcd_interesting_result,reftext='{figure-caption} {counter:fignum}']
 image::images/mcd_interesting_15.png[]
 
@@ -353,7 +361,7 @@ Lo script é presente al percorso `scripts/parse_and_check_mcd.py`.
 
 .Esempio di output dello script di verifica dei report
 [%unbreakable]
-[source, bash]
+[source, bash, reftext='{listing-caption} {counter:listnum}']
 ----
 $ scripts/parse_and_check_mcd.py projects/04_mcd/simul.rtl/report_rtl_NTESTS_15000_OPSIZE_32.txt
 [ OK ] At 129430 cycles: MCD correct (716)
@@ -378,7 +386,7 @@ Per modificare questi parametri é sufficiente aggiungere i nuovi valori come ar
 
 .Script per simulazione RTL Xcelium `mcd` con `OPSIZE => 16` e `NTESTS => 100`
 [#cli_mcd_rtl_xcelium,reftext='{listing-caption} {counter:listnum}']
-[source, bash]
+[source, bash, reftext='{listing-caption} {counter:listnum}']
 ----
 ~/04_mcd$ scripts/rtl_xcelium 16 100
 ----
@@ -418,6 +426,8 @@ La configurazione della sintesi é la seguente
 - Stdcell Nangate v2011.01-HR04-2011-01-19
 - Tensione nominale: 1.10V
 - Nodo tecnologico: 40nm
+*DFT*::
+- Muxed-scan
 *Constraints*::
 - Frequenza di clock: 1GHz (periodo di 1ns) - Jitter del 5%
 - Driving cell: BUF_X8
@@ -440,9 +450,10 @@ Questo implica che ai risultati dei report esposti bisogna considerare l'aggiunt
 La motivazione per l'inserimento della _guard-band_ artificiale é data dalla presenza di diversi path combinatori profondi nel design `mcd`, e la conseguente difficoltá dello strumento di sintesi a chiudere il timing prima dell'ottimizzazione.
 Ispezionando per esempio il dispositivo sintetizzato `mcd_OPSIZE32` con il comando `report_logic_levels_histogram`
 
-[#listing_mcd_32_logic_levels,reftext='{figure-caption} {counter:listnum}']
+.Istogramma numero livelli logici sintesi `mcd_OPSIZE32`
+[#listing_mcd_32_logic_levels]
 [%unbreakable]
-[source, tcl]
+[source, tcl, reftext='{listing-caption} {counter:listnum}']
 ----
 @genus:root: 7> report_logic_levels_histogram
  ---------------------------------------------------------------------------------------------------
