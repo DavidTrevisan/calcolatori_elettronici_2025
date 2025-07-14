@@ -15,26 +15,29 @@ Il dispositivo utilizza le seguenti porte di input ed output:
 
 |OUTP
 |OUT
-|Total number of bits equal to '1' received on `X`.
+|Conteggio totale dei bit a '1' rilevati su `X`.
+
+|X
+|IN
+|Word su cui effettuare il conteggio.
 
 |DATAIN
 |IN
-|Signals a new input data when set.
+|Segnala un nuovo dato in ingresso (segnale di `valid` di `X`).
 
 |CALC
 |IN
-|When set, signals that input data are finished.
-Asks device to provide result.
+|Richiede il conteggio dei bit dei dati forniti.
 
 |READY
 |OUT
-|Signals that the device is ready to receive a new data.
+|Segnala che il dispositivo é pronto a ricevere nuovi dati.
 
 |OK
 |OUT
-|Signals that the device has finished the computation.
-Result on `OUTP` is valid.
-A new computation can start.
+|Segnala che il conteggio é terminato.
+Il risultato in `OUTP` é valido.
+Una nuova elaborazione puó iniziare.
 
 |===
 
@@ -51,13 +54,13 @@ DATAIN  ------>|  onescounter   |----> READY
                +----------------+
 ----
 
-Il dispositivo `onescounter` viene presentato con le seguenti modifiche:
+Il dispositivo `onescounter` ha le seguenti varianti:
 
 . Versione 'Moore'.
 . Versione 'Mealy'.
 ** Entrambe le versioni sono descritte in `ctrlunit.vhdl` in due architetture separate.
 . Selezione dell'architettura della CTRL Unit tramite _generic_.
-. Aggiunto segnale `DEBUG` che sovrascrive il registro `ONES` con il valore posto all'ingresso `X`.
+. Aggiunto segnale `DEBUG` che sovrascrive il registro (interno) `ONES` con il valore posto all'ingresso `X`.
 
 [NOTE]
 ====
@@ -73,7 +76,7 @@ Il dispositivo viene consegnato con un testbench contenente le seguenti modifich
 . Aggiunta la funzione `t2s_ns` per formattare i tempi in ns quando stampati da report.
 
 [#script_onescounter]
-Per analizzare ed elaborare il design ed eseguirne la simulazione é stato creato uno script bash, che viene fornito, ed é utilizzabile come segue:
+Per analizzare ed elaborare il design ed eseguirne la simulazione si puó utilizzare lo script <<script_ghdl>> come segue:
 
 .Comando di esecuzione script `runSim_ghdl`
 [source, console, reftext='{listing-caption} {counter:listnum}']
@@ -306,6 +309,12 @@ Sono stati quindi aggiunti degli `assert` per tenere monitorati i segnali di out
 
 Considerato che GHDL utilizza il _femtosecondo_ quale unitá di tempo, é stata introdotta la funzione `t2s_ns` (_time to string ns_) per stampare coerentemente l'eventuale tempo di simulazione di un `assert` fallito.
 
+Per terminare in maniera _graceful_ la simulazione, é stato rimosso l' `assert` di interruzione alla fine degli stimoli di test.
+
+La generazione del clock é invece stata modificata come da <<source_onescounter_clkstop>> per fermarsi al set del segnale `done`.
+
+In assenza di costrutti errati che mettano indefinitamente in stallo la simulazione, GHDL terminerá la sua esecuzione quando tutti gli eventi si fermeranno a seguito del set del segnale `done`.
+
 .Funzione `t2s_ns`
 [source, vhdl, reftext='{listing-caption} {counter:listnum}']
 ----
@@ -316,10 +325,7 @@ Considerato che GHDL utilizza il _femtosecondo_ quale unitá di tempo, é stata 
     end function;
 ----
 
-Per terminare in maniera _graceful_ la simulazione, é stato rimosso l' `assert` di interruzione alla fine degli stimoli di test.
-
-La generazione del clock é invece stata modificata come segue per fermarsi al set del segnale `done`:
-
+[#source_onescounter_clkstop]
 .Processo generazione clock TB `onescounter`
 [%autofit]
 [%unbreakable]
@@ -342,8 +348,6 @@ La generazione del clock é invece stata modificata come segue per fermarsi al s
         end if;
     end process clk_process;
 ----
-
-In assenza di costrutti errati che mettano indefinitamente in stallo la simulazione, GHDL terminerá la sua esecuzione quando tutti gli eventi si fermeranno a seguito del set del segnale `done`.
 
 === Asset data.txt
 Il testbench utilizza un file esterno da cui leggere i dati da utilizzare per gli stimoli del Device Under Test.
@@ -391,7 +395,7 @@ La funzionalitá del segnale `DEBUG` corrisponde a quella della versione precede
 Si nota come nella versione Mealy l'ottimizzazione risultante dalla rimozione dello stato `INC` a favore dell'utilizzo delle conditional output boxes, stimoli un incremento immediato del registro `ONES` rispetto alla versione Moore.
 Questo verrá infatti osservato in fase di simulazione e verifica.
 
-La decisione di fornire un testbench unico per stimolare simultaneamente le diverse architetture, viene argomentata dai seguenti motivi:
+La decisione di fornire un testbench unico per testare simultaneamente le diverse architetture, viene argomentata dai seguenti motivi:
 
 * Il datapath resta identico.
 * Le specifiche sugli input/output restano identiche.
@@ -401,7 +405,7 @@ Si deduce quindi che, pur assumendo delle possibili variazioni di tempistiche in
 
 == Risultati
 
-Seguendo le fasi indicate nel paragrafo relativo allo <<#script_onescounter, script>>, si raccolgono le relative considerazioni in questa sezione.
+Seguendo le fasi indicate nel paragrafo relativo allo <<#script_onescounter, script>> di simulazione, si raccolgono le relative considerazioni in questa sezione.
 
 === Analisi ed elaborazione
 Non sono state incontrate particolari criticitá nella fase di analisi ed elaborazione dei listati.
@@ -495,7 +499,7 @@ aggiornata con i valori attesi.
 
 ==== Funzionamento normale del dispositivo
 
-Con il test proposto, risulta necessario osservare manualmente lo stato dei segnali di `onescounter` per verificarne il correto funzionamento secondo i requisiti.
+Con il test proposto, risulta necessario osservare manualmente lo stato dei segnali di `onescounter` per verificarne il corretto funzionamento secondo i requisiti.
 
 Vengono presentate alcune transazioni esemplificative prese dalla sequenza di test.
 
@@ -583,5 +587,3 @@ Ai diversi marker, é possibile seguire la sequenza identificata ed i risultati 
 
 L'interezza del test e gli altri casi non descritti sono eseguibili e verificabili con l'infrastruttura fornita.
 Si considera quindi il buon funzionamento di base del dispositivo `onescounter` secondo le specifiche ed i requisiti, per quanto identificabile dalla breve sequenza di test diretti inclusi.
-
----

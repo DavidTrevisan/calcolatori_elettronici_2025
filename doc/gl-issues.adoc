@@ -1,4 +1,5 @@
 [appendix]
+[#issues_device_gl]
 == Problematiche riscontrate nella simulazione gate-level
 
 Durante lo sviluppo del progetto `device` (Multiplier and CLZ) sono state riscontrate significative problematiche nell'esecuzione delle simulazioni gate-level.

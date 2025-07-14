@@ -64,12 +64,13 @@ Indica che il risultato in uscita al dispositivo puó essere valutato.
 Il dispositivo implementa quindi due diverse operazioni aritmetiche sugli operandi di ingresso `A` e `B`, in base al valore del segnale `op`: moltiplicazione `A*B` oppure conteggio dei _most-significant-bit_ a `0` di `A`.
 
 Il comportamento della CTRL-Unit del dispositivo viene descritto insieme al datapath nello stesso file `device.vhdl`.
-Il flusso é rappresentato nel seguente ASM-Chart:
+Il flusso é rappresentato nel seguente ASM-Chart di <<fig_device_ctrl>>.
 
 .ASM-Chart CTRL-Unit `device`
 [#fig_device_ctrl,reftext='{figure-caption} {counter:fignum}']
 image::images/ASM-device_ctrl.drawio.svg[]
 
+[#device_test_arch]
 Risulta disponibile un'infrastruttura di test composta da `testbench` che istanzia i generatori di reset e clock, ed il dispositivo `device` collegato ad un generatore di stimoli, `tester`.
 Il flusso di test implementato é riassunto come segue:
 
@@ -89,7 +90,7 @@ Quelli più rilevanti per le simulazioni sono:
 
 == RTL Simulations
 
-Sempre con l'aiuto dello script `runSim_ghdl` sono state effettuate simulazioni RTL con i seguenti parametri:
+Sempre con l'aiuto dello script <<script_ghdl>> sono state effettuate simulazioni RTL con i seguenti parametri:
 
 . `NBITS`: {16, 32, 64}
 . `NTESTS`: 10000
@@ -107,12 +108,12 @@ projects/03_multiplier_and_clz/simul.rtl/report_rtl_NTESTS_10000_NBITS_64.txt
 [#device_xcelium_rtl_scripts]
 Per questo progetto é stato anche utilizzato il simulatore _Xcelium_, e sono stati predisposti alcuni semplici script per automatizzarne il flusso.
 
-Il primo script, `scripts/rtl_xcelium` effettua le seguenti operazioni:
+Il primo, `scripts/rtl_xcelium` effettua le seguenti operazioni:
 
 . Porta la directory di lavoro in `simul.rtl`.
 . Analizza i file VHDL (standard VHDL-1993) indicati nel file `sources.vc`.
 . Elabora la top level entity `testbench`
-.. In questo punto sono utilizzati i generics `NBITS => 32` e `NTESTS => 10000`.
+.. Utilizzati di default i generics `NBITS => 32` e `NTESTS => 10000`.
 .. Sono anche aggiunte le opzioni per la coverage del DUT.
 . Esegue la simulazione del top level `testbench`.
 
@@ -161,7 +162,7 @@ Il flusso di sintesi é configurato come segue:
 - `NBITS`: 32
 
 La cella di pilotaggio scelta è stata selezionata come componente medio tra i buffer disponibili in `stdcells.lib`.
-Il modulo è chiamato `BUF_X8`, intermedio tra `BUF_X1` e `BUF_X32`, che lo script imposta con i comandi:
+Il modulo è chiamato `BUF_X8`, intermedio tra `BUF_X1` e `BUF_X32`, seguito dalla capacità di uscita media impostata al valore scalato (Genus utilizza `pF` mentre la libreria utilizza `fF`) preso dal campo `BUF_X8.pin (A).max_capacitance`.
 
 .Comandi tcl `genus` impostazione driving cell
 [source, tcl, reftext='{listing-caption} {counter:listnum}']
@@ -170,8 +171,6 @@ set drv_cell_name BUF_X8
 ...
 set_driving_cell -cell $drv_cell_name $allin
 ----
-
-seguito dalla capacità di uscita media impostata al valore scalato (Genus utilizza `pF` mentre la libreria utilizza `fF`) preso dal campo `BUF_X8.pin (A).max_capacitance`:
 
 .Comandi tcl `genus` impostazione capacitance
 [source, tcl, reftext='{listing-caption} {counter:listnum}']
@@ -191,7 +190,10 @@ set_load $out_load_val $allout
 // ----
 
 Le metriche risultanti sono raccolte nei rapporti salvati al percorso `synth/output`, o possono essere generate nuovamente tramite gli script di sintesi.
-I risultati sono raccolti nella seguente tabella:
+I risultati sono raccolti in <<table_device_synth>>.
+
+Lo script indica automaticament al tool `Genus` di effettuare lo step di ottimizzazione della sintesi, in quanto il risultato dopo il comando `syn_map` non chiude ancora il timing.
+Da una breve analisi risulta infatti un percorso critico con slack negativo di `5095 ps`, tra alcuni flip-flop del registro `R_res_reg` del risultato, come indicato nel seguente nel report del <<source_device_timing_violation>>.
 
 .Risultati sintesi `device` `NBITS => 32`
 [#table_device_synth,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
@@ -202,21 +204,14 @@ I risultati sono raccolti nella seguente tabella:
 | Worst Slack (ps)
 | Numero di celle
 
-// | Std
-// | 2112.572
-// | 1
-// | 1336
-
 | Opt
-| 2687.930
-| 1
-| 1788
+| 2680.216
+| 2
+| 1775
 
 |===
 
-Lo script di sintesi indica automaticament al tool `Genus` di effettuare lo step di ottimizzazione della sintesi, in quanto il risultato dopo il comando `syn_map` non é sufficientemente soddisfacente per essere utilizzabile.
-Da una breve analisi risulta infatti un percorso critico con slack negativo di `5095 ps`, tra due flip-flop del registro `R_res_reg` del risultato, come indicato nel seguente spezzone di report:
-
+[#source_device_timing_violation]
 .Violazione timing `device`, pre-ottimizzazione
 [%autofit]
 [source, tcl, reftext='{listing-caption} {counter:listnum}']
@@ -309,11 +304,11 @@ Dopo l'ottimizzazione si verifica invece che i constraint di timing vengono risp
 ----
 report_timing -lint
 ...
-Path 1: MET (1 ps) Setup Check with Pin R_res_reg[57]/CK->D
+Path 1: MET (2 ps) Setup Check with Pin R_res_reg[59]/CK->D
           Group: mainclk
-     Startpoint: (R) R_res_reg[8]/CK
+     Startpoint: (R) R_res_reg[4]/CK
           Clock: (R) mainclk
-       Endpoint: (R) R_res_reg[57]/D
+       Endpoint: (R) R_res_reg[59]/D
           Clock: (R) mainclk
 
                      Capture       Launch
@@ -326,13 +321,16 @@ Path 1: MET (1 ps) Setup Check with Pin R_res_reg[57]/CK->D
        Uncertainty:-      50
      Required Time:=     877
       Launch Clock:-       0
-         Data Path:-     876
-             Slack:=       1
+         Data Path:-     874
+             Slack:=       2
 ...
 ----
 
-A scopo didattico ed esplorativo, é stata testata l'aggiunta del _clock-gating_ sui flip-flop di alcuni registri (`R_B`, `R_A`), trovando che una buona parte dei bit di `R_A_reg` risultano _timing critical_, e non sono perció assegnabili al circuito di gating del clock:
+A scopo didattico ed esplorativo, é stata testata l'aggiunta del _clock-gating_ sui flip-flop di alcuni registri (`R_B`, `R_A`), trovando che una buona parte dei bit di `R_A_reg` risultano _timing critical_, e non sono perció assegnabili al circuito di gating del clock (<<source_device_timing_crit>>).
 
+Analizzando il file HDL con tale modifica, appare correttamente l'aggiunta del componente di clock gating, con il segnale controllato `rc_gclk` assegnato ai bit dei registri indicati prima, come visibile da <<source_device_cg>>.
+
+[#source_device_timing_crit]
 .Esempio clock-gating, sintesi `device`
 [%autofit]
 [%unbreakable]
@@ -363,8 +361,7 @@ Info    : Skipping XOR clock-gating for flop(s). [POPT-103]
         : Skipping XOR clock-gating for the flop 'inst:device/R_A_reg[19]' as the flop is timing critical.
 ----
 
-Analizzando il file HDL con questa modifica, appare correttamente l'aggiunta del componente di clock gating, con il segnale controllato `rc_gclk` assegnato ai bit dei registri indicati prima:
-
+[#source_device_cg]
 .Modulo `device.v` con clock-gating
 [%autofit]
 [%unbreakable]
@@ -394,16 +391,10 @@ module device(CLK, rst_n, start, op, A, B, done, RES, TST_SH_EN, TST,
 ----
 
 Se si desiderasse mantenere questa configurazione, risulterebbe necessario aggiustare il circuito di gating permettendo il controllo del pin di clock dei registri quando in modalitá `TEST`.
-Attraverso il seguente comando `genus`, é possibile regolare la violazione introdotta nel DFT a causa del clock gating:
+Attraverso il seguente comando `fix_dft_violations -clock -test_control test_tst -test_clock_pin CLK` é possibile regolare la violazione introdotta nel DFT a causa del clock gating.
+In <<source_device_cg_dft_fix>> si vede la successiva aggiunta dei segnali e porte logiche per controllare il clock quando in modalitá TEST.
 
-.Comando correzione DFT per clock-gating
-[source, tcl, reftext='{listing-caption} {counter:listnum}']
-----
-fix_dft_violations -clock -test_control test_tst -test_clock_pin CLK
-----
-
-verificando successivamente l'aggiunta dei segnali e porte logiche per controllare il clock quando in modalitá TEST:
-
+[#source_device_cg_dft_fix]
 .Modulo `device.v` con clock-gating e DFT corretto
 [%autofit]
 [source, verilog, reftext='{listing-caption} {counter:listnum}']
@@ -435,39 +426,45 @@ Non viene comunque inserito il _clock-gating_ negli script forniti per le seguen
 Con il file `.saif` generato dalla simulazione RTL, si possono ottenere delle _stime_ sulla dissipazione di potenza, che verranno confrontate con quelle effettuate con la switching-activity post simulazione gate-level.
 
 .Stime dissipazione potenza `device`, RTL switching activity
-[%autofit]
 [%unbreakable]
-[source,ascii, reftext='{listing-caption} {counter:listnum}']
-----
-Instance: /device
-Power Unit: W
-PDB Frames: /stim#0/frame#0
-  -------------------------------------------------------------------------
-    Category         Leakage     Internal    Switching        Total    Row%
-  -------------------------------------------------------------------------
-      memory     0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00   0.00%
-    register     1.69925e-05  1.28063e-03  1.81033e-04  1.47866e-03  42.97%
-       latch     0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00   0.00%
-       logic     3.96334e-05  7.99286e-04  9.37335e-04  1.77625e-03  51.62%
-        bbox     0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00   0.00%
-       clock     0.00000e+00  0.00000e+00  1.86219e-04  1.86219e-04   5.41%
-         pad     0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00   0.00%
-          pm     0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00   0.00%
-  -------------------------------------------------------------------------
-    Subtotal     5.66259e-05  2.07992e-03  1.30459e-03  3.44113e-03 100.00%
-  Percentage           1.65%       60.44%       37.91%      100.00% 100.00%
-  -------------------------------------------------------------------------
-----
+[cols=">1,>1,>1,>1,>1,>1", options="header", grid="rows", frame="ends", stripes=even, reftext='{table-caption} {counter:tabnum}']
+|===
+|Category |Leakage (W) |Internal (W) |Switching (W) |Total (W) |Row %
+
+|memory    |0.00000e+00 |0.00000e+00 |0.00000e+00 |0.00000e+00 |0.00%
+|register  |1.69925e-05 |1.28063e-03 |1.81033e-04 |1.47866e-03 |42.97%
+|latch     |0.00000e+00 |0.00000e+00 |0.00000e+00 |0.00000e+00 |0.00%
+|logic     |3.96334e-05 |7.99286e-04 |9.37335e-04 |1.77625e-03 |51.62%
+|bbox      |0.00000e+00 |0.00000e+00 |0.00000e+00 |0.00000e+00 |0.00%
+|clock     |0.00000e+00 |0.00000e+00 |1.86219e-04 |1.86219e-04 |5.41%
+|pad       |0.00000e+00 |0.00000e+00 |0.00000e+00 |0.00000e+00 |0.00%
+|pm        |0.00000e+00 |0.00000e+00 |0.00000e+00 |0.00000e+00 |0.00%
+
+6+|
+
+|**Subtotal**    |`5.66259e-05` |`2.07992e-03` |`1.30459e-03` |`3.44113e-03` |`100.00%`
+|**Percentage**  |`1.65%`       |`60.44%`      |`37.91%`      |`100.00%`     |`100.00%`
+|===
+
 
 È possibile osservare come la libreria in uso sembri essere ben ottimizzata contro le correnti di dispersione, che rappresentano meno del 2% della potenza dissipata totale.
 
-<<<
-
 == Gate-level simulations
 
-Per effettuare i test a livello gate del dispositivo, sono disponibili gli script `scripts/gl_xcelium` e `scripts/gl_xmsim.tcl`.
-Il flusso implementato é rappresentato nel seguente diagramma:
+Per i test gate-level del dispositivo sono disponibili gli script `scripts/gl_xcelium` e `scripts/gl_xmsim.tcl`.
+Il flusso implementato è illustrato in <<diag_device_gl_flow>> e si avvia semplicemente con `scripts/gl_xcelium`.
 
+Tutti i 1000 test passano con un periodo di clock nominale, ma riducendo il periodo (es. `300 ps`) si osserva il fallimento del dispositivo quando si applicano i ritardi da `device.sdf` (ottenuto in sintesi).
+
+Lo script accetta l'opzione `-sdf` per convertire e caricare i dati SDF in Xcelium (<<source_device_gl_sdf>>).
+
+Il tester riporta `WRONG`, mentre le forme d'onda confermano che `RES` e `done` si aggiornano dopo il fronte di `CLK`, evidenziando come il `device` non garantisca la correttezza funzionale con clock troppo veloce.
+
+.Forme d'onda simulazione gate-level con delay, `device`
+[#fig_device_gl_sdf_waves,reftext='{figure-caption} {counter:fignum}']
+image::images/device_gl_sdf_waves.png[]
+
+[#diag_device_gl_flow]
 .Flusso simulazione gate-level
 [.center,svgbob-device_gl_flow, reftext='{figure-caption} {counter:fignum}']
 [svgbob]
@@ -513,9 +510,6 @@ Il flusso implementato é rappresentato nel seguente diagramma:
                                 '--------------------------'   '---------------------------------'
 ----
 
-
-Per eseguire il flusso é sufficiente invocare lo script `scripts/gl_xcelium` ed attendere l'esito della simulazione.
-
 .Esempio chiamata `gl_xcelium`, gate-level `device`
 [%autofit]
 [source, console, reftext='{listing-caption} {counter:listnum}']
@@ -550,11 +544,7 @@ xcelium> exit
 ~/03_multiplier_and_clz
 ----
 
-Tutti i 1000 test vengono correttamente eseguiti nelle condizioni normali.
-Sovrascrivendo l'elaborazione del testbench con un periodo di clock più veloce di quanto ammissibile (per esempio un periodo di `300 ps`), si osserva il dispositivo fallire nello stesso environment di test quando si utilizzano i dati di ritardo specificati nel file `device.sdf` ottenuto durante la sintesi.
-
-Per generare i file necessari ad Xcelium per utilizzare i dati da SDF, lo script fornito accetta un parametro `-sdf` che converte il file in formato accettato dal simulatore e lo utilizza nell'elaborazione.
-
+[#source_device_gl_sdf]
 .Esempio chiamata `gl_xcelium` con file SDF, gate-level `device`
 [%autofit]
 [source, console, reftext='{listing-caption} {counter:listnum}']
@@ -601,12 +591,7 @@ xmsim: *W,RNQUIE: Simulation is complete.
 xcelium> exit
 ----
 
-Mentre il tester restituisce la stringa `WRONG`, si verifica che le forme d'onda seguono i ritardi indicati, ed il componente `device` non puó garantire la correttezza funzionale nelle condizioni di periodo di clock più rapido.
-Nell'immagine seguente, si nota come i segnali di output `RES` e `done` si muovano in momenti chiaramente successivi al fronte di salita del `CLK`, cosí come alcuni segnali interni a `device`:
-
-.Forme d'onda simulazione gate-level con delay, `device`
-[#fig_device_gl_sdf_waves,reftext='{figure-caption} {counter:fignum}']
-image::images/device_gl_sdf_waves.png[]
+Si veda in appendice '<<issues_device_gl>>' per una breve analisi delle difficoltá incontrate durante lo sviluppo del flusso simulazioni gate-level.
 
 == Other evaluations
 
@@ -696,7 +681,7 @@ In <<table_device_pwr_eval>> si osserva il riassunto dei risultati totali ottenu
 
 |===
 
-Si osserva come la stima da simulazione RTL, pur coprendo circa il 50% dell'attivitá di switching, non si discosta troppo dai risultati post-sintesi.
+Si osserva come la stima da simulazione RTL, pur coprendo circa il 50% dell'attivitá di switching, non si discosti troppo dai risultati post-sintesi.
 Nonostante un leggero aumento sulle perdite dovute al leakage, la logica interna consuma poco meno di quanto stimato inizialmente, cosí come la dissipazione dovuta allo switching, rimanendo su un totale stimato di circa `3 pW`.
 
 ---

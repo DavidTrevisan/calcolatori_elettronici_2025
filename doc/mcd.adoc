@@ -19,11 +19,35 @@ Si ricorda la definizione:
 Il massimo comun divisore di due numeri interi, entrambi non nulli, corrisponde al numero naturale più grande per il quale entrambi possono essere divisi esattamente.
 ====
 
-Dall'analisi delle porte di _top-level_ del componente `mcd`, si ottiene il seguente prospetto:
+Dall'analisi delle porte di _top-level_ del componente `mcd`, si ottiene il prospetto di <<table_mcd_IOports>> rappresentato poi in <<diag_mcd_io>>.
+
+Il file `mcd.vhdl` contiene una rappresentazione strutturale del dispositivo, istanziando semplicemente control unit e datapath, insieme alla logica di collegamento interna ed alle porte.
+Il dispositivo presenta un parametro `generic OPSIZE` di tipo intero, utilizzato per definire la larghezza in bit degli operandi e del risultato.
+
+Il file `mcd_ctrl.vhdl` rappresenta la control unit del dispositivo in maniera comportamentale, implementando una semplice FSM (`ns_process`) per gestire le operazioni ed i segnali di controllo.
+Lo stile utilizzato esplicita i segnali di load dei registri presenti nel datapath, ed i selettori dei multiplexer utilizzati attraverso statement concorrenti in maniera coerente con i dispositivi fin'ora analizzati.
+Oltre la transizione degli stati, é visibile un _override_ ogniqualvolta il segnale `abort` viene settato.
+Questo termina le eventuali operazioni in corso e riporta la CTRL-Unit allo stato `S_INIT`.
+Si veda la rappresentazione ASM-chart in <<fig_mcd_ctrl>>.
+
+Il file `mcd_dp.vhdl` implementa quindi il datapath in maniera gerarchica, istanziando il dispositivo `divider` al suo interno.
+Come visibile in <<fig_mcd_dp>>, nel datapath vengono istanziati tre registri (`R_A`, `R_B`, `R_res`), due comparatori, un sommatore ed un componente che effettua la divisione.
+
+I registri `R_A` ed `R_B` servono principalmente per trattenere gli operandi nelle fasi di elaborazione, mentre `R_res` salva il risultato dell'operazione.
+Il sommatore, più propriamente un _sottrattore_, esplicita l'operazione di confronto `A >= B` attraverso le seguenti operazioni:
+
+. Estende entrambi gli operandi sul MSB, aggiungendo uno `'0'` quale **MSB** (_Most Significant Bit_).
+. Sottrae `R_B` da `R_A` (somma con complemento a due) interpretandoli senza segno.
+.. `R_A + (~R_B + 1)`
+. Il *MSB* del risultato indica se é un valore **non negativo**:
+.. `MSB = 0` il risultato é nullo o positivo => `R_A >= R_B`
+.. `MSB = 1` il risultato é negativo => `R_A < R_B`
+
+Per il divisore si utilizza solo il segnale del _resto_ (`div1_remainder`) mentre il quoziente viene ignorato.
 
 .Descrizione porte dispositivo `mcd`.
 [%unbreakable]
-[table_mcd_IOports,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
+[#table_mcd_IOports,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2m,^2,6",options="header"]
 |===
 
@@ -59,6 +83,7 @@ Indica che il risultato in uscita al dispositivo puó essere valutato.
 
 |===
 
+[#diag_mcd_io]
 .Diagramma dispositivo `mcd`
 [.center,svgbob-mcd_ports, reftext='{figure-caption} {counter:fignum}']
 [svgbob]
@@ -73,29 +98,6 @@ Indica che il risultato in uscita al dispositivo puó essere valutato.
                            |                |
                            +----------------+
 ----
-
-Il file `mcd.vhdl` contiene una rappresentazione strutturale del dispositivo, istanziando semplicemente control unit e datapath, insieme alla logica di collegamento interna ed alle porte.
-Il dispositivo presenta un parametro `generic OPSIZE` di tipo intero, utilizzato per definire la larghezza in bit degli operandi e del risultato.
-
-Il file `mcd_ctrl.vhdl` rappresenta la control unit del dispositivo in maniera comportamentale, implementando una semplice FSM (`ns_process`) per gestire le operazioni ed i segnali di controllo.
-Lo stile utilizzato esplicita i segnali di load dei registri presenti nel datapath, ed i selettori dei multiplexer utilizzati attraverso statement concorrenti in maniera coerente con i dispositivi fin'ora analizzati.
-Oltre la transizione degli stati, é visibile un _override_ ogniqualvolta il segnale `abort` viene settato.
-Questo termina le eventuali operazioni in corso e riporta la CTRL-Unit allo stato `S_INIT`.
-Si veda la rappresentazione ASM-chart in <<fig_mcd_ctrl>>.
-
-Il file `mcd_dp.vhdl` implementa quindi il datapath in maniera gerarchica, istanziando il dispositivo `divider` al suo interno.
-Come visibile in <<fig_mcd_dp>>, nel datapath vengono istanziati tre registri (`R_A`, `R_B`, `R_res`), due comparatori, un sommatore ed un componente che effettua la divisione.
-I registri `R_A` ed `R_B` servono principalmente per trattenere gli operandi nelle fasi di elaborazione, mentre `R_res` salva il risultato dell'operazione.
-Il sommatore, più propriamente un _sottrattore_, esplicita l'operazione di confronto `A >= B` attraverso le seguenti operazioni:
-
-. Estende entrambi gli operandi sul MSB, aggiungendo uno `'0'` quale **MSB** (_Most Significant Bit_).
-. Sottrae `R_B` da `R_A` (somma con complemento a due) interpretandoli senza segno.
-.. `R_A + (~R_B + 1)`
-. Il *MSB* del risultato indica se é un valore **non negativo**:
-.. `MSB = 0` il risultato é nullo o positivo => `R_A >= R_B`
-.. `MSB = 1` il risultato é negativo => `R_A < R_B`
-
-Per il divisore si utilizza solo il segnale del _resto_ (`div1_remainder`) mentre il quoziente viene ignorato.
 
 === Analisi dell'algoritmo
 
@@ -118,8 +120,9 @@ La sequenza delle operazioni del dispositivo `mcd` é:
 ... Termina quando uno dei due registri diventa zero.
 ... Restituisce il valore non-nullo in `R_res`
 
-L'algoritmo di Euclide corrisponde a questo comportamento, come rappresentato dal seguente spezzone di codice python che lo descrive:
+L'algoritmo di Euclide corrisponde a questo comportamento, come rappresentato dal <<source_mcd_euclid_python>> in codice python che lo descrive.
 
+[#source_mcd_euclid_python]
 .Algoritmo di Euclide per il MCD, python
 [source, python, reftext='{listing-caption} {counter:listnum}']
 ----
@@ -154,29 +157,29 @@ Tuttavia si considerano queste caratteristiche salienti a riguardo:
 
 === ASM Chart
 
-La rappresentazione della CTRL-Unit del dispositivo `mcd` é visibile nel seguente diagramma:
+La rappresentazione della CTRL-Unit del dispositivo `mcd` é visibile in <<fig_mcd_ctrl>>, dove si é apposto un flusso fuori dal normale controllo della FSM per indicare il comportamento del segnale `abort` quale _override_ del normale funzionamento.
+
+Le risorse visibili nel datapath sono invece rappresentate in <<fig_mcd_dp>>.
+
+
+Si é rappresentato il componente `divider` come un blocco gerarchico di cui si considera solo il comportamento alle porte di input e di output.
+Il divisore appare come un dispositivo multi-ciclo, che inizia un'operazione al set del segnale `start` e segnala la validitá dei suoi output (quoziente e resto) tramite il segnale `ready`.
+
+Risulta presente un segnale di `abort` per terminare prematuramente una divisione in corso.
+Anche per il divisore é presente il `generic OPSIZE` corrispondente a quello del dispositivo `mcd` che controlla la larghezza in bit degli operandi e del risultato.
 
 .ASM-Chart CTRL-Unit `mcd`
 [#fig_mcd_ctrl,reftext='{figure-caption} {counter:fignum}']
 image::images/ASM-mcd_ctrl.drawio.svg[]
 
-Dove si é apposto un flusso fuori dal normale controllo della FSM per indicare il comportamento del segnale `abort` quale _override_ del normale funzionamento.
-
-Le risorse visibili nel datapath sono invece rappresentate nella seguente immagine:
-
 .Risorse Datapath `mcd`
 [#fig_mcd_dp,reftext='{figure-caption} {counter:fignum}']
 image::images/ASM-mcd_dp.drawio.svg[]
 
-Si é rappresentato il componente `divider` come un blocco gerarchico di cui si considera solo il comportamento alle porte di input e di output.
-Il divisore appare come un dispositivo multi-ciclo, che inizia un'operazione al set del segnale `start` e segnala la validitá dei suoi output (quoziente e resto) tramite il segnale `ready`.
-Risulta presente un segnale di `abort` per terminare prematuramente una divisione in corso.
-Anche per il divisore é presente il `generic OPSIZE` corrispondente a quello del dispositivo `mcd` che controlla la larghezza in bit degli operandi e del risultato.
-
 == Tester e Testbench
 
 Per osservare e verificare il funzionamento del dispositivo sono stati sviluppati un testbench ed un tester.
-L'architettura di test segue l'impostazione vista nella sezione <<Multiplier and Count Leading Zeroes>>, con dei minimi aggiustamenti per il funzionamento di `mcd`.
+L'architettura di test segue l'impostazione vista nella sezione <<device_test_arch, relativa a `device`>>, con dei minimi aggiustamenti per il funzionamento di `mcd`.
 
 // see https://ivanceras.github.io/svgbob-editor/
 
@@ -235,17 +238,16 @@ Il diagramma ASM relativo al `tester` ricalca quello usato per il dispositivo `m
 
 .Flow-chart Tester `mcd`
 [#fig_asm_tester_mcd,reftext='{figure-caption} {counter:fignum}']
-image::images/ASM-mcd_tester.drawio.svg[]
+image::images/ASM-mcd_tester.drawio.svg[align="center"]
 
-Il segnale `abort` non viene testato esplicitamente, ma viene utilizzato solo nel caso in cui uno dei due operandi sia nullo.
-In questa situazione anche il controllo del risultato nel processo `check` viene saltato.
-Il `tester` procede quindi con i prossimi valori casuali.
-Questa condizione non é comunque raggiungibile in quanto il pacchetto `lfsr_pkg` utilizza dei polinomi per i quali il valore zero risulta essere l'elemento nullo, bloccando il funzionamento del generatore ed annullando tutti i valori successivi in caso di registro con soli zeri.
-Il valore iniziale per il `lfsr` viene impostato tramite la costante `SEED`.
+Il segnale `abort` non è testato esplicitamente, ma si attiva solo se un operando è nullo, saltando così anche il controllo in `check`; il `tester` prosegue quindi con altri valori casuali.
 
-Il parametro `NTESTS` puó essere trasmesso all'istanza attraverso il `generic override` a linea di comando, come per gli altri progetti.
-Il dispositivo `tester` inietta operandi casuali, ottenuti tramite il generatore di numeri pseudo-casuali, e confronta il risultato ottenuto con la seguente funzione, come da indicazioni di progetto:
+Tale condizione non si verifica poiché `lfsr_pkg` usa polinomi che rendono zero elemento assorbente e non raggiungibile, evitando registri bloccati.
+Il `lfsr` si inizializza via `SEED`.
 
+Il parametro `NTESTS` è configurabile con `generic override` da linea di comando. Il `tester` genera operandi pseudo-casuali e confronta il risultato con <<source_mcd_sw_check>>, come da specifiche.
+
+[#source_mcd_sw_check]
 .Calcolo *MCD*, funzione ricorsiva per `tester`
 [%unbreakable]
 [source, vhdl, reftext='{listing-caption} {counter:listnum}']
@@ -286,19 +288,13 @@ I criteri per definire i risultati interessanti sono:
 . *MCD* é uguale ad uno dei due operandi
 
 Per abilitare questo _report_, bisogna definire la variabile `VERBOSE` come nel caso di maggiore verbositá per gli eventuali errori.
-La soglia di interesse é altrettanto configurabile da linea di comando come generic override:
+La soglia di interesse é altrettanto configurabile da linea di comando come generic override del parametro `MCD_THRESH`.
 
-.Generic per soglia report `mcd`
-[%unbreakable]
-[source,vhdl, reftext='{listing-caption} {counter:listnum}']
-----
-...
-    MCD_THRESH  : integer := 4;
-...
-----
+Con un comando di esecuzione come da <<source_mcd_rtl_run>>, si otterranno dei report della forma del <<source_mcd_rtl_report>>.
 
-Con un comando di esecuzione come:
+Questi risultati sono giá stati confrontati e verificati dalla funzione ricorsiva inclusa in `tester`, ma permettono di ritrovare più agevolmente il punto saliente nelle forme d'onda qual'ora si volesse praticare un'analisi più approfondita dei segnali.
 
+[#source_mcd_rtl_run]
 .Esempio comando simulazione RTL `mcd` per report dettagliati
 [%autofit]
 [%unbreakable]
@@ -308,8 +304,7 @@ ghdl -e -v --std=93c -gOPSIZE=32 -gNTESTS=100 -gVERBOSE=true -gMCD_THRESH=10  te
 ghdl -r -v --std=93c  --time-resolution=ns -gOPSIZE=32 -gNTESTS=100 -gVERBOSE=true -gMCD_THRESH=10  testbench
 ----
 
-Si otterranno dei report nella seguente forma:
-
+[#source_mcd_rtl_report]
 .Esempio report dettagliato simulazione RTL `mcd`
 [%unbreakable]
 [source, console, reftext='{listing-caption} {counter:listnum}']
@@ -338,12 +333,11 @@ Interesting result at 57682 cycles:
 TEST PASS: 100 tests
 ----
 
-Questi risultati sono giá stati confrontati e verificati dalla funzione ricorsiva inclusa in `tester`, ma permettono di ritrovare più agevolmente il punto saliente nelle forme d'onda qual'ora si volesse praticare un'analisi più approfondita dei segnali.
-Dall'esempio sopra, si vede l'operazione in cui il risultato é `MCD = 15`:
-
 .Forme d'onda isultato esempio `mcd`
 [#fig_mcd_interesting_result,reftext='{figure-caption} {counter:fignum}']
 image::images/mcd_interesting_15.png[]
+
+In <<fig_mcd_interesting_result>> si puó osservare l'operazione in cui il risultato é `MCD = 15`.
 
 [#mcd_rtl_reports]
 I report ottenuti dalle simulazioni sono presenti nella cartella `simul.rtl`:
@@ -374,19 +368,17 @@ $ scripts/parse_and_check_mcd.py projects/04_mcd/simul.rtl/report_rtl_NTESTS_150
 >>> All results are correct.
 ----
 
-Al termine delle simulazioni RTL e delle verifiche, non si riscontra nessuna nota particolare.
-Il dispositivo `mcd` appare deterministicamente funzionante, ed i risultati che conferisce sono corretti nei casi generati casualmente.
+Al termine delle simulazioni RTL e verifiche, non si evidenziano note particolari: il dispositivo `mcd` risulta deterministico e corretto sui casi casuali.
 
-Come per il dispositivo <<project_device, Multiplier and CLZ>>, viene fornito uno script per lanciare automaticamente la simulazione RTL tramite `Xcelium`, al percorso `scripts/rtl_xcelium`.
-Per evitare l'utilizzo di molta memoria, il salvataggio dei database delle forme d'onda non viene salvatao di default dallo script `scripts/rtl_xsim.tcl`, che deve quindi essere modificato per includerli.
-Lo script _tcl_ salva comunque il file `saif` per le stime pre-sintesi in `simul.rtl/mcd_OPSIZE{16,32,64}.saif`.
-Questi file sono utilizzati negli script `genus` successivi, per cui risulta necessario la simulazione RTL tramite `rtl_xcelium` almeno una volta per ogni valore di `OPSIZE` prima di passare al flusso di sintesi.
+Come per <<project_device, Multiplier and CLZ>>, è fornito uno script `scripts/rtl_xcelium` per lanciare la simulazione RTL con `Xcelium`.
+Per default lo script `scripts/rtl_xsim.tcl` non salva i database delle forme d'onda (richiede modifica per abilitarli), ma genera i file `saif` in `simul.rtl/mcd_OPSIZE{16,32,64}.saif` usati poi dal flusso `genus`.
 
-Lo script esegue una simulazione per 15000 test, con larghezza `OPSIZE = 32`.
-Per modificare questi parametri é sufficiente aggiungere i nuovi valori come argomenti dello script, in forma di numeri interi seguendo l'ordine `<OPSIZE> <NTESTS>`, come da esempio:
+È quindi necessario eseguire almeno una simulazione RTL con `rtl_xcelium` per ciascun `OPSIZE` prima della sintesi.
+Lo script effettua 15000 test con `OPSIZE=32` di default; per cambiare valori, passare `<OPSIZE> <NTESTS>` come argomenti interi.
 
+
+[#cli_mcd_rtl_xcelium]
 .Script per simulazione RTL Xcelium `mcd` con `OPSIZE => 16` e `NTESTS => 100`
-[#cli_mcd_rtl_xcelium,reftext='{listing-caption} {counter:listnum}']
 [source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 ~/04_mcd$ scripts/rtl_xcelium 16 100
@@ -394,9 +386,12 @@ Per modificare questi parametri é sufficiente aggiungere i nuovi valori come ar
 
 == Stdcells synthesis
 
-Come per il dispositivo `device` del <<project_device>>, il flusso di sintesi é contenuto interamente in uno script `tcl`, `scripts/genus.tcl`.
-Il setup delle cartelle e l'esecuzione del flusso tramite l'invocazione del tool é eseguibile da script `scripts/synth_genus`, che risulta esattamente identico a quello usato nel capitolo precedente per quanto riguarda il flusso implementato, <<mcd_synth_flow, descritto nella lista successiva>>.
-Per comoditá di esecuzione, `scripts/genus` accetta un argomento intero quale valore di `OPSIZE` per l'elaborazione, in maniera analoga a quanto mostrato in <<cli_mcd_rtl_xcelium>>.
+Come per il `device` del <<project_device>>, il flusso di sintesi è gestito interamente dallo script `tcl` `scripts/genus.tcl`.
+
+Il setup delle cartelle e l`esecuzione del tool avvengono tramite `scripts/synth_genus`, identico per flusso al caso precedente (vedi <<mcd_synth_flow>>).
+
+Per comodità, `scripts/genus` accetta un argomento intero per `OPSIZE`, analogo a quanto illustrato in <<cli_mcd_rtl_xcelium>>.
+
 
 [%unbreakable]
 [#mcd_synth_flow]
@@ -449,7 +444,7 @@ Questo implica che ai risultati dei report esposti bisogna considerare l'aggiunt
 ====
 
 La motivazione per l'inserimento della _guard-band_ artificiale é data dalla presenza di diversi path combinatori profondi nel design `mcd`, e la conseguente difficoltá dello strumento di sintesi a chiudere il timing prima dell'ottimizzazione.
-Ispezionando per esempio il dispositivo sintetizzato `mcd_OPSIZE32` con il comando `report_logic_levels_histogram`
+Ispezionando per esempio il dispositivo sintetizzato `mcd_OPSIZE32` con il comando `report_logic_levels_histogram` si contano 98 percorsi con un numero di livelli logici maggiore a 12, di cui 24 hanno profonditá 16.
 
 .Istogramma numero livelli logici sintesi `mcd_OPSIZE32`
 [#listing_mcd_32_logic_levels]
@@ -472,7 +467,6 @@ Ispezionando per esempio il dispositivo sintetizzato `mcd_OPSIZE32` con il coman
   View: 'analysis_view:mcd_OPSIZE32/default_emulate_view'
 ----
 
-si contano 98 percorsi con un numero di livelli logici maggiore a 12, di cui 24 hanno profonditá 16.
 Vista la semplicitá del componente non si effettua un'analisi su tali percorsi volta a spezzarli tramite l'introduzione di appositi registri, attivitá che altrimenti sarebbe opportuna in un contesto più stringente (maggiore complessitá) o di violazione del timing.
 
 In aggiunta, la libreria utilizzata presenta celle relativamente piccole ed a basso consumo, non fornendo particolari strumenti alla sintesi per ottenere margini più grandi, risultando quindi in un WNS pari a 0.
@@ -489,9 +483,15 @@ Gli stessi risultati vengono plottati nel grafico <<plt_mcd_syn_opt_results>>
 La copertura dell'annotazione dei file `saif` in questo punto é insufficiente per quanto riguarda i segnali interni e flip-flop (con un minimo dello 0.47%), quindi risulterá necessario confrontare la potenza stimata in condizione _post-gate-level_.
 ====
 
+Come mostrano i dati, con `OPSIZE => 32` il dispositivo `mcd` raggiunge un buon equilibrio _power-performance-area_, pur con un minor margine di slack, mentre le altre metriche crescono linearmente col raddoppio di `OPSIZE`.
+
+Grazie al margine sul periodo di clock, anche con operandi a 64 bit i risultati restano accettabili, rendendo la scelta di `OPSIZE` sostanzialmente indipendente dal trade-off _PPA_ e guidata solo da esigenze funzionali.
+
+Va però notato che, in un`integrazione più complessa, potrebbe servire inserire registri o pipeline per spezzare i path combinatori, con un impatto crescente sull`area all`aumentare di `OPSIZE`.
+
 .Risultati sintesi `mcd` con `OPSIZE => {16, 32, 64}`
 [%unbreakable]
-[table_mcd_syn_opt_results,subs="attributes+",reftext='{table-caption} {counter:tabnum}']
+[#table_mcd_syn_opt_results,subs="attributes+",reftext='{table-caption} {counter:tabnum}']
 [cols="^.^1m,^.^1,^.^1,^.^1,^6a",frame="ends",grid="rows",options="header"]
 |===
 
@@ -548,12 +548,9 @@ La copertura dell'annotazione dei file `saif` in questo punto é insufficiente p
 
 |===
 
-Come si vede da questi dati, la condizione di elaborazione del dispositivo `mcd` con `OPSIZE => 32` rappresenta un punto dove il trade-off _power-performance-area_ gode di un certo equilibrio, perdendo invece più margine sullo slack disponibile mentre le altre metriche mantengono l'andamento lineare con il raddoppio del generic `OPSIZE`.
-Tuttavia, grazie al margine artificiale inserito sul periodo di clock, anche i risultati nel caso di larghezza degli operandi 64 é accettabile e soddisfacente, rendendo la scelta del parametro praticamente indipendente dal rapporto _PPA_ ed esclusivamente dettato dalla necessitá funzionale.
-
 .`mcd` design metrics vs `OPSIZE`
 [#plt_mcd_syn_opt_results,subs="attributes+"reftext='{figure-caption} {counter:fignum}']
-[gnuplot]
+[gnuplot, align="center"]
 ....
 set title "Design metrics vs OPSIZE"
 set xlabel "OPSIZE"
@@ -611,52 +608,83 @@ plot \
     $power using 1:2 axes x1y2 with linespoints ls 4 title "Power (fW)"
 ....
 
-Tuttavia, nel momento in cui questo dispositivo venisse integrato in un contesto di maggior complessitá, potrebbe risultare necessario aggiungere registri e stadi di pipeline per spezzare i path combinatori, incidendo maggiormente sull'area al crescere di `OPSIZE`.
-
 == Gate-level Simulations
 
-Le simulazioni gate-level seguono lo stesso flusso e utilizzano gli stessi strumenti descritti per il progetto `Multiplier and CLZ`.
-È possibile impostare i parametri `OPSIZE` ed `NTESTS` direttamente da riga di comando, come argomenti (nell'ordine) dello script `scripts/gl_xcelium`.
+Le simulazioni gate-level seguono lo stesso flusso e impiegano gli stessi strumenti descritti per il progetto `Multiplier and CLZ`.
+I parametri `OPSIZE` e `NTESTS` possono essere specificati da riga di comando come argomenti ordinati dello script `scripts/gl_xcelium`.
 
 [WARNING]
 ====
-Lo script `gl_xcelium` **cancella** la directory `simul.gate/work/` ad ogni invocazione.
-
+Lo script `gl_xcelium` **rimuove** la directory `simul.gate/work/` a ogni esecuzione.
 Si raccomanda quindi di salvare o archiviare eventuali dati di interesse prima di avviare una nuova _run_.
 ====
 
-Per uniformare il framework agli output della sintesi, che genera file denominati `mcd_OPSIZE*`, nella cartella `simul.gate/` sono stati predisposti tre _packages_ e un _testbench_ distinti.
-Ognuno di questi corrisponde a una specifica dimensione `OPSIZE` e richiede quindi un valore tra `{16, 32, 64}`.
+Per uniformare il framework agli output della sintesi — che produce file denominati `mcd_OPSIZE*` — nella cartella `simul.gate/` sono stati predisposti tre _packages_ e un _testbench_ distinti, ciascuno legato a una specifica dimensione `OPSIZE` e dunque a un valore tra `{16, 32, 64}`.
 
-Le modifiche sui sorgenti in versione gate-level sono state volutamente minime, limitandosi a istanziare il _DUT_ appropriato senza `generic`, e a connettere le porte relative al `DFT`.
+Le modifiche ai sorgenti in versione gate-level sono state volutamente minimali, limitandosi all`istanza del _DUT_ corretto (senza `generic`) e alla connessione delle porte dedicate al `DFT`.
 
-Le simulazioni in condizioni nominali hanno riportato esito positivo fino a 1000 test, confermando che la funzionalità del circuito è stata preservata anche dopo il processo di sintesi.
-Utilizzando i file SDF prodotti dal tool di sintesi — per i quali lo script `gl_xcelium` prevede un'opzione comoda tramite il flag `-sdf` — sono emersi risultati degni di nota.
+Le simulazioni in condizioni nominali hanno dato esito positivo fino a 1000 test, confermando che la funzionalità del circuito si mantiene inalterata anche dopo il processo di sintesi.
+In presenza dei file SDF generati dal tool di sintesi — integrabili tramite l`opzione `-sdf` dello script `gl_xcelium` — sono stati invece rilevati risultati di particolare interesse.
 
-I test infatti rimangono validi fino a periodi di clock sorprendentemente ridotti.
+I test si sono infatti mantenuti validi fino a periodi di clock sorprendentemente ridotti.
+Per `OPSIZE` pari a `16` e `32` bit, il dispositivo opera correttamente fino a `840 ps` (circa `1.2 GHz` con duty cycle `50%`); nel caso `64` bit la soglia si alza lievemente a `870 ps`, restando comunque al di sotto del target nominale di `1 GHz`.
 
-Per `OPSIZE` pari a `16` e `32` bit, il circuito si comporta correttamente fino a `840 ps` (circa `1.2 GHz`, duty cycle `50%`).
-Nel caso `64` bit, la soglia si alza leggermente a `870 ps`, rimanendo comunque al di sotto del target di `990 ps` previsto per l'operatività nominale a `1 GHz`.
+Una spiegazione plausibile di questo ampio margine risiede nella natura degli stimoli utilizzati.
+L`analisi RTL evidenzia infatti una copertura estremamente bassa sui flip-flop interni (meno dell'1%), a fronte di una copertura sui pin I/O superiore al 94%.
+Considerando che il circuito calcola il massimo comune divisore (MCD), è verosimile che i bit più significativi dei risultati vengano raramente esercitati.
 
-Una possibile spiegazione di questo ampio margine risiede nella natura degli stimoli utilizzati nei test.
+Questa ipotesi trova conferma parziale nei report RTL: solo poche centinaia di risultati coinvolgono più dei tre bit meno significativi, e solo sporadicamente — nel caso `OPSIZE64` — si osservano transizioni oltre l`undicesimo bit (con un unico caso rilevato fino al tredicesimo).
 
-Dall'analisi RTL si ricava infatti una copertura estremamente bassa sui flip-flop interni (meno dell'`1%`), a fronte di una copertura sui pin I/O superiore al `94%`.
-Considerato che il circuito calcola il massimo comune divisore (MCD), è plausibile che i bit più significativi dei risultati vengano raramente esercitati.
+Se i percorsi critici coincidono proprio con tali segnali poco sollecitati, si spiega come il circuito si mantenga stabile fino a frequenze tanto elevate, pur senza riflettere necessariamente il limite fisico reale.
 
-Questa ipotesi trova parziale conferma nei report RTL, dove emerge che solo poche centinaia di risultati coinvolgono più dei tre bit meno significativi, e che solo raramente — nel caso `OPSIZE64` — vengono toccati oltre undici bit (con un solo caso registrato fino al tredicesimo bit).
+Tuttavia i report di timing (`report_timing -max_paths 10`) indicano che quasi tutti i cammini più lenti coinvolgono il registro `R_B` del modulo `divider`, relativo al secondo operando.
+Validare quindi in modo conclusivo l'ipotesi formulata richiederebbe un`analisi approfondita della chiusura del timing in fase di sintesi, nonché uno studio mirato del componente `divider`, attività che esulano dagli obiettivi e dalle tempistiche di questo progetto.
 
-Se i percorsi critici corrispondono proprio a questi segnali poco attivati, si spiega come mai le simulazioni si mantengano corrette fino a frequenze così elevate, pur non riflettendo necessariamente il limite fisico effettivo del circuito.
+Un riepilogo dei risultati delle simulazioni gate-level è riportato nella <<table_mcd_gl_result>>.
+In <<fig_mcd_gl_glitch_and_fail>> sono invece mostrate le forme d`onda gate-level al momento di un errore (`CLK_PERIOD => 840 ps`, `OPSIZE => 64`, `Time: 56791.56`).
 
-I report di timing (`report_timing -max_paths 10`) mostrano che quasi tutti i cammini più lenti coinvolgono tuttavia il registro `R_B` del modulo `divider`, cioè il secondo operando.
-Per validare in modo definitivo l'ipotesi fatta sarebbe necessaria un'analisi accurata della chiusura del timing in fase di sintesi, insieme a uno studio del componente `divider`.
+Pur non essendo causa diretta del malfunzionamento, si evidenziano alcuni glitch sul segnale di ingresso al datapath `div1_start`, presenti in istanti diversi e di entità variabile.
 
-Tali indagini esulano però dagli obiettivi di questo progetto e non risultano compatibili con le tempistiche disponibili.
 
-Un riepilogo dei risultati delle simulazioni gate-level é riportato nella tabella #TODO#.
+[%unbreakable]
+.Risultati simulazioni gate-level
+[#table_mcd_gl_result,subs="attributes+",reftext='{table-caption} {counter:tabnum}']
+[cols="^.^1m,^.^2,^.^2a,^2a",frame="ends",grid="rows",options="header"]
+|===
 
-In <<fig_mcd_gl_glitch_and_fail>> sono invece visibili forme d'onda gate-level al momento di un risultato errato (`CLK_PERIOD => 840 ps` — `OPSIZE => 64`, `Time: 56791.56`).
+|`OPSIZE`
+|`NTESTS`
+|Result
+|Time
 
-Pur non essendo direttamente causa dell'errore, si notano alcuni glitch sul segnale di ingresso al datapath `div1_start`, presenti in istanti diversi e di varia entità.
+|16
+|1000
+|_Pass_
+|
+----
+real    0m27.157s
+user    0m13.537s
+----
+
+|32
+|1000
+|_Pass_
+|
+----
+real    1m23.134s
+user    1m9.707s
+----
+
+|64
+|1000
+|_Pass_
+|
+----
+real    7m49.197s
+user    7m35.451s
+----
+
+|===
 
 .Simulazione gate-leve, `mcd_OPSIZE64`, risultato errato e glitch
 [#fig_mcd_gl_glitch_and_fail,reftext='{figure-caption} {counter:fignum}']
@@ -664,17 +692,16 @@ image::images/mcd_gl_sdf_glitch_and_fail.png[]
 
 == Other evaluations
 
-Dai dati raccolti si osserva una crescita complessivamente proporzionale dei consumi passando da 16 a 64 bit, sia prima che dopo il passaggio gate-level.
+Dall’analisi dei dati si osserva una crescita pressoché proporzionale dei consumi passando da 16 a 64 bit, sia prima che dopo il livello gate-level.
 
-Si rileva tuttavia un lieve aumento percentuale della componente interna post-sintesi, in particolare per la configurazione a 64 bit, dove la voce `Internal` incide per oltre il 77% del totale.
+Si nota però un incremento percentuale della componente `Internal` post-sintesi, particolarmente marcato per la configurazione a 64 bit, dove supera il 77% del totale.
+Questo risultato è coerente con l’introduzione di logica aggiuntiva dovuta al supporto DFT e alle ottimizzazioni di timing applicate dal tool di sintesi.
 
-Ciò è coerente con l'introduzione di logica addizionale legata al supporto DFT e alle ottimizzazioni di timing operate dal tool di sintesi.
-
-Nella tabella di chiusura della sezione, sono riassunti i dati di dissipazione di potenza.
+La <<table_mcd_pwr_eval>> conclusiva della sezione riassume i dati relativi alla dissipazione di potenza.
 
 [%unbreakable]
 .Consumi post-gate-level (nW)
-[table_mcd_pwr_eval,subs="attributes+",reftext='{table-caption} {counter:tabnum}']
+[#table_mcd_pwr_eval,subs="attributes+",reftext='{table-caption} {counter:tabnum}']
 [cols="^.^1m,^.^2,^2m,^2m,^2m,^2m,^2m",frame="ends",grid="rows",options="header"]
 |===
 

@@ -7,6 +7,7 @@ page:
   accent1_color: B9BAA3
   accent2_color: D6D5C9
   lightbg_color: f8f8f8
+  white_color: FFFFFF
   margin: [ 2cm, 1.5cm, 2cm, 1.5cm ]
 
 
@@ -24,6 +25,9 @@ role:
   code:
       font-family: Hack
       font-size: 50
+  hidden-text:
+      font-family: Hack
+      font-color: $page_white_color
 
 column-rule: true
 

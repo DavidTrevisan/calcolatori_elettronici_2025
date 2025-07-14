@@ -13,7 +13,8 @@
 :note-caption: Nota
 :warning-caption: Avvertenza
 :appendix-caption: Appendice
-David Trevisan • 112643 • 2025-07-12
+:title-page-background-image: image::images/front_page.svg[align=center,pdfwidth=100%]
+David Trevisan • 112643 • {docdate}
 
 // Use the following template to have only the caption text when linking to image
 // [#fig_mem_lat_bug2,reftext='{figure-caption} {counter:fignum}']
@@ -41,7 +42,7 @@ Si illustrano l'uso degli strumenti forniti per la simulazione, i diagrammi funz
 Segue un'analisi simile per il `search_chr`, con particolare attenzione al percorso evolutivo delle versioni implementate e a considerazioni sul modello di memoria, esteso per supportare latenza variabile.
 Il capitolo si chiude con diagrammi e risultati di simulazione RTL.
 
-Nel progetto `multiplier_and_clz` si affronta, oltre al livello RT, anche il flusso di sintesi, approfondendo le implicazioni sul piano delle risorse e delle temporizzazioni.
+Nel progetto `multiplier_and_clz` si affronta, oltre al livello RT, anche il flusso di sintesi, approfondendo le implicazioni sul piano delle risorse e del timing.
 
 Infine, il dispositivo `mcd` viene discusso a partire dalla struttura del codice, con la presentazione dei diagrammi ASM-Chart e del datapath estratto, fino alla descrizione dell'infrastruttura di test sviluppata e alla verifica tramite simulazioni RTL, flusso di sintesi e simulazioni gate-level con relative considerazioni.
 
@@ -65,7 +66,9 @@ Infine, il dispositivo `mcd` viene discusso a partire dalla struttura del codice
 
 {nbsp}
 
-Documento generato dalla revisione Git: {git-sha}
+[.hidden-text]*Documento generato dalla revisione Git: {git-sha}*
+
+// [.hidden-text]*Questo documento proviene dalla repository https://github.com/DavidTrevisan/calcolatori_elettronici_2025*
 
 == Informazioni Preliminari
 
@@ -95,24 +98,20 @@ Ogni progetto assume la seguente struttura di cartelle:
 └── sources.vc
 ----
 
-
-Ogni progetto assume la seguente struttura di cartelle.
-
 Le cartelle `simul.gate` e `simul.rtl` possono non essere presenti.
-Gli script potranno generarle automaticamente come percorsi di lavoro per le relative fasi.
+Gli script potranno generarle automaticamente come percorsi di lavoro e per file sorgenti specifici.
 
 La cartella `code` contiene tutti i sorgenti necessari al funzionamento del dispositivo.
 Contiene inoltre i sorgenti necessari alla simulazione.
 
 La cartella `assets` raccoglie eventuali file di supporto per il dispositivo o per il testbench.
-Ad esempio i file di input per gli stimoli del TB potranno trovarsi in `<prj_path>/assets/data.txt`, se richiamati dal codice in simulazione.
+Ad esempio i file di input per gli stimoli del TB.
 
 La cartella `scripts` raccoglie script utili all'analisi, simulazione o sintesi.
-Può contenere script generici riutilizzabili oppure script specifici o modificati appositamente per il progetto corrente, inclusi file `.tcl` o script Bash/Python dedicati.
+Solitamente contiene script specifici o modificati appositamente per il progetto corrente, inclusi file `.tcl` per i tool di sviluppo.
 
-La cartella `synth` contiene i dati generati dalla sintesi del dispositivo.
+La cartella `synth` contiene i dati generati dalla sintesi del dispositivo ed é utilizzata come percorso di lavoro per gli strumenti di sintesi.
 Questa cartella viene solitamente creata dagli script forniti.
-In alternativa, può essere creata manualmente secondo i requisiti del progetto.
 
 [#sources_file]
 
@@ -124,7 +123,7 @@ Questo permette di mantenere separata la descrizione dei file sorgente dalla log
 
 === Versione degli strumenti
 
-Le considerazioni di questo documento si basano sulle seguenti versioni:
+Le considerazioni ed i risultati di questo documento sono stati effettuati usando le seguenti versioni di strumenti:
 
 * GHDL 6.0.0-dev (b6.0.0.r58.g87396157e) - GNAT 14.2.1
 * GTKWave Analyzer v3.3.121
@@ -134,8 +133,7 @@ Le considerazioni di questo documento si basano sulle seguenti versioni:
 
 === Scripts
 
-
-Vengono descritti gli script principali utili per l'esecuzione sistematica dei progetti.
+Vengono descritti gli script forniti insieme al documento ed utilizzati per i risultati ottenuti.
 
 [#script_ghdl]
 ==== `runSim_ghdl`
@@ -175,7 +173,7 @@ Si veda <<sources_file, sources.vc>> per i dettagli.
 [#script_check_mcd]
 ==== `parse_and_check_mcd.py`
 
-Script Python per validare i report MCD generati.
+Script Python per validare i report MCD generati, come descritto nella <<mcd_rtl_reports, sezione relativa>>.
 
 Dipendenze:
 
@@ -186,16 +184,19 @@ Utilizzo:
 
 .Utilizzo script `parse_and_check_mcd.py`
 [#script_check_mcd_usage]
-[source, console]
+[source, console, reftext="{listing-caption} {counter:listnum}"]
 ----
 $ scripts/parse_and_check_mcd.py <input_file>
 ----
 
 Dove `<input_file>` è il report testuale prodotto dalle simulazioni RTL o gate-level del dispositivo MCD.
 
+---
+---
+
 [NOTE]
 ====
-Questo insieme di successivi script si trova principalmente nei progetti `03-device` e `04-mcd`, configurati per supportare sia simulazioni RTL che gate-level nello stesso flusso di validazione.
+Questo insieme di successivi script si trova principalmente nei progetti `03-device` e `04-mcd`, configurati individualmente per supportare sia simulazioni RTL che gate-level nello stesso flusso di validazione, e per il flusso di sintesi.
 ====
 
 [#script_tl_xcelium]
@@ -276,13 +277,14 @@ $ scripts/gl_xcelium [OPSIZE] [NTESTS] [CLK_PERIOD] [-sdf]
 Script TCL di supporto per Xcelium che, durante la simulazione gate-level, genera i file SAIF utili per la stima della potenza.
 Configura il dump dell'attività dei segnali interni e avvia la simulazione.
 
+[discrete]
 == Nota sulle immagini
 
 [WARNING]
 ====
 Le immagini dei diagrammi ed ottenute tramite screenshot incluse in questo documento sono state catturate e costruite con attenzione per garantire la migliore qualità possibile per permettere l'ingradimento necessario ad osservare i dettagli.
 
-Si consiglia di consultare la versione digitale originale del documento per una resa ottimale di tali immagini.
+Si raccomanda di consultare la versione digitale originale del documento per una resa ottimale di tali immagini.
 ====
 
 == Progetti
@@ -299,6 +301,8 @@ include::multiplier_and_clz.adoc[leveloffset=2]
 include::mcd.adoc[leveloffset=2]
 
 <<<
+
+include::conclusion.adoc[]
 
 // Appendixes
 

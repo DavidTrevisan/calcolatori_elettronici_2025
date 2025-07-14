@@ -1,0 +1,11 @@
+== Conclusione
+
+Dalle analisi sui quattro dispositivi emerge una conferma solida della correttezza funzionale delle implementazioni RTL e della stabilità dei flussi di sintesi e simulazione gate-level.
+Interessante notare come, in particolare per `search_chr` e `mcd`, anche modifiche minime all'architettura possano impattare in modo netto sullo slack e sulla ripartizione dei consumi interni, pur conservando una crescita regolare rispetto ai parametri di dimensionamento.
+
+I test hanno mostrato margini di sicurezza oltre le attese sui target di clock, risultato legato probabilmente alla limitata attivazione dei percorsi critici nei pattern casuali utilizzati.
+Questo aspetto rimane un punto da esplorare meglio.
+
+Il framework che ho costruito — basato su script Bash, Tcl e Python — si è rivelato flessibile e facilmente adattabile a dispositivi diversi e scenari di test vari.
+Guardando avanti, sarebbe utile ampliare le coverage analysis e introdurre un ambiente di testing multi-configurazione, così da renderlo ancora più solido e ridurre la necessità di interventi manuali nelle iterazioni future.
+In questo modo, potrebbe supportare in modo affidabile progetti di dimensioni e complessità maggiori, con un ciclo di sviluppo più snello.

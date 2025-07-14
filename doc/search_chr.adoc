@@ -114,7 +114,7 @@ ADDRESS [32]------> |                |---> MEM_ENABLE
                       START   READY
 ----
 
-Il dispositivo viene presentato nelle seguenti versioni:
+Il dispositivo ha quattro versioni:
 
 [loweralpha, bold]
 . <<version_a, Originale, secondo requisiti.>>
@@ -211,7 +211,7 @@ Il formato atteso per il file é:
 * solo valori testuali `0` e `1`.
 
 [#memory_latency]
-==== Versione 'b': Memoria con latenza di più cicli
+==== Versione 'b': Memoria con latenza variabile
 
 Per questa versione é stato aggiunto un parametro `MEM_LAT` per gestire la latenza.
 Il parametro si aspetta un valore intero, positivo non nullo (VHDL: `positive`) che rappresenti il numero del ciclo di clock sul quale il dato letto sará disponibile.
@@ -365,7 +365,7 @@ signal LENS         : array_of_integers(0 to 2) := (10, 10, 15);
 [%unbreakable]
 [WARNING]
 ====
-Rispetto alla versione originale, 'da slides', ai segnali é stato apposto un range definito per evitare l'errore specifico dello standard `--std=93c` di GHDL, con signature:
+Rispetto alla versione originale, ai segnali é stato apposto un range definito per evitare l'errore specifico dello standard `--std=93c` di GHDL, con signature:
 
 [%autofit]
 ```
@@ -429,11 +429,14 @@ Il valore della costante `MAX_INSTR` deve corrispondere al numero di gruppi di i
 In caso contrario, il testbench potrebbe non funzionare come inteso o fallire giá a livello di elaborazione.
 ====
 
-Per gestire la lettura dal file, una funzione impura `load_instr`, confrontabile con lo stile della funzione <<memory_loadmem,`loadmem` di `memory.vhdl`>>, carica gli input in una struttura buffer.
+Per gestire la lettura dal file, una funzione impura `load_instr` simile allo stile della funzione <<memory_loadmem,`loadmem` di `memory.vhdl`>>, carica gli input in una struttura buffer.
 
 Questa struttura viene infine chiamata `instr_data` e corrisponde ad una _lista di vettori di interi_.
-Nel processo di generazione del reset, e quindi di inizio della simulazione, é stato aggiunto il codice:
+Nel processo di generazione del reset, e quindi di inizio della simulazione, é stata aggiunta la modifica del <<source_search_chr_ext_file_tb>> creando cosí una corrispondenza diretta con il sistema di assegnazione dei segnali di input precedentemente implementato.
+Diversamente dalla versione originale, i vettori `ADDRESSES`, `CHARS` e `LENS` sono ora determinati in lunghezza dalla costante `MAX_INSTRS`.
+Allo stesso modo, il controllo della FSM sul numero di istruzioni completate é stato modificato per usare direttamente la costante `MAX_INSTRS`.
 
+[#source_search_chr_ext_file_tb]
 .Modifica testbench `search_chr` con istruzioni da file esterno
 [%unbreakable]
 [source, vhdl, reftext='{listing-caption} {counter:listnum}']
@@ -445,9 +448,7 @@ Nel processo di generazione del reset, e quindi di inizio della simulazione, é 
 ...
 ----
 
-creando cosí una corrispondenza diretta con il sistema di assegnazione dei segnali di input precedentemente implementato.
-Diversamente dalla versione originale, i vettori `ADDRESSES`, `CHARS` e `LENS` sono ora determinati in lunghezza dalla costante `MAX_INSTRS`.
-Allo stesso modo, il controllo della FSM sul numero di istruzioni completate é stato modificato per usare direttamente la costante `MAX_INSTRS`.
+<<<
 
 [#asm_search_chr]
 == ASM Chart
@@ -461,7 +462,7 @@ image::images/ASM-search_chr_orig.drawio.svg[]
 Si nota che, per ogni transazione con la memoria esterna, un ciclo viene 'sprecato' tra `FETCH` e `COMPARE`.
 
 [#version_c]
-La versione del dispositivo migliorata (versione `c`) risolve questa osservazione ed é rappresentata nel seguente ASM-chart:
+La versione del dispositivo migliorata (versione `c`) risolve questa osservazione ed é rappresentata in <<fig_search_chr_improved>>.
 
 .ASM Chart `search_chr` versione migliorata (c)
 [#fig_search_chr_improved,reftext='{figure-caption} {counter:fignum}']
@@ -478,19 +479,21 @@ Questa condizione predispone il design a comportamenti non-deterministici, metas
 Si assume peró che il segnale `MEM_DATAIN` sia stabile per la relazione di setup con il segnale `MEM_READY`, e che il valore sia mantenuto stabile almeno fino alla prossima richiesta alla memoria, ossia fino almeno il prossimo fronte di salita del clock.
 In queste condizioni si accetta di comparare il valore appena presentato dalla memoria, vista l'implicita sincronia con il controllo del dispositivo `search_chr`.
 In assenza di chiari limiti tecnologici, si é considerata comunque accettabile questa modifica vista la poca complessitá del dispositivo.
-Alternativamente si dovrebbero predisporre degli opportuni circuiti "synchronizer" su tutti gli output della memoria in ingresso al DUT.
+Alternativamente si dovrebbero predisporre degli opportuni circuiti _synchronizer_ su tutti i segnali della memoria in ingresso al DUT.
 
-Il datapath comprende le risorse mostrate nell'immagine:
+Il datapath comprende le risorse mostrate in <<fig_search_chr_dp>>.
 
 .Diagramma datapath `search_chr`
 [#fig_search_chr_dp,reftext='{figure-caption} {counter:fignum}']
 image::images/ASM-search_chr_dp.drawio.svg[]
 
-Per il dispositivo migliorato (<<version_c, versione `c`>>) si risparmia solamente un registro, `D`, che non risulta più necessario vista la comparazione immediata con l'output `dataout` della memoria.
+Per il dispositivo migliorato (<<version_c, versione c>>) si risparmia solamente un registro (`D`) che non risulta più necessario vista la comparazione immediata con l'output `dataout` della memoria.
+
+<<<
 
 == Risultati
 
-Come per il dispositivo `onescounter`, lo script `runSim_ghdl` puó essere usato per lanciare automaticamente le fasi di analisi, elaborazione e simulazione di `search_chr`.
+Come per il dispositivo `onescounter`, lo script <<script_ghdl>> puó essere usato per lanciare automaticamente le fasi di analisi, elaborazione e simulazione di `search_chr`.
 
 .Esempio uso `runSim_ghdl` per simulare le diverse versioni di `search_chr`
 [%unbreakable]
@@ -538,6 +541,7 @@ Come anche segnalato nella sezione <<runSim_ghdl_generic, relativa allo script>>
 
 .Esempio `runSim_ghdl`, `search_chr` versione b
 [%autofit]
+[%unbreakable]
 [source, console, reftext='{listing-caption} {counter:listnum}']
 ----
 $ scripts/runSim_ghdl projects/02_search_chr/b_mem_lat MEM_LAT=1 # Corrispondente alla versione 'a'
@@ -548,24 +552,21 @@ $ scripts/runSim_ghdl projects/02_search_chr/b_mem_lat MEM_LAT=15 # latenza di 1
 [#bug_b_mem_lat]
 ==== Problematiche riscontrate
 
-La prima versione prevedeva un'implementazione differente rispetto a quella descritta e consegnata insieme al presente documento.
-Il modello di memoria a latenza configurabile utilizzava un approccio basato sulla registrazione degli input e di un contatore per calcolare la latenza.
+La prima versione del modello di memoria a latenza configurabile differiva dall'implementazione finale consegnata.
+Usava un registro per gli input e un contatore caricato a `MEM_LAT-1` al set di `MEM_ENABLE`.
+Il contatore decrementava fino a zero, momento in cui `MEM_READY` veniva attivato e `dataout` impostato al valore registrato di `MEM_ADDRESS`.
 
-I segnali di input venivano registrati al set del segnale `MEM_ENABLE`, mentre il contatore veniva caricato al valore `MEM_LAT-1`.
-Successivamente il contatore decrementava fino a raggiungere il valore `"0"`, e gli output venivano impostati utilizzando il valore registrato di `MEM_ADDRESS`.
+Questo schema introduceva però una discrepanza temporale: con `MEM_LAT=2`, il segnale `MEM_READY` si alzava correttamente, ma `dataout` risultava valido **solo al ciclo successivo**.
 
-L'implementazione ha peró portato con se delle piccole differenze comportamentali del modello, in particolare riguardo all'impostazione di `dataout`.
-Questi comportamenti non sono stati rilevati e non hanno causato differenze fino all'implementazione della versione migliorata di `search_chr` (`c`).
-Confrontando ed incrementando il contatore dei caratteri simultaneamente appariva funzionalmente scorretto il ritardo introdotto dalla registrazione dei segnali nel modello di memoria.
+Tale differenza non aveva effetto nelle versioni iniziali (`a` e `b`), ma ha causato un malfunzionamento nella versione avanzata di `search_chr` (`c`), che confronta e incrementa simultaneamente.
+Il ritardo sull'output ha portato a conteggi errati.
 
-Nel caso con `MEM_LAT=2`, la memoria impostava qundi il segnale di `MEM_READY` all'istante corretto, ma presentava i dati in output _al ciclo successivo_.
-
-Nell'analisi e risoluzione di questo _bug_, si é considerato quindi l'approccio descritto nella sezione relativa ai sorgenti, <<memory_latency>>, che é stato mantenuto per le motivazioni ivi descritte.
+Per risolvere, è stato adottato l'approccio attuale descritto in <<memory_latency>>, che garantisce coerenza tra `MEM_READY` e `dataout`.
 
 === Analisi ed elaborazione
 
 Come per il dispositivo `onescounter`, non ci sono particolari considerazioni per questa fase.
-I sorgenti non causano warning od errori in questa fase, assumendo l’utilizzo dello standard VHDL-1993 con regole di binding aggiornate (_GHDL option_ `--std=93c` - default).
+I sorgenti non causano warning od errori in questa fase, assumendo l'utilizzo dello standard VHDL-1993 con regole di binding aggiornate (_GHDL option_ `--std=93c` - default).
 
 Si nota invece il _print_ dei report introdotti nella <<version_d,versione D>> del testbench:
 
@@ -631,7 +632,7 @@ a|[source,ascii]
 ----
 
 
-2+a|[#fig_search_chr_d_instr01,reftext='{figure-caption} {counter:fignum}']
+2+a|[#fig_search_chr_d_instr01,reftext='{tabfigure-caption} {counter:tabfignum}']
 image::images/search_chr_d_instr01.png[]
 
 |===
@@ -662,7 +663,7 @@ a|[source,ascii]
 0x3b \| 11110100
 ----
 
-2+a|[#fig_search_chr_d_instr06,reftext='{figure-caption} {counter:fignum}']
+2+a|[#fig_search_chr_d_instr06,reftext='{tabfigure-caption} {counter:tabfignum}']
 image::images/search_chr_d_instr06.png[]
 
 |===
@@ -694,12 +695,12 @@ a|[source,ascii]
 0xc0 \| 11110100
 ----
 
-2+a|[#fig_search_chr_d_instr22,reftext='{figure-caption} {counter:fignum}']
+2+a|[#fig_search_chr_d_instr22,reftext='{tabfigure-caption} {counter:tabfignum}']
 image::images/search_chr_d_instr22.png[]
 
 |===
 
-Negli esempi precedenti si puó valutare il corretto funzionamento del dispositivo e dell'infrastruttura usata per verificarlo.
+Negli esempi da <<table_search_chr_sim1>> a <<table_search_chr_sim22>> si puó valutare il corretto funzionamento del dispositivo e dell'infrastruttura usata per verificarlo.
 Le istruzioni contenute nel file `assets/instr.txt` sono state generate casualmente a partire dal set iniziale, e potrebbero dunque essere migliorate costruendo _corner-cases_ utili a stressare il DUT in situazioni particolari.
 Si ritiene comunque che il funzionamento ottenuto sia sufficientemente aderente ai requisiti richiesti secondo le simulazioni effettuate.
 
