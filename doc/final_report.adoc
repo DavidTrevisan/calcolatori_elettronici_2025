@@ -13,6 +13,7 @@
 :note-caption: Nota
 :warning-caption: Avvertenza
 :appendix-caption: Appendice
+:title-page-background-image: image::images/front_page.svg[align=center,pdfwidth=100%]
 David Trevisan • 112643 • 2025-07-12
 
 // Use the following template to have only the caption text when linking to image

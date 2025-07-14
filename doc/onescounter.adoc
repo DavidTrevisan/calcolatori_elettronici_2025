@@ -15,7 +15,7 @@ Il dispositivo utilizza le seguenti porte di input ed output:
 
 |OUTP
 |OUT
-|Total number of bits equal to '1' received on `X`.
+|Conteggio totale dei bit a '1' rilevati su `X`.
 
 |DATAIN
 |IN
@@ -51,7 +51,7 @@ DATAIN  ------>|  onescounter   |----> READY
                +----------------+
 ----
 
-Il dispositivo `onescounter` viene presentato con le seguenti modifiche:
+Il dispositivo `onescounter` ha le seguenti modifiche:
 
 . Versione 'Moore'.
 . Versione 'Mealy'.

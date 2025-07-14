@@ -114,7 +114,7 @@ ADDRESS [32]------> |                |---> MEM_ENABLE
                       START   READY
 ----
 
-Il dispositivo viene presentato nelle seguenti versioni:
+Il dispositivo ha quattro versioni:
 
 [loweralpha, bold]
 . <<version_a, Originale, secondo requisiti.>>
@@ -211,7 +211,7 @@ Il formato atteso per il file é:
 * solo valori testuali `0` e `1`.
 
 [#memory_latency]
-==== Versione 'b': Memoria con latenza di più cicli
+==== Versione 'b': Memoria con latenza variabile
 
 Per questa versione é stato aggiunto un parametro `MEM_LAT` per gestire la latenza.
 Il parametro si aspetta un valore intero, positivo non nullo (VHDL: `positive`) che rappresenti il numero del ciclo di clock sul quale il dato letto sará disponibile.
