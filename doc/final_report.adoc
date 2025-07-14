@@ -14,7 +14,7 @@
 :warning-caption: Avvertenza
 :appendix-caption: Appendice
 :title-page-background-image: image::images/front_page.svg[align=center,pdfwidth=100%]
-David Trevisan • 112643 • 2025-07-12
+David Trevisan • 112643 • {docdate}
 
 // Use the following template to have only the caption text when linking to image
 // [#fig_mem_lat_bug2,reftext='{figure-caption} {counter:fignum}']
@@ -277,6 +277,7 @@ $ scripts/gl_xcelium [OPSIZE] [NTESTS] [CLK_PERIOD] [-sdf]
 Script TCL di supporto per Xcelium che, durante la simulazione gate-level, genera i file SAIF utili per la stima della potenza.
 Configura il dump dell'attività dei segnali interni e avvia la simulazione.
 
+[discrete]
 == Nota sulle immagini
 
 [WARNING]
@@ -300,6 +301,8 @@ include::multiplier_and_clz.adoc[leveloffset=2]
 include::mcd.adoc[leveloffset=2]
 
 <<<
+
+include::conclusion.adoc[]
 
 // Appendixes
 

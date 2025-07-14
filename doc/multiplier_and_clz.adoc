@@ -70,6 +70,7 @@ Il flusso é rappresentato nel seguente ASM-Chart di <<fig_device_ctrl>>.
 [#fig_device_ctrl,reftext='{figure-caption} {counter:fignum}']
 image::images/ASM-device_ctrl.drawio.svg[]
 
+[#device_test_arch]
 Risulta disponibile un'infrastruttura di test composta da `testbench` che istanzia i generatori di reset e clock, ed il dispositivo `device` collegato ad un generatore di stimoli, `tester`.
 Il flusso di test implementato é riassunto come segue:
 
@@ -426,7 +427,7 @@ Con il file `.saif` generato dalla simulazione RTL, si possono ottenere delle _s
 
 .Stime dissipazione potenza `device`, RTL switching activity
 [%unbreakable]
-[cols=">1,>1,>1,>1,>1,>1", options="header", grid="rows", frame="ends", stripes=even]
+[cols=">1,>1,>1,>1,>1,>1", options="header", grid="rows", frame="ends", stripes=even, reftext='{table-caption} {counter:tabnum}']
 |===
 |Category |Leakage (W) |Internal (W) |Switching (W) |Total (W) |Row %
 
