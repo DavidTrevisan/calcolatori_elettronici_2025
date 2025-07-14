@@ -632,7 +632,7 @@ a|[source,ascii]
 ----
 
 
-2+a|[#fig_search_chr_d_instr01,reftext='{figure-caption} {counter:fignum}']
+2+a|[#fig_search_chr_d_instr01,reftext='{tabfigure-caption} {counter:tabfignum}']
 image::images/search_chr_d_instr01.png[]
 
 |===
@@ -663,7 +663,7 @@ a|[source,ascii]
 0x3b \| 11110100
 ----
 
-2+a|[#fig_search_chr_d_instr06,reftext='{figure-caption} {counter:fignum}']
+2+a|[#fig_search_chr_d_instr06,reftext='{tabfigure-caption} {counter:tabfignum}']
 image::images/search_chr_d_instr06.png[]
 
 |===
@@ -695,7 +695,7 @@ a|[source,ascii]
 0xc0 \| 11110100
 ----
 
-2+a|[#fig_search_chr_d_instr22,reftext='{figure-caption} {counter:fignum}']
+2+a|[#fig_search_chr_d_instr22,reftext='{tabfigure-caption} {counter:tabfignum}']
 image::images/search_chr_d_instr22.png[]
 
 |===
