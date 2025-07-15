@@ -333,7 +333,7 @@ Interesting result at 57682 cycles:
 TEST PASS: 100 tests
 ----
 
-.Forme d'onda isultato esempio `mcd`
+.Forme d'onda risultato esempio `mcd`
 [#fig_mcd_interesting_result,reftext='{figure-caption} {counter:fignum}']
 image::images/mcd_interesting_15.png[]
 
@@ -499,7 +499,7 @@ Va però notato che, in un`integrazione più complessa, potrebbe servire inserir
 |Slack (ps)
 |Area (µm²)
 |Cells
-|Pwr (nW)
+|Pwr (W)
 
 |16
 |10+5
@@ -557,7 +557,7 @@ set xlabel "OPSIZE"
 set xtics ( "16" 16, "32" 32, "64" 64)
 
 set ylabel "Slack (ps)"
-set y2label "Area (μm²) / Cells / Power (fW)"
+set y2label "Area (μm²) / Cells / Power (uW)"
 set y2tics
 
 # Squeeze the left axis range
@@ -700,7 +700,7 @@ Questo risultato è coerente con l’introduzione di logica aggiuntiva dovuta al
 La <<table_mcd_pwr_eval>> conclusiva della sezione riassume i dati relativi alla dissipazione di potenza.
 
 [%unbreakable]
-.Consumi post-gate-level (nW)
+.Consumi post-gate-level (W)
 [#table_mcd_pwr_eval,subs="attributes+",reftext='{table-caption} {counter:tabnum}']
 [cols="^.^1m,^.^2,^2m,^2m,^2m,^2m,^2m",frame="ends",grid="rows",options="header"]
 |===

@@ -603,7 +603,7 @@ In <<table_device_pwr_eval>> si osserva il riassunto dei risultati totali ottenu
 . Post-sintesi (copertura switching 100%, no SDF)
 . Post-gate-level (copertura switching 100%, SDF)
 
-.Stime dissipazione di potenza `device`
+.Stime dissipazione di potenza `device` (W)
 [#table_device_pwr_eval,subs="attributes+", reftext='{table-caption} {counter:tabnum}']
 [cols="^2,^8",frame="ends",grid="rows",options="header"]
 |===
@@ -682,6 +682,6 @@ In <<table_device_pwr_eval>> si osserva il riassunto dei risultati totali ottenu
 |===
 
 Si osserva come la stima da simulazione RTL, pur coprendo circa il 50% dell'attivitá di switching, non si discosti troppo dai risultati post-sintesi.
-Nonostante un leggero aumento sulle perdite dovute al leakage, la logica interna consuma poco meno di quanto stimato inizialmente, cosí come la dissipazione dovuta allo switching, rimanendo su un totale stimato di circa `3 pW`.
+Nonostante un leggero aumento sulle perdite dovute al leakage, la logica interna consuma poco meno di quanto stimato inizialmente, cosí come la dissipazione dovuta allo switching, rimanendo su un totale stimato di circa `3 mW`.
 
 ---
